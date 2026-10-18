@@ -6,6 +6,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { isAlarmMinute, scheduleAlarms } from './src/alarm';
 import { uploadPhoto } from './src/cloud';
 import { persistMedia } from './src/files';
+import { Film } from './src/screens/Film';
 import { Rescue } from './src/screens/Rescue';
 import { useCrew } from './src/useCrew';
 import { detectLang, Key, Lang, setLang, t } from './src/i18n';
@@ -28,6 +29,7 @@ export default function App() {
   const [training, setTraining] = useState(false);
   const [ringing, setRinging] = useState(false);
   const [rescuing, setRescuing] = useState(false);
+  const [filming, setFilming] = useState(false);
   const crew = useCrew(state?.profile ?? null, state);
   const lastRang = useRef('');
   const snoozeUntil = useRef(0);
@@ -97,6 +99,7 @@ export default function App() {
         />
       );
     }
+    if (filming) return <Film state={state} onClose={() => setFilming(false)} />;
     if (rescuing) {
       return (
         <Rescue
@@ -134,8 +137,8 @@ export default function App() {
     return (
       <View style={{ flex: 1 }}>
         <View style={{ flex: 1 }}>
-          {tab === 'today' && <Today state={state} onStart={() => setTraining(true)} onTestAlarm={() => setRinging(true)} onRescue={() => setRescuing(true)} />}
-          {tab === 'progress' && <Progress state={state} onLang={changeLang} />}
+          {tab === 'today' && <Today state={state} onStart={() => setTraining(true)} onTestAlarm={() => setRinging(true)} onRescue={() => setRescuing(true)} onFilm={() => setFilming(true)} />}
+          {tab === 'progress' && <Progress state={state} onLang={changeLang} onFilm={() => setFilming(true)} />}
           {tab === 'crew' && <Crew state={state} crew={crew} />}
         </View>
         <View style={s.tabs}>

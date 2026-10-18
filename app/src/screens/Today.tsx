@@ -12,7 +12,7 @@ function dayNumber(startedAt: string) {
   return Math.floor((Date.now() - start.getTime()) / 864e5) + 1;
 }
 
-export function Today({ state, onStart, onTestAlarm, onRescue }: { state: AppState; onStart: () => void; onTestAlarm: () => void; onRescue: () => void }) {
+export function Today({ state, onStart, onTestAlarm, onRescue, onFilm }: { state: AppState; onStart: () => void; onTestAlarm: () => void; onRescue: () => void; onFilm: () => void }) {
   const profile = state.profile!;
   const done = state.sessions.length;
   const finished = done >= TOTAL_SESSIONS;
@@ -48,6 +48,7 @@ export function Today({ state, onStart, onTestAlarm, onRescue }: { state: AppSta
         <Card style={{ marginTop: 16 }}>
           <Text style={ui.h2}>{t('today.finished')}</Text>
           <Text style={[ui.body, { marginTop: 6 }]}>{t('today.finished.body')}</Text>
+          {state.photos.length > 0 && <Button label={t('film.watch')} onPress={onFilm} style={{ marginTop: 16 }} />}
         </Card>
       ) : (
         <View style={s.today}>
