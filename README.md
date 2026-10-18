@@ -7,5 +7,5 @@ Fitness app built around a 12-week pact with a crew of 4–6 people. Finish 80% 
 `landing/index.html` is a single static page (German, Turkish, English) with a waitlist form.
 
 - Open it locally by double-clicking the file.
-- Sign-ups: set `WAITLIST_ENDPOINT` in the script to a form service URL (for example Formspree). While it is empty, the form only shows the thank-you message.
-- Hosting: can be published for free with GitHub Pages.
+- Hosting: Netlify, with `landing` as the publish directory (see `netlify.toml`).
+- Sign-ups: the pact form uses Netlify Forms. Signed pacts (first name, email, language) show up in the Netlify dashboard under Forms → pact.
