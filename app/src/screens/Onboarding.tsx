@@ -1,22 +1,16 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { AlarmPicker } from '../components/AlarmPicker';
+import { LangSwitch } from '../components/LangSwitch';
 import { Button, Eyebrow, styles as ui } from '../components/ui';
 import { WhyRecorder } from '../components/WhyRecorder';
+import { Key, Lang, t } from '../i18n';
 import { Place } from '../program';
 import { AlarmSettings, defaultAlarm, Goal, Profile } from '../storage';
 import { colors, radius } from '../theme';
 
-const GOALS: { key: Goal; label: string; hint: string }[] = [
-  { key: 'muscle', label: 'Muskeln aufbauen', hint: 'Stärker werden, Form zeigen' },
-  { key: 'lose', label: 'Abnehmen', hint: 'Fett verlieren, Kraft behalten' },
-  { key: 'fit', label: 'Fit werden', hint: 'Mehr Energie im Alltag' },
-];
-
-const PLACES: { key: Place; label: string; hint: string }[] = [
-  { key: 'gym', label: 'Im Studio', hint: 'Mit Geräten und Hanteln' },
-  { key: 'home', label: 'Zuhause', hint: 'Ohne Geräte' },
-];
+const GOALS: Goal[] = ['muscle', 'lose', 'fit'];
+const PLACES: Place[] = ['gym', 'home'];
 
 function Option({ label, hint, selected, onPress }: { label: string; hint: string; selected: boolean; onPress: () => void }) {
   return (
@@ -27,7 +21,7 @@ function Option({ label, hint, selected, onPress }: { label: string; hint: strin
   );
 }
 
-export function Onboarding({ onDone }: { onDone: (p: Profile) => void }) {
+export function Onboarding({ onDone, onLang }: { onDone: (p: Profile) => void; onLang: (lang: Lang) => void }) {
   const [step, setStep] = useState(0);
   const [goal, setGoal] = useState<Goal | null>(null);
   const [place, setPlace] = useState<Place | null>(null);
@@ -44,26 +38,24 @@ export function Onboarding({ onDone }: { onDone: (p: Profile) => void }) {
 
   const steps = [
     {
-      title: 'Was ist dein Ziel?',
-      body: GOALS.map(g => <Option {...g} key={g.key} selected={goal === g.key} onPress={() => setGoal(g.key)} />),
+      title: t('ob.goal'),
+      body: GOALS.map(g => <Option key={g} label={t(`goal.${g}` as Key)} hint={t(`goal.${g}.hint` as Key)} selected={goal === g} onPress={() => setGoal(g)} />),
       ready: goal !== null,
     },
     {
-      title: 'Wo trainierst du?',
-      body: PLACES.map(p => <Option {...p} key={p.key} selected={place === p.key} onPress={() => setPlace(p.key)} />),
+      title: t('ob.place'),
+      body: PLACES.map(p => <Option key={p} label={t(`place.${p}` as Key)} hint={t(`place.${p}.hint` as Key)} selected={place === p} onPress={() => setPlace(p)} />),
       ready: place !== null,
     },
     {
-      title: 'Warum machst du das?',
+      title: t('ob.why'),
       body: (
         <>
-          <Text style={ui.body}>
-            Sag es dir selbst. Deine Sprachnachricht weckt dich zu deinen Trainingszeiten und kommt nach 12 Wochen zurück.
-          </Text>
+          <Text style={ui.body}>{t('ob.why.body')}</Text>
           <TextInput
             value={why}
             onChangeText={setWhy}
-            placeholder="z. B. Ich will im Sommer stolz in den Spiegel schauen."
+            placeholder={t('ob.why.placeholder')}
             placeholderTextColor={colors.dim}
             style={s.whyInput}
             multiline
@@ -75,24 +67,23 @@ export function Onboarding({ onDone }: { onDone: (p: Profile) => void }) {
       ready: why.trim().length > 0 || !!whyAudio,
     },
     {
-      title: 'Wann gehst du trainieren?',
+      title: t('ob.when'),
       body: <AlarmPicker value={alarm} onChange={setAlarm} hasVoice={!!whyAudio} voiceUri={whyAudio} />,
       ready: alarm.days.length > 0,
     },
     {
-      title: 'Unterschreib deinen Pakt.',
+      title: t('ob.sign'),
       body: (
         <View style={s.paper}>
-          <Text style={s.paperTitle}>DER ODDO-PAKT</Text>
+          <Text style={s.paperTitle}>{t('pact.title')}</Text>
           <Text style={s.paperText}>
-            Ich, <Text style={s.sigInline}>{name.trim() || '________'}</Text>, starte heute meinen Day One. Ich trainiere 12 Wochen.
-            Schaffe ich 29 von 36 Einheiten, ist mein nächster Pakt gratis.
-            {why.trim() ? <Text>{'\n'}Mein Warum: <Text style={s.sigInline}>{why.trim()}</Text></Text> : null}
+            {t('pact.before')}<Text style={s.sigInline}>{name.trim() || '________'}</Text>{t('pact.after')}
+            {why.trim() ? <Text>{'\n'}{t('pact.why')}<Text style={s.sigInline}>{why.trim()}</Text></Text> : null}
           </Text>
           <TextInput
             value={name}
             onChangeText={setName}
-            placeholder="Dein Vorname"
+            placeholder={t('pact.name')}
             placeholderTextColor="#999"
             style={s.sigInput}
             maxLength={30}
@@ -112,6 +103,11 @@ export function Onboarding({ onDone }: { onDone: (p: Profile) => void }) {
 
   return (
     <ScrollView contentContainerStyle={s.wrap} keyboardShouldPersistTaps="handled">
+      {step === 0 && (
+        <View style={{ alignSelf: 'flex-end', marginTop: -12, marginBottom: 20 }}>
+          <LangSwitch onChange={onLang} />
+        </View>
+      )}
       <View style={s.dots}>
         {steps.map((_, i) => <View key={i} style={[s.dot, i <= step && { backgroundColor: colors.accent }]} />)}
       </View>
@@ -121,12 +117,12 @@ export function Onboarding({ onDone }: { onDone: (p: Profile) => void }) {
           <Text style={[ui.h1, { color: colors.accent }]}>Day One.</Text>
         </View>
       )}
-      <Eyebrow>Schritt {step + 1} von {steps.length}</Eyebrow>
+      <Eyebrow>{t('ob.step', { n: step + 1, total: steps.length })}</Eyebrow>
       <Text style={[ui.h2, { marginTop: 8, marginBottom: 20 }]}>{current.title}</Text>
       <View style={{ gap: 12 }}>{current.body}</View>
       <View style={{ flexDirection: 'row', gap: 12, marginTop: 28 }}>
-        {step > 0 && <Button label="Zurück" variant="ghost" onPress={() => setStep(step - 1)} style={{ flex: 1 }} />}
-        <Button label={step === steps.length - 1 ? 'Pakt unterschreiben' : 'Weiter'} onPress={next} disabled={!current.ready} style={{ flex: 2 }} />
+        {step > 0 && <Button label={t('common.back')} variant="ghost" onPress={() => setStep(step - 1)} style={{ flex: 1 }} />}
+        <Button label={step === steps.length - 1 ? t('ob.signButton') : t('common.next')} onPress={next} disabled={!current.ready} style={{ flex: 2 }} />
       </View>
     </ScrollView>
   );

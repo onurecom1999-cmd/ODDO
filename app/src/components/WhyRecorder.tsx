@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { RecordingPresets, requestRecordingPermissionsAsync, setAudioModeAsync, useAudioPlayer, useAudioRecorder, useAudioRecorderState } from 'expo-audio';
 import { persistMedia } from '../files';
+import { t } from '../i18n';
 import { colors, radius } from '../theme';
 
 export function WhyRecorder({ value, onChange }: { value?: string; onChange: (uri: string | undefined) => void }) {
@@ -14,12 +15,12 @@ export function WhyRecorder({ value, onChange }: { value?: string; onChange: (ur
     setError('');
     try {
       const { granted } = await requestRecordingPermissionsAsync();
-      if (!granted) return setError('Ohne Mikrofon-Zugriff geht die Aufnahme nicht.');
+      if (!granted) return setError(t('rec.noMic'));
       await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
       await recorder.prepareToRecordAsync();
       recorder.record({ forDuration: 30 });
     } catch {
-      setError('Aufnahme hat nicht geklappt. Du kannst dein Warum auch nur schreiben.');
+      setError(t('rec.failed'));
     }
   }
 
@@ -41,21 +42,21 @@ export function WhyRecorder({ value, onChange }: { value?: string; onChange: (ur
       {rec.isRecording ? (
         <Pressable onPress={stop} style={[s.big, s.recording]}>
           <View style={s.stopIcon} />
-          <Text style={s.bigText}>Stopp · 0:{String(seconds).padStart(2, '0')}</Text>
+          <Text style={s.bigText}>{t('rec.stop', { time: `0:${String(seconds).padStart(2, '0')}` })}</Text>
         </Pressable>
       ) : value ? (
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <Pressable onPress={play} style={[s.big, { flex: 2 }]}>
-            <Text style={s.bigText}>▶ Anhören</Text>
+            <Text style={s.bigText}>{t('rec.play')}</Text>
           </Pressable>
           <Pressable onPress={start} style={[s.big, s.ghost, { flex: 1 }]}>
-            <Text style={[s.bigText, { color: colors.text }]}>Neu</Text>
+            <Text style={[s.bigText, { color: colors.text }]}>{t('rec.new')}</Text>
           </Pressable>
         </View>
       ) : (
         <Pressable onPress={start} style={s.big}>
           <View style={s.recIcon} />
-          <Text style={s.bigText}>Sprachnachricht aufnehmen</Text>
+          <Text style={s.bigText}>{t('rec.record')}</Text>
         </Pressable>
       )}
       {error ? <Text style={s.error}>{error}</Text> : null}

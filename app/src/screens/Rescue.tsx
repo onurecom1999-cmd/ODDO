@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Flame } from '../components/Flame';
 import { Button, Eyebrow, styles as ui } from '../components/ui';
+import { Key, t } from '../i18n';
 import { colors, radius } from '../theme';
 
 // 15 minutes at home, no equipment: 3 rounds of 4 moves. Saves the Crew-Flamme on a missed day.
-const MOVES = ['20 Kniebeugen', '10 Liegestütze (gern auf den Knien)', '20 Ausfallschritte', '40 Sekunden Plank'];
+const MOVES: Key[] = ['rescue.move1', 'rescue.move2', 'rescue.move3', 'rescue.move4'];
 const ROUNDS = 3;
 
 export function Rescue({ onFinish, onCancel }: { onFinish: () => void; onCancel: () => void }) {
@@ -17,9 +18,9 @@ export function Rescue({ onFinish, onCancel }: { onFinish: () => void; onCancel:
     return (
       <View style={s.center}>
         <Flame heat={1} size={140} />
-        <Text style={[ui.h1, { textAlign: 'center', marginTop: 12 }]}>Flamme{'\n'}gerettet.</Text>
-        <Text style={[ui.body, { textAlign: 'center', marginTop: 10 }]}>Kein Alles-oder-nichts. Deine Crew sieht, dass du heute da warst.</Text>
-        <Button label="Fertig" onPress={onCancel} style={{ alignSelf: 'stretch', marginTop: 28 }} />
+        <Text style={[ui.h1, { textAlign: 'center', marginTop: 12 }]}>{t('rescue.saved')}</Text>
+        <Text style={[ui.body, { textAlign: 'center', marginTop: 10 }]}>{t('rescue.saved.body')}</Text>
+        <Button label={t('common.done')} onPress={onCancel} style={{ alignSelf: 'stretch', marginTop: 28 }} />
       </View>
     );
   }
@@ -28,25 +29,25 @@ export function Rescue({ onFinish, onCancel }: { onFinish: () => void; onCancel:
     <View style={{ flex: 1 }}>
       <View style={s.top}>
         <Pressable onPress={onCancel} hitSlop={12}><Text style={s.close}>✕</Text></Pressable>
-        <Text style={s.topTitle}>15-Min-Rettung</Text>
+        <Text style={s.topTitle}>{t('rescue.title')}</Text>
         <Text style={s.topCount}>{count}/{ROUNDS}</Text>
       </View>
       <ScrollView contentContainerStyle={s.wrap}>
-        <Eyebrow>Zuhause · ohne Geräte</Eyebrow>
-        <Text style={[ui.h1, { fontSize: 34, marginTop: 6 }]}>Rette die Flamme.</Text>
-        <Text style={[ui.body, { marginTop: 6 }]}>Keine Zeit fürs Studio? 3 Runden, kurze Pause dazwischen. Das hält die Crew-Flamme am Leben.</Text>
+        <Eyebrow>{t('rescue.eyebrow')}</Eyebrow>
+        <Text style={[ui.h1, { fontSize: 34, marginTop: 6 }]}>{t('rescue.heading')}</Text>
+        <Text style={[ui.body, { marginTop: 6 }]}>{t('rescue.body')}</Text>
         <View style={s.moves}>
-          {MOVES.map(m => <Text key={m} style={s.move}>{m}</Text>)}
+          {MOVES.map(m => <Text key={m} style={s.move}>{t(m)}</Text>)}
         </View>
         {done.map((d, i) => (
           <Pressable key={i} onPress={() => setDone(done.map((x, j) => (j === i ? !x : x)))} style={[s.round, d && s.roundDone]}>
-            <Text style={[s.roundText, d && { color: colors.accentInk }]}>Runde {i + 1}</Text>
-            <Text style={[s.tick, d && { color: colors.accentInk }]}>{d ? '✓' : 'abhaken'}</Text>
+            <Text style={[s.roundText, d && { color: colors.accentInk }]}>{t('rescue.round', { n: i + 1 })}</Text>
+            <Text style={[s.tick, d && { color: colors.accentInk }]}>{d ? '✓' : t('rescue.check')}</Text>
           </Pressable>
         ))}
       </ScrollView>
       <View style={s.bottom}>
-        <Button label="Flamme retten ✓" disabled={count < ROUNDS} onPress={() => { onFinish(); setSaved(true); }} />
+        <Button label={t('rescue.save')} disabled={count < ROUNDS} onPress={() => { onFinish(); setSaved(true); }} />
       </View>
     </View>
   );

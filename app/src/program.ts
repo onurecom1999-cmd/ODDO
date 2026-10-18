@@ -1,3 +1,5 @@
+import { EXERCISE_TEXT, getLang, Key } from './i18n';
+
 // The 12-week "Kraft-Start" pact: 3 full-body sessions per week, alternating A and B.
 
 export type Place = 'gym' | 'home';
@@ -33,13 +35,13 @@ export const WORKOUTS: Record<WorkoutKey, Exercise[]> = {
 export const TOTAL_SESSIONS = 36;
 export const FREE_PACT_SESSIONS = 29;
 
-type Phase = { name: string; sets: number; reps: string; repsMin: number; repsMax: number };
+type Phase = { name: Key; sets: number; reps: string; repsMin: number; repsMax: number };
 
 export function phaseForWeek(week: number): Phase {
-  if (week <= 4) return { name: 'Grundlage', sets: 3, reps: '10–12', repsMin: 10, repsMax: 12 };
-  if (week <= 8) return { name: 'Aufbau', sets: 4, reps: '8–10', repsMin: 8, repsMax: 10 };
-  if (week <= 11) return { name: 'Steigerung', sets: 4, reps: '6–8', repsMin: 6, repsMax: 8 };
-  return { name: 'Test', sets: 2, reps: '8', repsMin: 8, repsMax: 8 };
+  if (week <= 4) return { name: 'phase.base', sets: 3, reps: '10–12', repsMin: 10, repsMax: 12 };
+  if (week <= 8) return { name: 'phase.build', sets: 4, reps: '8–10', repsMin: 8, repsMax: 10 };
+  if (week <= 11) return { name: 'phase.push', sets: 4, reps: '6–8', repsMin: 6, repsMax: 8 };
+  return { name: 'phase.test', sets: 2, reps: '8', repsMin: 8, repsMax: 8 };
 }
 
 // Session n (0-based) of the pact.
@@ -50,6 +52,15 @@ export function sessionInfo(n: number) {
   return { number: n + 1, week, workout, phase, minutes: phase.sets * 6 + 10 };
 }
 
+function exerciseText(ex: Exercise) {
+  const lang = getLang();
+  return lang === 'de' ? ex : EXERCISE_TEXT[lang][ex.id] ?? ex;
+}
+
 export function exerciseName(ex: Exercise, place: Place) {
-  return place === 'gym' ? ex.gym : ex.home;
+  return exerciseText(ex)[place];
+}
+
+export function exerciseCue(ex: Exercise) {
+  return exerciseText(ex).cue;
 }

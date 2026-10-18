@@ -3,6 +3,7 @@ import { Linking, Platform, Pressable, ScrollView, Share, StyleSheet, Text, Text
 import { Flame } from '../components/Flame';
 import { Button, Card, Eyebrow, styles as ui } from '../components/ui';
 import { crewFlame, FlameMember } from '../flame';
+import { Key, t } from '../i18n';
 import { TOTAL_SESSIONS } from '../program';
 import { AppState } from '../storage';
 import { colors, radius } from '../theme';
@@ -33,12 +34,12 @@ function sampleMembers(): Member[] {
 }
 
 function whatsappNudge(name: string) {
-  const text = `Hey ${name}, unsere ODDO-Flamme wartet auf dich. Heute ist dein Trainingstag. Day One, los!`;
+  const text = t('crew.nudge.message', { name });
   Linking.openURL(`https://wa.me/?text=${encodeURIComponent(text)}`);
 }
 
 async function shareInvite(code: string, crewName: string) {
-  const message = `Komm in meine ODDO-Crew „${crewName}“. 12 Wochen, 3× pro Woche, zusammen durchziehen. Code: ${code}`;
+  const message = t('crew.invite.message', { crew: crewName, code });
   if (Platform.OS === 'web' && !(navigator as any).share) {
     Linking.openURL(`https://wa.me/?text=${encodeURIComponent(message)}`);
     return;
@@ -54,7 +55,7 @@ export function Crew({ state, crew: cs }: { state: AppState; crew: CrewState }) 
   const [confirmLeave, setConfirmLeave] = useState(false);
 
   if (cs.online && cs.loading) {
-    return <View style={s.center}><Text style={ui.body}>Crew wird geladen …</Text></View>;
+    return <View style={s.center}><Text style={ui.body}>{t('crew.loading')}</Text></View>;
   }
 
   if (cs.online && !cs.crew) {
@@ -65,29 +66,29 @@ export function Crew({ state, crew: cs }: { state: AppState; crew: CrewState }) 
     }
     return (
       <ScrollView contentContainerStyle={s.wrap} keyboardShouldPersistTaps="handled">
-        <Eyebrow>Deine Crew</Eyebrow>
-        <Text style={ui.h1}>Allein{'\n'}zieht keiner durch.</Text>
-        <Text style={[ui.body, { marginTop: 8, marginBottom: 24 }]}>Gründe eine Crew mit 3 bis 5 Leuten oder tritt mit einem Code bei.</Text>
+        <Eyebrow>{t('crew.eyebrow')}</Eyebrow>
+        <Text style={ui.h1}>{t('crew.alone')}</Text>
+        <Text style={[ui.body, { marginTop: 8, marginBottom: 24 }]}>{t('crew.intro')}</Text>
 
         <Card>
-          <Text style={ui.h2}>Crew gründen</Text>
-          <TextInput value={crewName} onChangeText={setCrewName} placeholder="Name, z. B. Crew Nord" placeholderTextColor={colors.dim} style={s.input} maxLength={30} />
-          <Button label="Crew gründen" disabled={!crewName.trim() || busy} onPress={() => go(() => cs.create(crewName.trim()))} />
+          <Text style={ui.h2}>{t('crew.create')}</Text>
+          <TextInput value={crewName} onChangeText={setCrewName} placeholder={t('crew.name.placeholder')} placeholderTextColor={colors.dim} style={s.input} maxLength={30} />
+          <Button label={t('crew.create')} disabled={!crewName.trim() || busy} onPress={() => go(() => cs.create(crewName.trim()))} />
         </Card>
 
         <Card style={{ marginTop: 16 }}>
-          <Text style={ui.h2}>Mit Code beitreten</Text>
+          <Text style={ui.h2}>{t('crew.join')}</Text>
           <TextInput
             value={code}
             onChangeText={v => setCode(v.toUpperCase())}
-            placeholder="z. B. K7M2QX"
+            placeholder={t('crew.code.placeholder')}
             placeholderTextColor={colors.dim}
             style={[s.input, s.codeInput]}
             maxLength={6}
             autoCapitalize="characters"
             autoCorrect={false}
           />
-          <Button label="Beitreten" variant="ghost" disabled={code.trim().length < 6 || busy} onPress={() => go(() => cs.join(code))} />
+          <Button label={t('crew.joinButton')} variant="ghost" disabled={code.trim().length < 6 || busy} onPress={() => go(() => cs.join(code))} />
         </Card>
         {cs.error ? <Text style={s.error}>{cs.error}</Text> : null}
       </ScrollView>
@@ -114,22 +115,22 @@ export function Crew({ state, crew: cs }: { state: AppState; crew: CrewState }) 
 
   return (
     <ScrollView contentContainerStyle={s.wrap}>
-      <Eyebrow>Deine Crew</Eyebrow>
-      <Text style={ui.h1}>{cs.crew?.name ?? 'Crew Nord'}</Text>
-      {!cs.crew && <Text style={ui.body}>Beispiel-Crew · echte Crews gibt es, sobald der Server verbunden ist</Text>}
+      <Eyebrow>{t('crew.eyebrow')}</Eyebrow>
+      <Text style={ui.h1}>{cs.crew?.name ?? t('crew.sample.name')}</Text>
+      {!cs.crew && <Text style={ui.body}>{t('crew.sample')}</Text>}
 
       <Card style={s.flameCard}>
         <Flame heat={flame.heat} size={110} />
         <View style={{ flex: 1 }}>
-          <Text style={s.flameTitle}>Die Flamme {flame.label}</Text>
+          <Text style={s.flameTitle}>{t(`flame.${flame.level}` as Key)}</Text>
           <Text style={ui.body}>
-            {flame.expected > 0 ? `${flame.kept} von ${flame.expected} Terminen gehalten (7 Tage)` : 'Startet mit eurem ersten Trainingstag'}
+            {flame.expected > 0 ? t('flame.kept', { kept: flame.kept, expected: flame.expected }) : t('flame.start')}
           </Text>
-          {flame.streak > 0 && <Text style={s.streak}>{flame.streak} {flame.streak === 1 ? 'Tag' : 'Tage'} ohne Ausfall</Text>}
+          {flame.streak > 0 && <Text style={s.streak}>{flame.streak === 1 ? t('flame.streak.one') : t('flame.streak', { n: flame.streak })}</Text>}
         </View>
       </Card>
       {flame.openToday.length > 0 && (
-        <Text style={s.open}>Heute noch offen: {flame.openToday.map(m => (m.id === mine.id ? 'du' : m.name)).join(', ')}</Text>
+        <Text style={s.open}>{t('crew.open', { names: flame.openToday.map(m => (m.id === mine.id ? t('crew.you') : m.name)).join(', ') })}</Text>
       )}
 
       <View style={{ gap: 10, marginTop: 16 }}>
@@ -139,19 +140,19 @@ export function Crew({ state, crew: cs }: { state: AppState; crew: CrewState }) 
               <Text style={[s.avatarText, isToday(m) && { color: colors.accentInk }]}>{m.name[0]}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={s.name}>{m.name}{m.me ? ' (Du)' : ''}</Text>
-              <Text style={s.meta}>{m.done}/{TOTAL_SESSIONS} Einheiten{m.city ? ` · ${m.city}` : ''}</Text>
+              <Text style={s.name}>{m.name}{m.me ? t('crew.youTag') : ''}</Text>
+              <Text style={s.meta}>{t('crew.meta', { done: m.done, total: TOTAL_SESSIONS })}{m.city ? ` · ${m.city}` : ''}</Text>
             </View>
             {isToday(m) ? (
-              <Text style={s.done}>✓ heute</Text>
+              <Text style={s.done}>{t('crew.trainedToday')}</Text>
             ) : isOpen(m) && !m.me ? (
               <Pressable onPress={() => whatsappNudge(m.name)} style={s.nudge}>
-                <Text style={s.nudgeText}>Anstupsen</Text>
+                <Text style={s.nudgeText}>{t('crew.nudge')}</Text>
               </Pressable>
             ) : isOpen(m) ? (
-              <Text style={s.due}>heute dran</Text>
+              <Text style={s.due}>{t('crew.due')}</Text>
             ) : (
-              <Text style={s.free}>frei</Text>
+              <Text style={s.free}>{t('crew.restDay')}</Text>
             )}
           </View>
         ))}
@@ -159,22 +160,22 @@ export function Crew({ state, crew: cs }: { state: AppState; crew: CrewState }) 
 
       {cs.crew && cs.crew.members.length < 6 && (
         <Card style={{ marginTop: 24 }}>
-          <Eyebrow>Leute einladen · noch {6 - cs.crew.members.length} Plätze</Eyebrow>
+          <Eyebrow>{t('crew.invite', { n: 6 - cs.crew.members.length })}</Eyebrow>
           <Text style={s.code}>{cs.crew.inviteCode}</Text>
-          <Button label="Einladung per WhatsApp teilen" onPress={() => shareInvite(cs.crew!.inviteCode, cs.crew!.name)} />
+          <Button label={t('crew.share')} onPress={() => shareInvite(cs.crew!.inviteCode, cs.crew!.name)} />
         </Card>
       )}
 
       <Card style={{ marginTop: 16 }}>
-        <Eyebrow>Crew-Call</Eyebrow>
-        <Text style={[ui.h2, { marginTop: 6 }]}>Sonntag, 19:00</Text>
-        <Text style={[ui.body, { marginTop: 4 }]}>15 Minuten Video-Call mit deiner Crew: Woche durchgehen, nächste Woche planen.</Text>
+        <Eyebrow>{t('crew.call')}</Eyebrow>
+        <Text style={[ui.h2, { marginTop: 6 }]}>{t('crew.call.when')}</Text>
+        <Text style={[ui.body, { marginTop: 4 }]}>{t('crew.call.body')}</Text>
       </Card>
 
       {cs.error ? <Text style={s.error}>{cs.error}</Text> : null}
       {cs.crew && (
         <Pressable onPress={() => (confirmLeave ? cs.leave() : setConfirmLeave(true))} style={{ marginTop: 28, alignSelf: 'center' }}>
-          <Text style={s.leave}>{confirmLeave ? 'Wirklich verlassen? Nochmal tippen' : 'Crew verlassen'}</Text>
+          <Text style={s.leave}>{confirmLeave ? t('crew.leave.confirm') : t('crew.leave')}</Text>
         </Pressable>
       )}
     </ScrollView>

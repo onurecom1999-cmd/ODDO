@@ -1,5 +1,6 @@
 import { Platform } from 'react-native';
 import { supabase } from './supabase';
+import { Key, t } from './i18n';
 import type { Profile, SessionLog } from './storage';
 
 export type CrewMember = {
@@ -12,15 +13,15 @@ export type CrewMember = {
 
 export type CrewData = { id: string; name: string; inviteCode: string; createdAt: string; members: CrewMember[]; me: string };
 
-const ERRORS: Record<string, string> = {
-  'crew not found': 'Diesen Code gibt es nicht. Prüf ihn nochmal.',
-  'crew full': 'Diese Crew ist schon voll (6 Leute).',
-  'already in a crew': 'Du bist schon in einer Crew.',
+const ERRORS: Record<string, Key> = {
+  'crew not found': 'error.notFound',
+  'crew full': 'error.full',
+  'already in a crew': 'error.already',
 };
 
 export function friendlyError(e: unknown) {
   const msg = (e as { message?: string })?.message ?? '';
-  return Object.entries(ERRORS).find(([k]) => msg.includes(k))?.[1] ?? 'Das hat nicht geklappt. Prüf deine Verbindung.';
+  return t(Object.entries(ERRORS).find(([k]) => msg.includes(k))?.[1] ?? 'error.generic');
 }
 
 // Testers start without email: an anonymous account tied to this phone, named after the pact signature.
