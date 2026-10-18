@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { alarmLabel, nextAlarm, SOUNDS } from '../alarm';
 import { Button, Card, Eyebrow, Ring, styles as ui } from '../components/ui';
 import { exerciseName, FREE_PACT_SESSIONS, sessionInfo, TOTAL_SESSIONS, WORKOUTS } from '../program';
 import { AppState } from '../storage';
@@ -10,7 +11,7 @@ function dayNumber(startedAt: string) {
   return Math.floor((Date.now() - start.getTime()) / 864e5) + 1;
 }
 
-export function Today({ state, onStart }: { state: AppState; onStart: () => void }) {
+export function Today({ state, onStart, onTestAlarm }: { state: AppState; onStart: () => void; onTestAlarm: () => void }) {
   const profile = state.profile!;
   const done = state.sessions.length;
   const finished = done >= TOTAL_SESSIONS;
@@ -64,6 +65,17 @@ export function Today({ state, onStart }: { state: AppState; onStart: () => void
         </View>
       )}
 
+      <Card style={s.alarm}>
+        <View style={{ flex: 1 }}>
+          <Eyebrow>Warum-Wecker</Eyebrow>
+          <Text style={s.alarmTime}>{(() => { const n = nextAlarm(profile.alarm); return n ? alarmLabel(n) : 'Aus'; })()}</Text>
+          <Text style={ui.body}>{SOUNDS.find(x => x.key === profile.alarm.sound)?.label}</Text>
+        </View>
+        <Pressable onPress={onTestAlarm} style={s.testBtn}>
+          <Text style={s.testText}>Testen</Text>
+        </Pressable>
+      </Card>
+
       <Eyebrow>Deine Woche</Eyebrow>
       <View style={s.weeks}>
         {Array.from({ length: 12 }, (_, i) => {
@@ -90,6 +102,10 @@ const s = StyleSheet.create({
   todayMeta: { color: colors.accentInk, opacity: 0.75, fontWeight: '600' },
   list: { marginVertical: 16, gap: 6 },
   listItem: { color: colors.accentInk, fontSize: 15, fontWeight: '600' },
+  alarm: { flexDirection: 'row', alignItems: 'center', marginBottom: 24 },
+  alarmTime: { color: colors.text, fontSize: 22, fontWeight: '900', marginTop: 4 },
+  testBtn: { borderWidth: 1, borderColor: colors.accent, borderRadius: radius.pill, paddingVertical: 10, paddingHorizontal: 18 },
+  testText: { color: colors.accent, fontWeight: '800' },
   weeks: { flexDirection: 'row', gap: 4, marginTop: 10 },
   week: { flex: 1, height: 44, borderRadius: 8, backgroundColor: colors.surface2, overflow: 'hidden', justifyContent: 'flex-end' },
   weekFill: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: colors.accent },

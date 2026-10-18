@@ -3,12 +3,13 @@ import { Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { colors, radius } from '../theme';
 
-export function Button({ label, onPress, variant = 'accent', disabled, style }: {
+export function Button({ label, onPress, variant = 'accent', disabled, style, textColor }: {
   label: string;
   onPress: () => void;
   variant?: 'accent' | 'ghost' | 'dark';
   disabled?: boolean;
   style?: ViewStyle;
+  textColor?: string;
 }) {
   return (
     <Pressable
@@ -23,7 +24,7 @@ export function Button({ label, onPress, variant = 'accent', disabled, style }: 
         style,
       ]}
     >
-      <Text style={[styles.btnText, variant === 'ghost' && { color: colors.text }, variant === 'dark' && { color: colors.accent }]}>
+      <Text style={[styles.btnText, variant === 'ghost' && { color: colors.text }, variant === 'dark' && { color: colors.accent }, textColor ? { color: textColor } : null]}>
         {label}
       </Text>
     </Pressable>

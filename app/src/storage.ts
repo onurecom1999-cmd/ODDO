@@ -3,12 +3,22 @@ import { Place, WorkoutKey } from './program';
 
 export type Goal = 'muscle' | 'lose' | 'fit';
 
+export type SoundKey = 'voice' | 'drums' | 'gong' | 'rise';
+
+// Days use JavaScript's getDay(): 0 = Sunday … 6 = Saturday.
+export type AlarmSettings = { days: number[]; time: string; sound: SoundKey };
+
 export type Profile = {
   name: string;
   goal: Goal;
   place: Place;
   startedAt: string;
+  why: string;
+  whyAudio?: string;
+  alarm: AlarmSettings;
 };
+
+export const defaultAlarm: AlarmSettings = { days: [1, 3, 5], time: '18:00', sound: 'drums' };
 
 export type SetLog = { kg: number; reps: number };
 
@@ -30,7 +40,11 @@ export const emptyState: AppState = { profile: null, sessions: [] };
 export async function loadState(): Promise<AppState> {
   try {
     const raw = await AsyncStorage.getItem(KEY);
-    return raw ? { ...emptyState, ...JSON.parse(raw) } : emptyState;
+    if (!raw) return emptyState;
+    const state: AppState = { ...emptyState, ...JSON.parse(raw) };
+    // Profiles saved before the Warum-Wecker existed have no why or alarm yet.
+    if (state.profile) state.profile = { why: '', alarm: defaultAlarm, ...(state.profile as Partial<Profile>) } as Profile;
+    return state;
   } catch {
     return emptyState;
   }

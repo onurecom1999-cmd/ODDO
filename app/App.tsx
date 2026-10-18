@@ -1,7 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import * as Notifications from 'expo-notifications';
+import { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { isAlarmMinute, scheduleAlarms } from './src/alarm';
+import { Alarm } from './src/screens/Alarm';
 import { Crew } from './src/screens/Crew';
 import { Onboarding } from './src/screens/Onboarding';
 import { Progress } from './src/screens/Progress';
@@ -22,10 +25,35 @@ export default function App() {
   const [state, setState] = useState<AppState | null>(null);
   const [tab, setTab] = useState<Tab>('today');
   const [training, setTraining] = useState(false);
+  const [ringing, setRinging] = useState(false);
+  const lastRang = useRef('');
+  const snoozeUntil = useRef(0);
 
   useEffect(() => {
     loadState().then(setState);
+    if (Platform.OS === 'web') return;
+    // Tapping a scheduled reminder on the phone opens the alarm screen.
+    const sub = Notifications.addNotificationResponseReceivedListener(() => setRinging(true));
+    return () => sub.remove();
   }, []);
+
+  // While the app is open, ring at the set minute (once per minute) or when a snooze runs out.
+  useEffect(() => {
+    const profile = state?.profile;
+    if (!profile) return;
+    const t = setInterval(() => {
+      const now = new Date();
+      const minute = now.toISOString().slice(0, 16);
+      if (snoozeUntil.current && now.getTime() >= snoozeUntil.current) {
+        snoozeUntil.current = 0;
+        setRinging(true);
+      } else if (isAlarmMinute(profile.alarm, now) && lastRang.current !== minute && !training) {
+        lastRang.current = minute;
+        setRinging(true);
+      }
+    }, 15000);
+    return () => clearInterval(t);
+  }, [state?.profile, training]);
 
   function update(next: AppState) {
     setState(next);
@@ -34,7 +62,26 @@ export default function App() {
 
   function body() {
     if (!state) return <ActivityIndicator color={colors.accent} style={{ flex: 1 }} />;
-    if (!state.profile) return <Onboarding onDone={profile => update({ ...state, profile })} />;
+    if (!state.profile) {
+      return (
+        <Onboarding
+          onDone={profile => {
+            update({ ...state, profile });
+            scheduleAlarms(profile);
+          }}
+        />
+      );
+    }
+    if (ringing) {
+      return (
+        <Alarm
+          profile={state.profile}
+          onStart={() => { setRinging(false); setTraining(true); }}
+          onSnooze={() => { snoozeUntil.current = Date.now() + 10 * 60 * 1000; setRinging(false); }}
+          onDismiss={() => setRinging(false)}
+        />
+      );
+    }
     if (training) {
       return (
         <Workout
@@ -47,7 +94,7 @@ export default function App() {
     return (
       <View style={{ flex: 1 }}>
         <View style={{ flex: 1 }}>
-          {tab === 'today' && <Today state={state} onStart={() => setTraining(true)} />}
+          {tab === 'today' && <Today state={state} onStart={() => setTraining(true)} onTestAlarm={() => setRinging(true)} />}
           {tab === 'progress' && <Progress state={state} />}
           {tab === 'crew' && <Crew state={state} />}
         </View>

@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { AlarmPicker } from '../components/AlarmPicker';
 import { Button, Eyebrow, styles as ui } from '../components/ui';
+import { WhyRecorder } from '../components/WhyRecorder';
 import { Place } from '../program';
-import { Goal, Profile } from '../storage';
+import { AlarmSettings, defaultAlarm, Goal, Profile } from '../storage';
 import { colors, radius } from '../theme';
 
 const GOALS: { key: Goal; label: string; hint: string }[] = [
@@ -30,6 +32,15 @@ export function Onboarding({ onDone }: { onDone: (p: Profile) => void }) {
   const [goal, setGoal] = useState<Goal | null>(null);
   const [place, setPlace] = useState<Place | null>(null);
   const [name, setName] = useState('');
+  const [why, setWhy] = useState('');
+  const [whyAudio, setWhyAudio] = useState<string | undefined>();
+  const [alarm, setAlarm] = useState<AlarmSettings>(defaultAlarm);
+
+  function setVoice(uri: string | undefined) {
+    setWhyAudio(uri);
+    // A fresh recording becomes the alarm sound: hearing yourself is the point.
+    if (uri) setAlarm(a => ({ ...a, sound: 'voice' }));
+  }
 
   const steps = [
     {
@@ -43,6 +54,32 @@ export function Onboarding({ onDone }: { onDone: (p: Profile) => void }) {
       ready: place !== null,
     },
     {
+      title: 'Warum machst du das?',
+      body: (
+        <>
+          <Text style={ui.body}>
+            Sag es dir selbst. Deine Sprachnachricht weckt dich zu deinen Trainingszeiten und kommt nach 12 Wochen zurück.
+          </Text>
+          <TextInput
+            value={why}
+            onChangeText={setWhy}
+            placeholder="z. B. Ich will im Sommer stolz in den Spiegel schauen."
+            placeholderTextColor={colors.dim}
+            style={s.whyInput}
+            multiline
+            maxLength={140}
+          />
+          <WhyRecorder value={whyAudio} onChange={setVoice} />
+        </>
+      ),
+      ready: why.trim().length > 0 || !!whyAudio,
+    },
+    {
+      title: 'Wann gehst du trainieren?',
+      body: <AlarmPicker value={alarm} onChange={setAlarm} hasVoice={!!whyAudio} voiceUri={whyAudio} />,
+      ready: alarm.days.length > 0,
+    },
+    {
       title: 'Unterschreib deinen Pakt.',
       body: (
         <View style={s.paper}>
@@ -50,6 +87,7 @@ export function Onboarding({ onDone }: { onDone: (p: Profile) => void }) {
           <Text style={s.paperText}>
             Ich, <Text style={s.sigInline}>{name.trim() || '________'}</Text>, starte heute meinen Day One. Ich trainiere 12 Wochen.
             Schaffe ich 29 von 36 Einheiten, ist mein nächster Pakt gratis.
+            {why.trim() ? <Text>{'\n'}Mein Warum: <Text style={s.sigInline}>{why.trim()}</Text></Text> : null}
           </Text>
           <TextInput
             value={name}
@@ -69,7 +107,7 @@ export function Onboarding({ onDone }: { onDone: (p: Profile) => void }) {
 
   function next() {
     if (step < steps.length - 1) return setStep(step + 1);
-    onDone({ name: name.trim(), goal: goal!, place: place!, startedAt: new Date().toISOString() });
+    onDone({ name: name.trim(), goal: goal!, place: place!, startedAt: new Date().toISOString(), why: why.trim(), whyAudio, alarm });
   }
 
   return (
@@ -106,5 +144,6 @@ const s = StyleSheet.create({
   paperTitle: { fontWeight: '900', fontSize: 20, letterSpacing: 1, color: '#1a1a1a' },
   paperText: { color: '#1a1a1a', fontSize: 16, lineHeight: 26, marginTop: 14 },
   sigInline: { color: '#1d3fb8', fontStyle: 'italic', fontWeight: '700' },
+  whyInput: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, color: colors.text, fontSize: 18, padding: 16, minHeight: 96, textAlignVertical: 'top' },
   sigInput: { borderBottomWidth: 1.5, borderBottomColor: '#999', fontSize: 24, fontStyle: 'italic', color: '#1d3fb8', paddingVertical: 8, marginTop: 20 },
 });
