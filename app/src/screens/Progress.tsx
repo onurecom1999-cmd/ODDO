@@ -1,10 +1,10 @@
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Card, Eyebrow, Ring, styles as ui } from '../components/ui';
 import { LangSwitch } from '../components/LangSwitch';
 import { Lang, locale, t } from '../i18n';
 import { exerciseName, FREE_PACT_SESSIONS, TOTAL_SESSIONS, WORKOUTS } from '../program';
 import { AppState, bestKg } from '../storage';
-import { colors } from '../theme';
+import { colors, radius } from '../theme';
 
 const ALL_EXERCISES = [...WORKOUTS.A, ...WORKOUTS.B].filter(ex => !ex.timed);
 
@@ -12,7 +12,7 @@ function volume(sets: Record<string, { kg: number; reps: number }[]>) {
   return Object.values(sets).flat().reduce((sum, s) => sum + s.kg * s.reps, 0);
 }
 
-export function Progress({ state, onLang }: { state: AppState; onLang: (lang: Lang) => void }) {
+export function Progress({ state, onLang, onFilm }: { state: AppState; onLang: (lang: Lang) => void; onFilm: () => void }) {
   const profile = state.profile!;
   const done = state.sessions.length;
   const toFree = Math.max(0, FREE_PACT_SESSIONS - done);
@@ -53,6 +53,9 @@ export function Progress({ state, onLang }: { state: AppState; onLang: (lang: La
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 10 }} contentContainerStyle={{ gap: 8 }}>
             {state.photos.map(p => <Image key={p.date} source={{ uri: p.uri }} style={s.thumb} />)}
           </ScrollView>
+          <Pressable onPress={onFilm} style={s.filmBtn}>
+            <Text style={s.filmText}>{t('film.play')}</Text>
+          </Pressable>
           <Text style={[ui.body, { marginTop: 8, marginBottom: 24 }]}>{t('film.count', { n: state.photos.length, photos: t(state.photos.length === 1 ? 'film.one' : 'film.many') })}</Text>
         </>
       )}
@@ -102,6 +105,8 @@ const s = StyleSheet.create({
   stats: { flexDirection: 'row', gap: 12, marginVertical: 16 },
   stat: { flex: 1 },
   statNum: { color: colors.text, fontSize: 28, fontWeight: '900' },
+  filmBtn: { marginTop: 12, alignSelf: 'flex-start', borderWidth: 1, borderColor: colors.accent, borderRadius: radius.pill, paddingVertical: 10, paddingHorizontal: 18 },
+  filmText: { color: colors.accent, fontWeight: '800' },
   thumb: { width: 72, height: 96, borderRadius: 10, backgroundColor: colors.surface2 },
   line: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.border },
   lineName: { color: colors.text, fontWeight: '600', flex: 1, marginRight: 12 },
