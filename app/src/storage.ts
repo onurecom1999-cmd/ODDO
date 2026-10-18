@@ -26,16 +26,27 @@ export type SessionLog = {
   date: string;
   workout: WorkoutKey;
   sets: Record<string, SetLog[]>;
+  rescue?: boolean;
 };
+
+export type Photo = { date: string; uri: string };
 
 export type AppState = {
   profile: Profile | null;
   sessions: SessionLog[];
+  // 15-minute home rescues keep the Crew-Flamme alive but are not one of the 36 pact sessions.
+  rescues: string[];
+  photos: Photo[];
 };
 
 const KEY = 'oddo-state-v1';
 
-export const emptyState: AppState = { profile: null, sessions: [] };
+export const emptyState: AppState = { profile: null, sessions: [], rescues: [], photos: [] };
+
+export function trainedOn(state: AppState, day = new Date()) {
+  const key = day.toDateString();
+  return state.sessions.some(s => new Date(s.date).toDateString() === key) || state.rescues.some(r => new Date(r).toDateString() === key);
+}
 
 export async function loadState(): Promise<AppState> {
   try {

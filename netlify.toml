@@ -1,2 +1,11 @@
 [build]
-  publish = "landing"
+  command = "bash scripts/build-site.sh"
+  publish = "site"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[redirects]]
+  from = "/app"
+  to = "/app/"
+  status = 301

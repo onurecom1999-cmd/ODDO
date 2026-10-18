@@ -2,7 +2,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { alarmLabel, nextAlarm, SOUNDS } from '../alarm';
 import { Button, Card, Eyebrow, Ring, styles as ui } from '../components/ui';
 import { exerciseName, FREE_PACT_SESSIONS, sessionInfo, TOTAL_SESSIONS, WORKOUTS } from '../program';
-import { AppState } from '../storage';
+import { AppState, trainedOn } from '../storage';
 import { colors, radius } from '../theme';
 
 function dayNumber(startedAt: string) {
@@ -11,13 +11,14 @@ function dayNumber(startedAt: string) {
   return Math.floor((Date.now() - start.getTime()) / 864e5) + 1;
 }
 
-export function Today({ state, onStart, onTestAlarm }: { state: AppState; onStart: () => void; onTestAlarm: () => void }) {
+export function Today({ state, onStart, onTestAlarm, onRescue }: { state: AppState; onStart: () => void; onTestAlarm: () => void; onRescue: () => void }) {
   const profile = state.profile!;
   const done = state.sessions.length;
   const finished = done >= TOTAL_SESSIONS;
   const toFree = Math.max(0, FREE_PACT_SESSIONS - done);
   const next = sessionInfo(Math.min(done, TOTAL_SESSIONS - 1));
-  const trainedToday = state.sessions.some(s => new Date(s.date).toDateString() === new Date().toDateString());
+  const trainedToday = trainedOn(state);
+  const dueToday = profile.alarm.days.includes(new Date().getDay());
 
   return (
     <ScrollView contentContainerStyle={s.wrap}>
@@ -62,6 +63,11 @@ export function Today({ state, onStart, onTestAlarm }: { state: AppState; onStar
             ))}
           </View>
           <Button label="Training starten →" variant="dark" onPress={onStart} />
+          {dueToday && !trainedToday && (
+            <Pressable onPress={onRescue} style={{ marginTop: 14, alignSelf: 'center' }}>
+              <Text style={s.rescue}>Keine Zeit? 15-Min-Rettung zuhause</Text>
+            </Pressable>
+          )}
         </View>
       )}
 
@@ -102,6 +108,7 @@ const s = StyleSheet.create({
   todayMeta: { color: colors.accentInk, opacity: 0.75, fontWeight: '600' },
   list: { marginVertical: 16, gap: 6 },
   listItem: { color: colors.accentInk, fontSize: 15, fontWeight: '600' },
+  rescue: { color: colors.accentInk, fontWeight: '800', textDecorationLine: 'underline' },
   alarm: { flexDirection: 'row', alignItems: 'center', marginBottom: 24 },
   alarmTime: { color: colors.text, fontSize: 22, fontWeight: '900', marginTop: 4 },
   testBtn: { borderWidth: 1, borderColor: colors.accent, borderRadius: radius.pill, paddingVertical: 10, paddingHorizontal: 18 },

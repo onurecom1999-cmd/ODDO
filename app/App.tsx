@@ -4,6 +4,10 @@ import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { isAlarmMinute, scheduleAlarms } from './src/alarm';
+import { pushSession, uploadPhoto } from './src/cloud';
+import { persistMedia } from './src/files';
+import { Rescue } from './src/screens/Rescue';
+import { useCrew } from './src/useCrew';
 import { Alarm } from './src/screens/Alarm';
 import { Crew } from './src/screens/Crew';
 import { Onboarding } from './src/screens/Onboarding';
@@ -26,6 +30,8 @@ export default function App() {
   const [tab, setTab] = useState<Tab>('today');
   const [training, setTraining] = useState(false);
   const [ringing, setRinging] = useState(false);
+  const [rescuing, setRescuing] = useState(false);
+  const crew = useCrew(state?.profile ?? null);
   const lastRang = useRef('');
   const snoozeUntil = useRef(0);
 
@@ -82,21 +88,47 @@ export default function App() {
         />
       );
     }
+    if (rescuing) {
+      return (
+        <Rescue
+          onFinish={() => {
+            const date = new Date().toISOString();
+            update({ ...state, rescues: [...state.rescues, date] });
+            pushSession({ date, workout: 'A', sets: {}, rescue: true }).then(crew.refresh);
+          }}
+          onCancel={() => setRescuing(false)}
+        />
+      );
+    }
     if (training) {
       return (
         <Workout
           state={state}
-          onFinish={log => update({ ...state, sessions: [...state.sessions, log] })}
+          onFinish={log => {
+            update({ ...state, sessions: [...state.sessions, log] });
+            pushSession(log).then(crew.refresh);
+          }}
           onCancel={() => setTraining(false)}
+          onPhoto={async uri => {
+            const date = new Date().toISOString();
+            const saved = await persistMedia(uri, 'foto');
+            setState(prev => {
+              if (!prev) return prev;
+              const next = { ...prev, photos: [...prev.photos, { date, uri: saved }] };
+              saveState(next);
+              return next;
+            });
+            uploadPhoto(saved, date).catch(() => {});
+          }}
         />
       );
     }
     return (
       <View style={{ flex: 1 }}>
         <View style={{ flex: 1 }}>
-          {tab === 'today' && <Today state={state} onStart={() => setTraining(true)} onTestAlarm={() => setRinging(true)} />}
+          {tab === 'today' && <Today state={state} onStart={() => setTraining(true)} onTestAlarm={() => setRinging(true)} onRescue={() => setRescuing(true)} />}
           {tab === 'progress' && <Progress state={state} />}
-          {tab === 'crew' && <Crew state={state} />}
+          {tab === 'crew' && <Crew state={state} crew={crew} />}
         </View>
         <View style={s.tabs}>
           {TABS.map(t => (

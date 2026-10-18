@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Button, Eyebrow, styles as ui } from '../components/ui';
 import { exerciseName, FREE_PACT_SESSIONS, sessionInfo, WORKOUTS } from '../program';
 import { AppState, lastSets, SessionLog, SetLog } from '../storage';
@@ -20,10 +21,11 @@ function initialRows(state: AppState, exerciseId: string, sets: number, repsMin:
   });
 }
 
-export function Workout({ state, onFinish, onCancel }: {
+export function Workout({ state, onFinish, onCancel, onPhoto }: {
   state: AppState;
   onFinish: (log: SessionLog) => void;
   onCancel: () => void;
+  onPhoto: (uri: string) => void;
 }) {
   const profile = state.profile!;
   // Frozen at start: App appends the session on finish, which must not shift the workout mid-screen.
@@ -35,6 +37,14 @@ export function Workout({ state, onFinish, onCancel }: {
   );
   const [rest, setRest] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [photo, setPhoto] = useState<string | null>(null);
+
+  async function takePhoto() {
+    const res = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.6, cameraType: ImagePicker.CameraType.front });
+    if (res.canceled || !res.assets[0]) return;
+    setPhoto(res.assets[0].uri);
+    onPhoto(res.assets[0].uri);
+  }
 
   useEffect(() => {
     if (rest <= 0) return;
@@ -76,7 +86,15 @@ export function Workout({ state, onFinish, onCancel }: {
         <Text style={[ui.body, { textAlign: 'center', marginTop: 12 }]}>
           {toFree > 0 ? `Noch ${toFree} bis zu deinem Gratis-Pakt. Deine Crew sieht, dass du heute da warst.` : 'Dein Gratis-Pakt ist gesichert.'}
         </Text>
-        <Button label="Fertig" onPress={onCancel} style={{ marginTop: 32, alignSelf: 'stretch' }} />
+        {photo ? (
+          <Image source={{ uri: photo }} style={s.photo} />
+        ) : (
+          <Pressable onPress={takePhoto} style={s.photoBtn}>
+            <Text style={s.photoTitle}>Foto für deinen Day-One-Film</Text>
+            <Text style={ui.body}>3 Sekunden. In Woche 12 wird daraus dein Film.</Text>
+          </Pressable>
+        )}
+        <Button label="Fertig" onPress={onCancel} style={{ marginTop: 16, alignSelf: 'stretch' }} />
       </View>
     );
   }
@@ -175,6 +193,9 @@ const s = StyleSheet.create({
   rest: { marginTop: 16, alignItems: 'center', padding: 20, borderRadius: radius.md, borderWidth: 1, borderColor: colors.accent },
   restTime: { color: colors.accent, fontSize: 44, fontWeight: '900' },
   bottom: { flexDirection: 'row', gap: 10, padding: 20, borderTopWidth: 1, borderTopColor: colors.border },
+  photoBtn: { marginTop: 28, alignSelf: 'stretch', borderWidth: 1, borderStyle: 'dashed', borderColor: colors.accent, borderRadius: radius.md, padding: 18, alignItems: 'center' },
+  photoTitle: { color: colors.accent, fontWeight: '800', fontSize: 16, marginBottom: 4 },
+  photo: { marginTop: 28, width: 140, height: 186, borderRadius: radius.md },
   celebrate: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 28 },
   check: { fontSize: 64, color: colors.accentInk, backgroundColor: colors.accent, width: 110, height: 110, borderRadius: 55, textAlign: 'center', lineHeight: 110, overflow: 'hidden', marginBottom: 24, fontWeight: '900' },
 });

@@ -1,25 +1,8 @@
 import { useState } from 'react';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { RecordingPresets, requestRecordingPermissionsAsync, setAudioModeAsync, useAudioPlayer, useAudioRecorder, useAudioRecorderState } from 'expo-audio';
-import { File, Paths } from 'expo-file-system';
+import { persistMedia } from '../files';
 import { colors, radius } from '../theme';
-
-// Recordings must outlive the session: on web the blob URL is turned into a data URL,
-// on phones the file is copied out of the cache into the app's documents.
-async function persist(uri: string): Promise<string> {
-  if (Platform.OS === 'web') {
-    const blob = await (await fetch(uri)).blob();
-    return await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-  }
-  const dest = new File(Paths.document, `warum-${Date.now()}.m4a`);
-  new File(uri).copySync(dest);
-  return dest.uri;
-}
 
 export function WhyRecorder({ value, onChange }: { value?: string; onChange: (uri: string | undefined) => void }) {
   const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
@@ -43,7 +26,7 @@ export function WhyRecorder({ value, onChange }: { value?: string; onChange: (ur
   async function stop() {
     await recorder.stop();
     await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true });
-    if (recorder.uri) onChange(await persist(recorder.uri));
+    if (recorder.uri) onChange(await persistMedia(recorder.uri, 'warum'));
   }
 
   function play() {

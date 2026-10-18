@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Card, Eyebrow, Ring, styles as ui } from '../components/ui';
 import { exerciseName, FREE_PACT_SESSIONS, TOTAL_SESSIONS, WORKOUTS } from '../program';
 import { AppState, bestKg } from '../storage';
@@ -43,6 +43,18 @@ export function Progress({ state }: { state: AppState }) {
         </Card>
       </View>
 
+      <Eyebrow>Dein Day-One-Film</Eyebrow>
+      {state.photos.length === 0 ? (
+        <Text style={[ui.body, { marginTop: 8, marginBottom: 24 }]}>Nach jedem Training ein Foto. In Woche 12 wird daraus dein Verwandlungsfilm, mit deinem Warum als Ton.</Text>
+      ) : (
+        <>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 10 }} contentContainerStyle={{ gap: 8 }}>
+            {state.photos.map(p => <Image key={p.date} source={{ uri: p.uri }} style={s.thumb} />)}
+          </ScrollView>
+          <Text style={[ui.body, { marginTop: 8, marginBottom: 24 }]}>{state.photos.length} {state.photos.length === 1 ? 'Foto' : 'Fotos'} · dein Film entsteht in Woche 12</Text>
+        </>
+      )}
+
       <Eyebrow>Bestwerte</Eyebrow>
       {bests.length === 0 ? (
         <Text style={[ui.body, { marginTop: 8, marginBottom: 24 }]}>Nach deiner ersten Einheit stehen hier deine Bestwerte.</Text>
@@ -81,6 +93,7 @@ const s = StyleSheet.create({
   stats: { flexDirection: 'row', gap: 12, marginVertical: 16 },
   stat: { flex: 1 },
   statNum: { color: colors.text, fontSize: 28, fontWeight: '900' },
+  thumb: { width: 72, height: 96, borderRadius: 10, backgroundColor: colors.surface2 },
   line: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.border },
   lineName: { color: colors.text, fontWeight: '600', flex: 1, marginRight: 12 },
   lineVal: { color: colors.accent, fontWeight: '800' },
