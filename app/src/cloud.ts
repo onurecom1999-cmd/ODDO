@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 import { supabase } from './supabase';
-import { Profile, SessionLog } from './storage';
+import type { Profile, SessionLog } from './storage';
 
 export type CrewMember = {
   id: string;
@@ -90,12 +90,17 @@ export async function leaveCrew() {
   if (error) throw error;
 }
 
-// Best effort: the session is already saved on the phone, the crew just won't see it until the next one syncs.
-export async function pushSession(log: SessionLog) {
-  if (!supabase) return;
-  const { data } = await supabase.auth.getSession();
-  if (!data.session) return;
-  await supabase.from('sessions').insert({ done_at: log.date, workout: log.workout, rescue: !!log.rescue, sets: log.sets });
+// Uploads trainings that never reached the server (e.g. done offline), matched by timestamp.
+export async function syncMissing(me: string, remote: { doneAt: string }[], local: SessionLog[]) {
+  if (!supabase) return 0;
+  const known = new Set(remote.map(r => new Date(r.doneAt).getTime()));
+  const missing = local.filter(l => !known.has(new Date(l.date).getTime()));
+  if (missing.length === 0) return 0;
+  const { error } = await supabase.from('sessions').insert(
+    missing.map(l => ({ user_id: me, done_at: l.date, workout: l.workout, rescue: !!l.rescue, sets: l.sets })),
+  );
+  if (error) throw error;
+  return missing.length;
 }
 
 export async function uploadPhoto(uri: string, date: string) {

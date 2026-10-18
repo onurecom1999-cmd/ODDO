@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
-import { createCrew, CrewData, ensureSignedIn, friendlyError, joinCrew, leaveCrew, loadCrew } from './cloud';
-import { Profile } from './storage';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { createCrew, CrewData, ensureSignedIn, friendlyError, joinCrew, leaveCrew, loadCrew, syncMissing } from './cloud';
+import { AppState, Profile } from './storage';
 import { supabase } from './supabase';
 
 export type CrewState = {
@@ -14,26 +14,36 @@ export type CrewState = {
   leave: () => Promise<void>;
 };
 
-export function useCrew(profile: Profile | null): CrewState {
+export function useCrew(profile: Profile | null, local: Pick<AppState, 'sessions' | 'rescues'> | null): CrewState {
   const [me, setMe] = useState<string | null>(null);
   const [crew, setCrew] = useState<CrewData | null>(null);
   const [loading, setLoading] = useState(!!supabase);
   const [error, setError] = useState('');
+  const busy = useRef(false);
 
   const refresh = useCallback(async () => {
-    if (!supabase || !profile) return;
+    if (!supabase || !profile || busy.current) return;
+    // One sync at a time, so a session is never uploaded twice.
+    busy.current = true;
     try {
       const id = me ?? (await ensureSignedIn(profile));
       if (!id) return;
       setMe(id);
-      setCrew(await loadCrew(id));
+      let data = await loadCrew(id);
+      if (data && local) {
+        const mine = data.members.find(m => m.id === id)?.sessions ?? [];
+        const all = [...local.sessions, ...local.rescues.map(date => ({ date, workout: 'A' as const, sets: {}, rescue: true }))];
+        if (await syncMissing(id, mine, all)) data = await loadCrew(id);
+      }
+      setCrew(data);
       setError('');
     } catch (e) {
       setError(friendlyError(e));
     } finally {
+      busy.current = false;
       setLoading(false);
     }
-  }, [me, profile]);
+  }, [me, profile, local]);
 
   useEffect(() => {
     refresh();
@@ -47,6 +57,7 @@ export function useCrew(profile: Profile | null): CrewState {
     try {
       if (!me && profile) setMe(await ensureSignedIn(profile));
       await action();
+      while (busy.current) await new Promise(r => setTimeout(r, 100));
       await refresh();
       return true;
     } catch (e) {

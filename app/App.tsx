@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { isAlarmMinute, scheduleAlarms } from './src/alarm';
-import { pushSession, uploadPhoto } from './src/cloud';
+import { uploadPhoto } from './src/cloud';
 import { persistMedia } from './src/files';
 import { Rescue } from './src/screens/Rescue';
 import { useCrew } from './src/useCrew';
@@ -31,7 +31,7 @@ export default function App() {
   const [training, setTraining] = useState(false);
   const [ringing, setRinging] = useState(false);
   const [rescuing, setRescuing] = useState(false);
-  const crew = useCrew(state?.profile ?? null);
+  const crew = useCrew(state?.profile ?? null, state);
   const lastRang = useRef('');
   const snoozeUntil = useRef(0);
 
@@ -94,7 +94,6 @@ export default function App() {
           onFinish={() => {
             const date = new Date().toISOString();
             update({ ...state, rescues: [...state.rescues, date] });
-            pushSession({ date, workout: 'A', sets: {}, rescue: true }).then(crew.refresh);
           }}
           onCancel={() => setRescuing(false)}
         />
@@ -105,8 +104,8 @@ export default function App() {
         <Workout
           state={state}
           onFinish={log => {
+            // useCrew notices the new session and syncs it to the crew.
             update({ ...state, sessions: [...state.sessions, log] });
-            pushSession(log).then(crew.refresh);
           }}
           onCancel={() => setTraining(false)}
           onPhoto={async uri => {
