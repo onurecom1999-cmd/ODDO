@@ -4,9 +4,11 @@ import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { isAlarmMinute, scheduleAlarms } from './src/alarm';
-import { uploadPhoto } from './src/cloud';
+import { claimPayment, loadPaymentStatus, uploadPhoto } from './src/cloud';
+import { price } from './src/payment';
 import { persistMedia } from './src/files';
 import { Film } from './src/screens/Film';
+import { Payment } from './src/screens/Payment';
 import { Rescue } from './src/screens/Rescue';
 import { useCrew } from './src/useCrew';
 import { detectLang, Key, Lang, setLang, t } from './src/i18n';
@@ -30,6 +32,7 @@ export default function App() {
   const [ringing, setRinging] = useState(false);
   const [rescuing, setRescuing] = useState(false);
   const [filming, setFilming] = useState(false);
+  const [paying, setPaying] = useState(false);
   const crew = useCrew(state?.profile ?? null, state);
   const lastRang = useRef('');
   const snoozeUntil = useRef(0);
@@ -63,6 +66,26 @@ export default function App() {
     return () => clearInterval(t);
   }, [state?.profile, training]);
 
+  // A reported payment turns active once Onur marks it paid on the server.
+  useEffect(() => {
+    if (!state?.profile || state.payment?.status !== 'pending') return;
+    const { profile, payment } = state;
+    loadPaymentStatus(profile)
+      .then(status => {
+        if (status === null) {
+          claimPayment(profile, { reference: payment.reference, amount: price(), method: payment.method }).catch(() => {});
+        } else if (status === 'paid') {
+          setState(prev => {
+            if (!prev?.payment) return prev;
+            const next = { ...prev, payment: { ...prev.payment, status: 'paid' as const } };
+            saveState(next);
+            return next;
+          });
+        }
+      })
+      .catch(() => {});
+  }, [state?.profile, state?.payment?.status]);
+
   function update(next: AppState) {
     setState(next);
     saveState(next);
@@ -85,6 +108,8 @@ export default function App() {
           onDone={profile => {
             update({ ...state, profile });
             scheduleAlarms(profile);
+            // Straight from signing to paying, while the decision is fresh.
+            setPaying(true);
           }}
         />
       );
@@ -96,6 +121,15 @@ export default function App() {
           onStart={() => { setRinging(false); setTraining(true); }}
           onSnooze={() => { snoozeUntil.current = Date.now() + 10 * 60 * 1000; setRinging(false); }}
           onDismiss={() => setRinging(false)}
+        />
+      );
+    }
+    if (paying) {
+      return (
+        <Payment
+          state={state}
+          onClaimed={payment => update({ ...state, payment })}
+          onClose={() => setPaying(false)}
         />
       );
     }
@@ -137,7 +171,7 @@ export default function App() {
     return (
       <View style={{ flex: 1 }}>
         <View style={{ flex: 1 }}>
-          {tab === 'today' && <Today state={state} onStart={() => setTraining(true)} onTestAlarm={() => setRinging(true)} onRescue={() => setRescuing(true)} onFilm={() => setFilming(true)} />}
+          {tab === 'today' && <Today state={state} onStart={() => setTraining(true)} onTestAlarm={() => setRinging(true)} onRescue={() => setRescuing(true)} onFilm={() => setFilming(true)} onPay={() => setPaying(true)} />}
           {tab === 'progress' && <Progress state={state} onLang={changeLang} onFilm={() => setFilming(true)} />}
           {tab === 'crew' && <Crew state={state} crew={crew} />}
         </View>

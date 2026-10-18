@@ -27,6 +27,12 @@ Logins, Crews und Trainings liegen in Supabase. Einmalig einrichten:
 
 Ohne diese Werte läuft die App offline mit einer Beispiel-Crew.
 
+## Bezahlung
+
+Nach dem Unterschreiben zeigt die App den Pakt-Preis (DE 69 €, EN $69, TR 799 ₺) und wie bezahlt wird. Preise, Bankdaten, PayPal-Link und später ein Checkout-Link (Lemon Squeezy oder Paddle) stehen in `app/src/payment.ts`; leere Felder blendet die App aus. Ohne Bankdaten steht dort, dass die Zahlungsdaten per WhatsApp kommen, mit einem Verwendungszweck wie `ODDO-MERT-PKF9`.
+
+Tippt jemand „Ich habe bezahlt“, erscheint eine Zeile in der Tabelle `payments` (Status `pending`). Ist das Geld da: in Supabase unter Table Editor → `payments` den Status auf `paid` setzen. Beim nächsten Öffnen zeigt die App den Pakt als aktiv. Selbst freischalten kann sich niemand.
+
 ## Hosting (Netlify)
 
 `scripts/build-site.sh` baut die Landingpage nach `site/` und die Web-App nach `site/app/`, `netlify.toml` ruft das Skript auf. Tester öffnen `/app/` auf dem Handy und legen die App auf den Startbildschirm.

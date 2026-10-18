@@ -116,6 +116,24 @@ $$;
 
 grant execute on function public.create_crew(text), public.join_crew(text), public.leave_crew(), public.my_crew_id() to authenticated;
 
+-- Pact payments. The app can only report "I paid" (pending); Onur marks a row as paid in the Table Editor.
+create table if not exists public.payments (
+  user_id uuid primary key references auth.users on delete cascade,
+  name text not null,
+  reference text not null,
+  amount text not null,
+  method text not null check (method in ('bank', 'paypal', 'checkout')),
+  status text not null default 'pending' check (status in ('pending', 'paid')),
+  claimed_at timestamptz not null default now(),
+  confirmed_at timestamptz
+);
+alter table public.payments enable row level security;
+drop policy if exists "payments: self read" on public.payments;
+create policy "payments: self read" on public.payments for select using (user_id = auth.uid());
+drop policy if exists "payments: self claim" on public.payments;
+create policy "payments: self claim" on public.payments for insert with check (user_id = auth.uid() and status = 'pending' and confirmed_at is null);
+grant select, insert on public.payments to authenticated;
+
 -- Progress photos for the Day-One-Film: private, each person only sees their own folder.
 insert into storage.buckets (id, name, public) values ('photos', 'photos', false) on conflict (id) do nothing;
 drop policy if exists "photos: own folder" on storage.objects;

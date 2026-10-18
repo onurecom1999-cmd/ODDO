@@ -4,6 +4,7 @@ import { Button, Card, Eyebrow, Ring, styles as ui } from '../components/ui';
 import { exerciseName, FREE_PACT_SESSIONS, sessionInfo, TOTAL_SESSIONS, WORKOUTS } from '../program';
 import { AppState, trainedOn } from '../storage';
 import { t } from '../i18n';
+import { price } from '../payment';
 import { colors, radius } from '../theme';
 
 function dayNumber(startedAt: string) {
@@ -12,7 +13,7 @@ function dayNumber(startedAt: string) {
   return Math.floor((Date.now() - start.getTime()) / 864e5) + 1;
 }
 
-export function Today({ state, onStart, onTestAlarm, onRescue, onFilm }: { state: AppState; onStart: () => void; onTestAlarm: () => void; onRescue: () => void; onFilm: () => void }) {
+export function Today({ state, onStart, onTestAlarm, onRescue, onFilm, onPay }: { state: AppState; onStart: () => void; onTestAlarm: () => void; onRescue: () => void; onFilm: () => void; onPay: () => void }) {
   const profile = state.profile!;
   const done = state.sessions.length;
   const finished = done >= TOTAL_SESSIONS;
@@ -73,6 +74,16 @@ export function Today({ state, onStart, onTestAlarm, onRescue, onFilm }: { state
         </View>
       )}
 
+      {state.payment?.status !== 'paid' && (
+        <Pressable onPress={onPay} style={s.pay}>
+          <View style={{ flex: 1 }}>
+            <Text style={s.payTitle}>{t('pay.card.title', { price: price() })}</Text>
+            <Text style={ui.body}>{state.payment ? t('pay.card.pending') : t('pay.card.body')}</Text>
+          </View>
+          {!state.payment && <Text style={s.payBtn}>{t('pay.card.button')}</Text>}
+        </Pressable>
+      )}
+
       <Card style={s.alarm}>
         <View style={{ flex: 1 }}>
           <Eyebrow>{t('alarm.title')}</Eyebrow>
@@ -111,6 +122,9 @@ const s = StyleSheet.create({
   list: { marginVertical: 16, gap: 6 },
   listItem: { color: colors.accentInk, fontSize: 15, fontWeight: '600' },
   rescue: { color: colors.accentInk, fontWeight: '800', textDecorationLine: 'underline' },
+  pay: { flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderColor: colors.accent, borderRadius: radius.md, padding: 18, marginBottom: 16 },
+  payTitle: { color: colors.text, fontSize: 17, fontWeight: '800', marginBottom: 2 },
+  payBtn: { color: colors.accent, fontWeight: '800' },
   alarm: { flexDirection: 'row', alignItems: 'center', marginBottom: 24 },
   alarmTime: { color: colors.text, fontSize: 22, fontWeight: '900', marginTop: 4 },
   testBtn: { borderWidth: 1, borderColor: colors.accent, borderRadius: radius.pill, paddingVertical: 10, paddingHorizontal: 18 },
