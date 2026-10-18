@@ -366,7 +366,10 @@
       <div class="paper reveal" id="paper">
         <h3><span data-i18n="paper_title"></span><small>№ 001</small></h3>
         <p class="terms" data-i18n-html="paper_terms"></p>
-        <form id="pact-form">
+        <form id="pact-form" name="pact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+          <input type="hidden" name="form-name" value="pact">
+          <input type="hidden" name="language" id="lang-field" value="de">
+          <p hidden><label>Leave empty <input name="bot-field"></label></p>
           <label for="sig" data-i18n="label_name"></label>
           <input id="sig" class="sig" name="name" required autocomplete="given-name" maxlength="40">
           <label for="email" data-i18n="label_email"></label>
@@ -430,8 +433,6 @@
   </footer>
 
   <script>
-    // Where sign-ups are sent (e.g. a Formspree endpoint). Empty = only show the signed state.
-    const WAITLIST_ENDPOINT = "";
     // Start of the first pact (Cyprus time).
     const PACT_START = new Date("2026-10-26T06:00:00+03:00");
 
@@ -716,13 +717,15 @@
     document.getElementById("pact-form").addEventListener("submit", async e => {
       e.preventDefault();
       const form = e.target;
-      if (WAITLIST_ENDPOINT) {
-        const data = new FormData(form);
-        data.append("language", lang);
-        try {
-          await fetch(WAITLIST_ENDPOINT, { method: "POST", headers: { "Accept": "application/json" }, body: data });
-        } catch (err) {}
-      }
+      document.getElementById("lang-field").value = lang;
+      // Netlify Forms stores the sign-up; opened as a local file the request just fails and the page still shows the signed state.
+      try {
+        await fetch("/", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams(new FormData(form)).toString()
+        });
+      } catch (err) {}
       document.getElementById("paper").classList.add("signed");
     });
 
