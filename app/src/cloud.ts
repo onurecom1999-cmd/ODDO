@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 import { supabase } from './supabase';
-import { Key, t } from './i18n';
+import { t, type Key } from './i18n';
 import type { Profile, SessionLog } from './storage';
 
 export type CrewMember = {
@@ -111,4 +111,23 @@ export async function uploadPhoto(uri: string, date: string) {
   const blob = await (await fetch(uri)).blob();
   const ext = Platform.OS === 'web' ? 'jpg' : uri.split('.').pop() || 'jpg';
   await supabase.storage.from('photos').upload(`${data.session.user.id}/${date.slice(0, 19)}.${ext}`, blob, { upsert: true });
+}
+
+export type PaymentMethod = 'bank' | 'paypal' | 'checkout';
+
+// Reports "I paid" for the pact; only Onur can turn it into paid on the server.
+export async function claimPayment(profile: Profile, p: { reference: string; amount: string; method: PaymentMethod }) {
+  if (!supabase) return;
+  const id = await ensureSignedIn(profile);
+  const { error } = await supabase.from('payments').insert({ user_id: id, name: profile.name, ...p });
+  // A second tap on "I paid" finds the first claim already there.
+  if (error && error.code !== '23505') throw error;
+}
+
+export async function loadPaymentStatus(profile: Profile): Promise<'pending' | 'paid' | null> {
+  if (!supabase) return null;
+  const id = await ensureSignedIn(profile);
+  const { data, error } = await supabase.from('payments').select('status').eq('user_id', id).maybeSingle();
+  if (error) throw error;
+  return (data?.status as 'pending' | 'paid' | undefined) ?? null;
 }

@@ -38,6 +38,8 @@ export type AppState = {
   // 15-minute home rescues keep the Crew-Flamme alive but are not one of the 36 pact sessions.
   rescues: string[];
   photos: Photo[];
+  // The pact payment: unset until the person reports paying, 'paid' once Onur confirms it.
+  payment?: { status: 'pending' | 'paid'; method: 'bank' | 'paypal' | 'checkout'; reference: string; claimedAt: string };
   // Unset until the person picks a language; the device or landing-page language applies meanwhile.
   lang?: Lang;
 };
