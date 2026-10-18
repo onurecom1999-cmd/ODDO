@@ -52,6 +52,6 @@ export function crewFlame(members: FlameMember[], now = new Date()) {
   }
 
   const openToday = members.filter(m => due(m, today) && !trainedOn(m, today));
-  const label = heat >= 0.9 ? 'lodert' : heat >= 0.7 ? 'brennt' : heat >= 0.4 ? 'flackert' : 'glimmt nur noch';
-  return { heat, label, streak, openToday, kept, expected };
+  const level = heat >= 0.9 ? 'blazing' : heat >= 0.7 ? 'burning' : heat >= 0.4 ? 'flickering' : 'embers';
+  return { heat, level, streak, openToday, kept, expected };
 }

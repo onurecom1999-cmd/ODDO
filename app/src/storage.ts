@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import type { Lang } from './i18n';
 import { Place, WorkoutKey } from './program';
 
 export type Goal = 'muscle' | 'lose' | 'fit';
@@ -37,6 +38,8 @@ export type AppState = {
   // 15-minute home rescues keep the Crew-Flamme alive but are not one of the 36 pact sessions.
   rescues: string[];
   photos: Photo[];
+  // Unset until the person picks a language; the device or landing-page language applies meanwhile.
+  lang?: Lang;
 };
 
 const KEY = 'oddo-state-v1';

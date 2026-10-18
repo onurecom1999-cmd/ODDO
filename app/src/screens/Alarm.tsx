@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AudioPlayer, createAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { SOUNDS } from '../alarm';
 import { Button } from '../components/ui';
+import { t } from '../i18n';
 import { Profile } from '../storage';
 import { colors } from '../theme';
 
@@ -45,28 +46,28 @@ export function Alarm({ profile, onStart, onSnooze, onDismiss }: {
       <Text style={s.time}>{time}</Text>
       <View style={{ alignItems: 'center', marginTop: 8 }}>
         <Text style={s.oneDay}>One day</Text>
-        <Text style={s.dayOne}>Day One. Los.</Text>
+        <Text style={s.dayOne}>{t('alarm.go')}</Text>
       </View>
 
       {profile.why ? (
         <View style={s.why}>
-          <Text style={s.whyLabel}>DEIN WARUM</Text>
-          <Text style={s.whyText}>„{profile.why}“</Text>
-          <Text style={s.whySig}>– {profile.name}, an Tag 1</Text>
+          <Text style={s.whyLabel}>{t('alarm.yourWhy')}</Text>
+          <Text style={s.whyText}>{t('alarm.quote', { text: profile.why })}</Text>
+          <Text style={s.whySig}>{t('alarm.signature', { name: profile.name })}</Text>
         </View>
       ) : null}
 
       {blocked && (
         <Pressable onPress={() => { playerRef.current?.play(); setBlocked(false); }}>
-          <Text style={s.tap}>Tippen, um den Ton abzuspielen</Text>
+          <Text style={s.tap}>{t('alarm.tap')}</Text>
         </Pressable>
       )}
 
       <View style={{ alignSelf: 'stretch', gap: 10, marginTop: 'auto' }}>
-        <Button label="Training starten →" variant="dark" onPress={onStart} />
+        <Button label={t('common.start')} variant="dark" onPress={onStart} />
         <View style={{ flexDirection: 'row', gap: 10 }}>
-          <Button label="In 10 Min" variant="ghost" onPress={onSnooze} style={{ flex: 1, borderColor: 'rgba(10,10,10,0.25)' }} textColor={colors.accentInk} />
-          <Button label="Heute nicht" variant="ghost" onPress={onDismiss} style={{ flex: 1, borderColor: 'rgba(10,10,10,0.25)' }} textColor={colors.accentInk} />
+          <Button label={t('alarm.snooze')} variant="ghost" onPress={onSnooze} style={{ flex: 1, borderColor: 'rgba(10,10,10,0.25)' }} textColor={colors.accentInk} />
+          <Button label={t('alarm.dismiss')} variant="ghost" onPress={onDismiss} style={{ flex: 1, borderColor: 'rgba(10,10,10,0.25)' }} textColor={colors.accentInk} />
         </View>
       </View>
     </View>

@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AudioPlayer, createAudioPlayer } from 'expo-audio';
-import { DAYS, SOUNDS, TIMES } from '../alarm';
+import { dayShort, DAYS, soundHint, soundLabel, SOUNDS, TIMES } from '../alarm';
+import { t } from '../i18n';
 import { AlarmSettings } from '../storage';
 import { colors, radius } from '../theme';
 import { Eyebrow } from './ui';
@@ -31,22 +32,22 @@ export function AlarmPicker({ value, onChange, hasVoice, voiceUri }: {
 
   return (
     <View style={{ gap: 10 }}>
-      <Eyebrow>Tage · {value.days.length}× pro Woche</Eyebrow>
+      <Eyebrow>{t('picker.days', { n: value.days.length })}</Eyebrow>
       <View style={s.row}>
-        {DAYS.map(d => {
-          const on = value.days.includes(d.day);
+        {DAYS.map(day => {
+          const on = value.days.includes(day);
           return (
-            <Pressable key={d.day} onPress={() => toggleDay(d.day)} style={[s.day, on && s.on]}>
-              <Text style={[s.chipText, on && s.onText]}>{d.short}</Text>
+            <Pressable key={day} onPress={() => toggleDay(day)} style={[s.day, on && s.on]}>
+              <Text style={[s.chipText, on && s.onText]}>{dayShort(day)}</Text>
             </Pressable>
           );
         })}
       </View>
       {value.days.length > 0 && value.days.length < 3 && (
-        <Text style={s.hint}>Für den Pakt brauchst du 3 Einheiten pro Woche.</Text>
+        <Text style={s.hint}>{t('picker.min3')}</Text>
       )}
 
-      <Eyebrow>Uhrzeit</Eyebrow>
+      <Eyebrow>{t('picker.time')}</Eyebrow>
       <View style={[s.row, { flexWrap: 'wrap' }]}>
         {TIMES.map(t => {
           const on = value.time === t;
@@ -58,14 +59,14 @@ export function AlarmPicker({ value, onChange, hasVoice, voiceUri }: {
         })}
       </View>
 
-      <Eyebrow>Weckton</Eyebrow>
+      <Eyebrow>{t('picker.sound')}</Eyebrow>
       <View style={{ gap: 8 }}>
         {SOUNDS.filter(x => x.key !== 'voice' || hasVoice).map(x => {
           const on = value.sound === x.key;
           return (
             <Pressable key={x.key} onPress={() => pickSound(x.key)} style={[s.sound, on && s.on]}>
-              <Text style={[s.soundLabel, on && s.onText]}>{x.label}</Text>
-              <Text style={[s.soundHint, on && { color: 'rgba(10,10,10,0.7)' }]}>{x.hint} · antippen zum Anhören</Text>
+              <Text style={[s.soundLabel, on && s.onText]}>{soundLabel(x.key)}</Text>
+              <Text style={[s.soundHint, on && { color: 'rgba(10,10,10,0.7)' }]}>{soundHint(x.key)} · {t('picker.preview')}</Text>
             </Pressable>
           );
         })}

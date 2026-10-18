@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Button, Eyebrow, styles as ui } from '../components/ui';
-import { exerciseName, FREE_PACT_SESSIONS, sessionInfo, WORKOUTS } from '../program';
+import { t } from '../i18n';
+import { exerciseCue, exerciseName, FREE_PACT_SESSIONS, sessionInfo, WORKOUTS } from '../program';
 import { AppState, lastSets, SessionLog, SetLog } from '../storage';
 import { colors, radius } from '../theme';
 
@@ -82,19 +83,19 @@ export function Workout({ state, onFinish, onCancel, onPhoto }: {
     return (
       <View style={s.celebrate}>
         <Text style={s.check}>✓</Text>
-        <Text style={[ui.h1, { textAlign: 'center' }]}>Einheit {done}{'\n'}geschafft.</Text>
+        <Text style={[ui.h1, { textAlign: 'center' }]}>{t('wo.done', { n: done })}</Text>
         <Text style={[ui.body, { textAlign: 'center', marginTop: 12 }]}>
-          {toFree > 0 ? `Noch ${toFree} bis zu deinem Gratis-Pakt. Deine Crew sieht, dass du heute da warst.` : 'Dein Gratis-Pakt ist gesichert.'}
+          {toFree > 0 ? t('wo.toFree', { n: toFree }) : t('wo.freeDone')}
         </Text>
         {photo ? (
           <Image source={{ uri: photo }} style={s.photo} />
         ) : (
           <Pressable onPress={takePhoto} style={s.photoBtn}>
-            <Text style={s.photoTitle}>Foto für deinen Day-One-Film</Text>
-            <Text style={ui.body}>3 Sekunden. In Woche 12 wird daraus dein Film.</Text>
+            <Text style={s.photoTitle}>{t('wo.photo')}</Text>
+            <Text style={ui.body}>{t('wo.photo.sub')}</Text>
           </Pressable>
         )}
-        <Button label="Fertig" onPress={onCancel} style={{ marginTop: 16, alignSelf: 'stretch' }} />
+        <Button label={t('common.done')} onPress={onCancel} style={{ marginTop: 16, alignSelf: 'stretch' }} />
       </View>
     );
   }
@@ -103,7 +104,7 @@ export function Workout({ state, onFinish, onCancel, onPhoto }: {
     <View style={{ flex: 1 }}>
       <View style={s.top}>
         <Pressable onPress={onCancel} hitSlop={12}><Text style={s.close}>✕</Text></Pressable>
-        <Text style={s.topTitle}>Ganzkörper {info.workout} · Einheit {info.number}</Text>
+        <Text style={s.topTitle}>{t('common.fullBody', { w: info.workout })} · {t('common.session', { n: info.number })}</Text>
         <Text style={s.topCount}>{index + 1}/{exercises.length}</Text>
       </View>
       <View style={s.progress}>
@@ -113,15 +114,15 @@ export function Workout({ state, onFinish, onCancel, onPhoto }: {
       </View>
 
       <ScrollView contentContainerStyle={s.wrap} keyboardShouldPersistTaps="handled">
-        <Eyebrow>{ex.timed ? `${info.phase.sets} × 30–60 Sekunden` : `${info.phase.sets} Sätze × ${info.phase.reps} Wdh.`}</Eyebrow>
+        <Eyebrow>{ex.timed ? t('wo.timed', { sets: info.phase.sets }) : t('wo.sets', { sets: info.phase.sets, reps: info.phase.reps })}</Eyebrow>
         <Text style={[ui.h1, { fontSize: 34, marginTop: 6 }]}>{exerciseName(ex, profile.place)}</Text>
-        <Text style={[ui.body, { marginTop: 6 }]}>{ex.cue}</Text>
-        {hasLast && !ex.timed && <Text style={s.hint}>Werte vom letzten Mal sind schon eingetragen.</Text>}
+        <Text style={[ui.body, { marginTop: 6 }]}>{exerciseCue(ex)}</Text>
+        {hasLast && !ex.timed && <Text style={s.hint}>{t('wo.prefilled')}</Text>}
 
         <View style={s.headRow}>
-          <Text style={[s.head, { width: 36 }]}>SATZ</Text>
-          <Text style={[s.head, { flex: 1 }]}>{ex.timed ? '' : 'KG'}</Text>
-          <Text style={[s.head, { flex: 1 }]}>{ex.timed ? 'SEKUNDEN' : 'WDH.'}</Text>
+          <Text style={[s.head, { width: 36 }]}>{t('wo.col.set')}</Text>
+          <Text style={[s.head, { flex: 1 }]}>{ex.timed ? '' : t('wo.col.kg')}</Text>
+          <Text style={[s.head, { flex: 1 }]}>{ex.timed ? t('wo.col.seconds') : t('wo.col.reps')}</Text>
           <View style={{ width: 52 }} />
         </View>
         {exRows.map((r, i) => (
@@ -154,7 +155,7 @@ export function Workout({ state, onFinish, onCancel, onPhoto }: {
         {rest > 0 && (
           <Pressable onPress={() => setRest(0)} style={s.rest}>
             <Text style={s.restTime}>{Math.floor(rest / 60)}:{String(rest % 60).padStart(2, '0')}</Text>
-            <Text style={ui.body}>Pause · tippen zum Überspringen</Text>
+            <Text style={ui.body}>{t('wo.rest')}</Text>
           </Pressable>
         )}
       </ScrollView>
@@ -162,9 +163,9 @@ export function Workout({ state, onFinish, onCancel, onPhoto }: {
       <View style={s.bottom}>
         {index > 0 && <Button label="←" variant="ghost" onPress={() => setIndex(index - 1)} style={{ width: 64 }} />}
         {index < exercises.length - 1 ? (
-          <Button label={allDone ? 'Nächste Übung →' : 'Überspringen →'} variant={allDone ? 'accent' : 'ghost'} onPress={() => { setRest(0); setIndex(index + 1); }} style={{ flex: 1 }} />
+          <Button label={allDone ? t('wo.nextExercise') : t('wo.skip')} variant={allDone ? 'accent' : 'ghost'} onPress={() => { setRest(0); setIndex(index + 1); }} style={{ flex: 1 }} />
         ) : (
-          <Button label="Einheit abschließen ✓" onPress={finish} style={{ flex: 1 }} />
+          <Button label={t('wo.finish')} onPress={finish} style={{ flex: 1 }} />
         )}
       </View>
     </View>

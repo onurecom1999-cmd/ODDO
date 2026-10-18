@@ -1,8 +1,9 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { alarmLabel, nextAlarm, SOUNDS } from '../alarm';
+import { alarmLabel, nextAlarm, soundLabel } from '../alarm';
 import { Button, Card, Eyebrow, Ring, styles as ui } from '../components/ui';
 import { exerciseName, FREE_PACT_SESSIONS, sessionInfo, TOTAL_SESSIONS, WORKOUTS } from '../program';
 import { AppState, trainedOn } from '../storage';
+import { t } from '../i18n';
 import { colors, radius } from '../theme';
 
 function dayNumber(startedAt: string) {
@@ -22,22 +23,22 @@ export function Today({ state, onStart, onTestAlarm, onRescue }: { state: AppSta
 
   return (
     <ScrollView contentContainerStyle={s.wrap}>
-      <Text style={ui.body}>Hey {profile.name}</Text>
-      <Text style={ui.h1}>Tag {dayNumber(profile.startedAt)}</Text>
-      <Text style={[ui.body, { marginBottom: 20 }]}>Woche {next.week} von 12 · Phase {next.phase.name}</Text>
+      <Text style={ui.body}>{t('today.hey', { name: profile.name })}</Text>
+      <Text style={ui.h1}>{t('today.day', { n: dayNumber(profile.startedAt) })}</Text>
+      <Text style={[ui.body, { marginBottom: 20 }]}>{t('today.week', { w: next.week, phase: t(next.phase.name) })}</Text>
 
       <Card style={s.ringCard}>
         <Ring value={done} total={TOTAL_SESSIONS} />
         <View style={{ flex: 1 }}>
           {toFree > 0 ? (
             <>
-              <Text style={s.bigLine}>Noch {toFree} Einheiten</Text>
-              <Text style={ui.body}>bis dein nächster Pakt gratis ist</Text>
+              <Text style={s.bigLine}>{t('today.left', { n: toFree })}</Text>
+              <Text style={ui.body}>{t('today.left.sub')}</Text>
             </>
           ) : (
             <>
-              <Text style={[s.bigLine, { color: colors.accent }]}>Gratis-Pakt gesichert</Text>
-              <Text style={ui.body}>Du hast durchgezogen. Respekt.</Text>
+              <Text style={[s.bigLine, { color: colors.accent }]}>{t('common.freeSecured')}</Text>
+              <Text style={ui.body}>{t('today.respect')}</Text>
             </>
           )}
         </View>
@@ -45,15 +46,15 @@ export function Today({ state, onStart, onTestAlarm, onRescue }: { state: AppSta
 
       {finished ? (
         <Card style={{ marginTop: 16 }}>
-          <Text style={ui.h2}>Pakt abgeschlossen</Text>
-          <Text style={[ui.body, { marginTop: 6 }]}>Alle 36 Einheiten geschafft. Zeit für Vorher-Nachher und deinen nächsten Pakt.</Text>
+          <Text style={ui.h2}>{t('today.finished')}</Text>
+          <Text style={[ui.body, { marginTop: 6 }]}>{t('today.finished.body')}</Text>
         </Card>
       ) : (
         <View style={s.today}>
-          <Text style={s.todayLabel}>{trainedToday ? 'HEUTE SCHON ERLEDIGT · NÄCHSTE EINHEIT' : 'HEUTE'}</Text>
-          <Text style={s.todayTitle}>Ganzkörper {next.workout}</Text>
+          <Text style={s.todayLabel}>{trainedToday ? t('today.label.done') : t('today.label')}</Text>
+          <Text style={s.todayTitle}>{t('common.fullBody', { w: next.workout })}</Text>
           <Text style={s.todayMeta}>
-            Einheit {next.number} · ca. {next.minutes} Min · {profile.place === 'gym' ? 'Studio' : 'Zuhause'}
+            {t('today.meta', { n: next.number, min: next.minutes, place: t(profile.place === 'gym' ? 'place.gym.short' : 'place.home.short') })}
           </Text>
           <View style={s.list}>
             {WORKOUTS[next.workout].map(ex => (
@@ -62,10 +63,10 @@ export function Today({ state, onStart, onTestAlarm, onRescue }: { state: AppSta
               </Text>
             ))}
           </View>
-          <Button label="Training starten →" variant="dark" onPress={onStart} />
+          <Button label={t('common.start')} variant="dark" onPress={onStart} />
           {dueToday && !trainedToday && (
             <Pressable onPress={onRescue} style={{ marginTop: 14, alignSelf: 'center' }}>
-              <Text style={s.rescue}>Keine Zeit? 15-Min-Rettung zuhause</Text>
+              <Text style={s.rescue}>{t('today.rescue')}</Text>
             </Pressable>
           )}
         </View>
@@ -73,16 +74,16 @@ export function Today({ state, onStart, onTestAlarm, onRescue }: { state: AppSta
 
       <Card style={s.alarm}>
         <View style={{ flex: 1 }}>
-          <Eyebrow>Warum-Wecker</Eyebrow>
-          <Text style={s.alarmTime}>{(() => { const n = nextAlarm(profile.alarm); return n ? alarmLabel(n) : 'Aus'; })()}</Text>
-          <Text style={ui.body}>{SOUNDS.find(x => x.key === profile.alarm.sound)?.label}</Text>
+          <Eyebrow>{t('alarm.title')}</Eyebrow>
+          <Text style={s.alarmTime}>{(() => { const n = nextAlarm(profile.alarm); return n ? alarmLabel(n) : t('alarm.off'); })()}</Text>
+          <Text style={ui.body}>{soundLabel(profile.alarm.sound)}</Text>
         </View>
         <Pressable onPress={onTestAlarm} style={s.testBtn}>
-          <Text style={s.testText}>Testen</Text>
+          <Text style={s.testText}>{t('alarm.test')}</Text>
         </Pressable>
       </Card>
 
-      <Eyebrow>Deine Woche</Eyebrow>
+      <Eyebrow>{t('today.weeks')}</Eyebrow>
       <View style={s.weeks}>
         {Array.from({ length: 12 }, (_, i) => {
           const inWeek = Math.max(0, Math.min(3, done - i * 3));

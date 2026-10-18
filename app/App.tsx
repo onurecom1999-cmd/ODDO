@@ -8,6 +8,7 @@ import { uploadPhoto } from './src/cloud';
 import { persistMedia } from './src/files';
 import { Rescue } from './src/screens/Rescue';
 import { useCrew } from './src/useCrew';
+import { detectLang, Key, Lang, setLang, t } from './src/i18n';
 import { Alarm } from './src/screens/Alarm';
 import { Crew } from './src/screens/Crew';
 import { Onboarding } from './src/screens/Onboarding';
@@ -19,11 +20,7 @@ import { colors } from './src/theme';
 
 type Tab = 'today' | 'progress' | 'crew';
 
-const TABS: { key: Tab; label: string }[] = [
-  { key: 'today', label: 'Heute' },
-  { key: 'progress', label: 'Fortschritt' },
-  { key: 'crew', label: 'Crew' },
-];
+const TABS: Tab[] = ['today', 'progress', 'crew'];
 
 export default function App() {
   const [state, setState] = useState<AppState | null>(null);
@@ -36,7 +33,10 @@ export default function App() {
   const snoozeUntil = useRef(0);
 
   useEffect(() => {
-    loadState().then(setState);
+    loadState().then(loaded => {
+      setLang(loaded.lang ?? detectLang());
+      setState(loaded);
+    });
     if (Platform.OS === 'web') return;
     // Tapping a scheduled reminder on the phone opens the alarm screen.
     const sub = Notifications.addNotificationResponseReceivedListener(() => setRinging(true));
@@ -66,11 +66,20 @@ export default function App() {
     saveState(next);
   }
 
+  function changeLang(lang: Lang) {
+    if (!state) return;
+    setLang(lang);
+    update({ ...state, lang });
+    // Phone reminders carry their text, so they are rescheduled in the new language.
+    if (state.profile) scheduleAlarms(state.profile);
+  }
+
   function body() {
     if (!state) return <ActivityIndicator color={colors.accent} style={{ flex: 1 }} />;
     if (!state.profile) {
       return (
         <Onboarding
+          onLang={changeLang}
           onDone={profile => {
             update({ ...state, profile });
             scheduleAlarms(profile);
@@ -126,22 +135,22 @@ export default function App() {
       <View style={{ flex: 1 }}>
         <View style={{ flex: 1 }}>
           {tab === 'today' && <Today state={state} onStart={() => setTraining(true)} onTestAlarm={() => setRinging(true)} onRescue={() => setRescuing(true)} />}
-          {tab === 'progress' && <Progress state={state} />}
+          {tab === 'progress' && <Progress state={state} onLang={changeLang} />}
           {tab === 'crew' && <Crew state={state} crew={crew} />}
         </View>
         <View style={s.tabs}>
-          {TABS.map(t => (
-            <Pressable key={t.key} onPress={() => setTab(t.key)} style={s.tab}>
-              <View style={[s.tabDot, tab === t.key && { backgroundColor: colors.accent }]} />
-              <Text style={[s.tabText, tab === t.key && { color: colors.text }]}>{t.label}</Text>
+          {TABS.map(key => (
+            <Pressable key={key} onPress={() => setTab(key)} style={s.tab}>
+              <View style={[s.tabDot, tab === key && { backgroundColor: colors.accent }]} />
+              <Text style={[s.tabText, tab === key && { color: colors.text }]}>{t(`tab.${key}` as Key)}</Text>
             </Pressable>
           ))}
         </View>
         <Pressable
-          onLongPress={() => update(emptyState)}
+          onLongPress={() => update({ ...emptyState, lang: state.lang })}
           delayLongPress={1500}
           style={s.reset}
-          accessibilityLabel="Lange drücken, um neu zu starten"
+          accessibilityLabel={t('reset.hint')}
         >
           <Text style={s.logo}>ODDO</Text>
         </Pressable>

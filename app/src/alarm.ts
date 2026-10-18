@@ -1,28 +1,30 @@
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
+import { Key, t } from './i18n';
 import { AlarmSettings, Profile, SoundKey } from './storage';
 
-export const DAYS = [
-  { day: 1, short: 'Mo' },
-  { day: 2, short: 'Di' },
-  { day: 3, short: 'Mi' },
-  { day: 4, short: 'Do' },
-  { day: 5, short: 'Fr' },
-  { day: 6, short: 'Sa' },
-  { day: 0, short: 'So' },
-];
+// Monday first, as getDay() numbers.
+export const DAYS = [1, 2, 3, 4, 5, 6, 0];
 
 export const TIMES = ['06:00', '07:00', '08:00', '12:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
 
-export const SOUNDS: { key: SoundKey; label: string; hint: string; file?: number }[] = [
-  { key: 'voice', label: 'Deine Stimme', hint: 'Dein aufgenommenes Warum' },
-  { key: 'drums', label: 'Stadion-Trommeln', hint: 'Boom, boom, klatsch', file: require('../assets/sounds/drums.wav') },
-  { key: 'gong', label: 'Gong', hint: 'Ruhig, aber bestimmt', file: require('../assets/sounds/gong.wav') },
-  { key: 'rise', label: 'Aufstieg', hint: 'Steigende Töne', file: require('../assets/sounds/rise.wav') },
+export const SOUNDS: { key: SoundKey; file?: number }[] = [
+  { key: 'voice' },
+  { key: 'drums', file: require('../assets/sounds/drums.wav') },
+  { key: 'gong', file: require('../assets/sounds/gong.wav') },
+  { key: 'rise', file: require('../assets/sounds/rise.wav') },
 ];
 
+export function soundLabel(key: SoundKey) {
+  return t(`sound.${key}` as Key);
+}
+
+export function soundHint(key: SoundKey) {
+  return t(`sound.${key}.hint` as Key);
+}
+
 export function dayShort(day: number) {
-  return DAYS.find(d => d.day === day)?.short ?? '';
+  return t(`day.${day}` as Key);
 }
 
 // The next moment the alarm rings, strictly after `from`.
@@ -43,8 +45,8 @@ export function alarmLabel(d: Date) {
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
   const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-  if (d.toDateString() === today.toDateString()) return `Heute, ${time}`;
-  if (d.toDateString() === tomorrow.toDateString()) return `Morgen, ${time}`;
+  if (d.toDateString() === today.toDateString()) return t('alarm.today', { time });
+  if (d.toDateString() === tomorrow.toDateString()) return t('alarm.tomorrow', { time });
   return `${dayShort(d.getDay())}, ${time}`;
 }
 
@@ -65,8 +67,8 @@ export async function scheduleAlarms(profile: Profile) {
     for (const day of profile.alarm.days) {
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: 'Day One. Los.',
-          body: profile.why ? `Dein Warum: ${profile.why}` : 'Deine Crew wartet. Zeit fürs Training.',
+          title: t('alarm.go'),
+          body: profile.why ? t('notify.why', { why: profile.why }) : t('notify.crew'),
           sound: true,
           data: { alarm: true },
         },
