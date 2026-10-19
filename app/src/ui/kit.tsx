@@ -52,8 +52,8 @@ export function Bar({ pct, thin, over }: { pct: number; thin?: boolean; over?: b
   return <View style={[s.bar, thin && { height: 6 }]}><View style={{ width: `${Math.max(0, Math.min(100, pct))}%`, backgroundColor: over ? colors.bad : colors.accent, borderRadius: 10 }} /></View>;
 }
 
-export function Stat({ label, value }: { label: string; value: ReactNode }) {
-  return <View style={s.stat}><Muted>{label}</Muted>{typeof value === 'string' ? <Num style={{ fontSize: 22 }}>{value}</Num> : value}</View>;
+export function Stat({ label, value, first }: { label: string; value: ReactNode; first?: boolean }) {
+  return <View style={[s.stat, first && { borderTopWidth: 0 }]}><Muted>{label}</Muted>{typeof value === 'string' ? <Num style={{ fontSize: 22 }}>{value}</Num> : value}</View>;
 }
 
 export function CheckRow({ done, title, sub, go, onPress, first }: { done: boolean; title: string; sub?: string; go?: string; onPress: () => void; first?: boolean }) {

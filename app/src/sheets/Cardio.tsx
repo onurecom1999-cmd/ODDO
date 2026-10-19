@@ -36,7 +36,7 @@ export function CardioSheet({ onClose }: { onClose: () => void }) {
           <Field label={t('cardio.min')} value={min} onChangeText={setMin} keyboardType="number-pad" placeholder="30" />
         </Row>
         <View>
-          <Stat label={p?.unit === 'km/h' ? t('cardio.speed') : t('cardio.pace')} value={p ? `${p.value} ${p.unit}` : '–'} />
+          <Stat first label={p?.unit === 'km/h' ? t('cardio.speed') : t('cardio.pace')} value={p ? `${p.value} ${p.unit}` : '–'} />
           <Stat label={t('cardio.burn')} value={kcal ? `${fmt(kcal)} kcal` : '–'} />
         </View>
         <Small>{t('cardio.note')}</Small>

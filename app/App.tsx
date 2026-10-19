@@ -10,6 +10,8 @@ import { exampleState } from './src/logic/example';
 import { AppState, emptyState } from './src/logic/types';
 import { Logo, Onboarding } from './src/screens/Onboarding';
 import { PlanTab } from './src/screens/PlanTab';
+import { Progress } from './src/screens/Progress';
+import { Week } from './src/screens/Week';
 import { Today } from './src/screens/Today';
 import { CardioSheet } from './src/sheets/Cardio';
 import { FoodMode, FoodSheet } from './src/sheets/Food';
@@ -76,7 +78,7 @@ function Main() {
             </Pressable>
           </Row>
         ) : null}
-        {tab === 'today' ? <Today onOpen={open} /> : tab === 'plan' ? <PlanTab /> : (
+        {tab === 'today' ? <Today onOpen={open} /> : tab === 'plan' ? <PlanTab /> : tab === 'week' ? <Week /> : tab === 'progress' ? <Progress /> : (
           <Stack gap={14} style={{ paddingTop: 6 }}><H1>{t(`tab.${tab}` as Key)}</H1><Muted>{t('soon')}</Muted></Stack>
         )}
       </Screen>
