@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
-import { aiJson } from '../ai';
+import { AiError, aiJson } from '../ai';
 import { fmt, getLang, Key, t } from '../i18n';
 import { CARDIO } from '../logic/day';
 import { weekday } from '../logic/names';
@@ -18,7 +18,7 @@ const DOT: Record<string, object> = {
   '': {},
 };
 
-export function Week() {
+export function Week({ onOpen }: { onOpen: (sheet: string) => void }) {
   const { S } = useApp();
   const toast = useToast();
   const rows = lastWeek(S);
@@ -43,8 +43,9 @@ export function Week() {
       const list = (Array.isArray(out?.tips) ? out.tips : []).slice(0, 4)
         .map(x => ({ title: String(x.title || '').slice(0, 60), text: String(x.text || '').slice(0, 300) })).filter(x => x.title && x.text);
       if (list.length) setAi(list); else toast(t('week.tipsFailed'));
-    } catch {
-      toast(t('week.tipsFailed'));
+    } catch (e) {
+      if (e instanceof AiError && e.code === 'upgrade') { toast(t('pro.upgradeTips')); onOpen('pro'); }
+      else toast(t('week.tipsFailed'));
     }
     setLoading(false);
   };

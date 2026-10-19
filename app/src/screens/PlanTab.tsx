@@ -10,7 +10,7 @@ import { Body, Bold, Button, Card, Chip, Chips, Eyebrow, H1, H2, Muted, Small, S
 
 const WD_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
-export function PlanTab() {
+export function PlanTab({ onOpen }: { onOpen: (sheet: string) => void }) {
   const { S, update, replace } = useApp();
   const toast = useToast();
   const [confirm, setConfirm] = useState(false);
@@ -51,6 +51,11 @@ export function PlanTab() {
           <Bold>{t(`fail.${s.reason}` as Key)}</Bold><Muted>{s.text}</Muted>
         </Card>
       ))}
+      <Card style={{ gap: 10, borderColor: colors.accent }}>
+        <Bold>{t('pro.title')}</Bold>
+        <Muted>{t('pro.pro1')} · {t('pro.pro2')}</Muted>
+        <Button small label={t('pro.cta')} onPress={() => onOpen('pro')} />
+      </Card>
       {remindersSupported ? (
         <Stack gap={8}>
           <Bold>{t('remind.title')}</Bold>

@@ -1,10 +1,15 @@
 // ODDO's AI endpoint. The app sends a task; this calls Claude with the server-side key.
 // Env (set in Netlify, never in the repo): ANTHROPIC_API_KEY, optional AI_MODEL.
 import { getStore } from '@netlify/blobs';
+import { tierOf, userFrom } from '../lib/supabase.mjs';
 
 const MODEL = process.env.AI_MODEL || 'claude-sonnet-5-5';
-// Per device (IP) and day. Generous for real use, small enough to cap abuse.
-const LIMITS = { food_photo: 25, food_text: 40, tips: 5, plan: 5 };
+// Per account (or IP) and day. Free gets a taste; Pro is generous but still capped against abuse.
+const LIMITS = {
+  free: { food_photo: 3, food_text: 5, tips: 1, plan: 1 },
+  pro: { food_photo: 25, food_text: 40, tips: 5, plan: 5 },
+  ultimate: { food_photo: 40, food_text: 60, tips: 10, plan: 10 },
+};
 const LANG = { de: 'German', en: 'English', tr: 'Turkish' };
 
 const FOOD_FORMAT = `Answer only with JSON:
@@ -30,14 +35,14 @@ Data: ${JSON.stringify(b.data || {}).slice(0, 12000)}`;
 
 const json = (status, body) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } });
 
-async function overLimit(task, req, context) {
+async function overLimit(task, req, context, user, tier) {
   try {
-    const ip = context?.ip || req.headers.get('x-nf-client-connection-ip') || 'unknown';
+    const who = user || context?.ip || req.headers.get('x-nf-client-connection-ip') || 'unknown';
     const day = new Date().toISOString().slice(0, 10);
     const store = getStore('ai-limits');
-    const key = `${day}/${task}/${ip}`;
+    const key = `${day}/${task}/${who}`;
     const n = Number((await store.get(key)) || 0);
-    if (n >= LIMITS[task]) return true;
+    if (n >= LIMITS[tier][task]) return true;
     await store.set(key, String(n + 1));
   } catch {
     // If counting fails, serve the request rather than block people.
@@ -51,11 +56,13 @@ export default async (req, context) => {
   let b;
   try { b = await req.json(); } catch { return json(400, { error: 'bad_json' }); }
   const task = b?.task;
-  if (!(task in LIMITS)) return json(400, { error: 'task' });
+  if (!(task in LIMITS.free)) return json(400, { error: 'task' });
   if (task === 'food_photo' && String(b.image || '').length > 2_500_000) return json(413, { error: 'too_large' });
   const content = prompt(task, b);
   if (!content) return json(400, { error: 'task' });
-  if (await overLimit(task, req, context)) return json(429, { error: 'limit' });
+  const user = await userFrom(req);
+  const tier = await tierOf(user);
+  if (await overLimit(task, req, context, user, tier)) return json(tier === 'free' ? 402 : 429, { error: tier === 'free' ? 'upgrade' : 'limit', tier });
 
   let res;
   try {

@@ -165,7 +165,7 @@ export const s = StyleSheet.create({
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   card: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line, borderRadius: radius.md, padding: 18 },
-  badge: { borderWidth: 1, borderColor: colors.line, borderRadius: 999, paddingVertical: 4, paddingHorizontal: 10 },
+  badge: { alignSelf: 'flex-start',  borderWidth: 1, borderColor: colors.line, borderRadius: 999, paddingVertical: 4, paddingHorizontal: 10 },
   badgeText: { color: colors.muted, fontFamily: fonts.heavy, fontSize: 11, letterSpacing: 1.2, textTransform: 'uppercase' },
   bar: { height: 10, backgroundColor: colors.surface2, borderRadius: 10, overflow: 'hidden', flexDirection: 'row' },
   stat: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', paddingVertical: 12, borderTopWidth: 1, borderTopColor: colors.line },

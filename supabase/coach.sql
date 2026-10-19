@@ -34,6 +34,7 @@ create table if not exists public.subscriptions (
   renews_at timestamptz,
   updated_at timestamptz not null default now()
 );
+alter table public.subscriptions add column if not exists ends_at timestamptz;
 
 -- ---------- groups ----------
 create table if not exists public.groups (

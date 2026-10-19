@@ -15,6 +15,7 @@ import { Progress } from './src/screens/Progress';
 import { Week } from './src/screens/Week';
 import { Today } from './src/screens/Today';
 import { CardioSheet } from './src/sheets/Cardio';
+import { ProSheet } from './src/sheets/Pro';
 import { RewardSheet } from './src/sheets/Reward';
 import { FoodMode, FoodSheet } from './src/sheets/Food';
 import { TrainSheet } from './src/sheets/Train';
@@ -80,7 +81,7 @@ function Main() {
             </Pressable>
           </Row>
         ) : null}
-        {tab === 'today' ? <Today onOpen={open} /> : tab === 'plan' ? <PlanTab /> : tab === 'week' ? <Week /> : tab === 'progress' ? <Progress /> : tab === 'community' ? <Community /> : (
+        {tab === 'today' ? <Today onOpen={open} /> : tab === 'plan' ? <PlanTab onOpen={open} /> : tab === 'week' ? <Week onOpen={open} /> : tab === 'progress' ? <Progress /> : tab === 'community' ? <Community /> : (
           <Stack gap={14} style={{ paddingTop: 6 }}><H1>{t(`tab.${tab}` as Key)}</H1><Muted>{t('soon')}</Muted></Stack>
         )}
       </Screen>
@@ -97,7 +98,8 @@ function Main() {
       {sheet === 'train' ? <TrainSheet onClose={close} /> : null}
       {sheet === 'cardio' ? <CardioSheet onClose={close} /> : null}
       {sheet === 'reward' ? <RewardSheet onClose={close} /> : null}
-      {sheet?.startsWith('food') ? <FoodSheet mode={(sheet.split(':')[1] || 'photo') as FoodMode} onClose={close} /> : null}
+      {sheet === 'pro' ? <ProSheet onClose={close} /> : null}
+      {sheet?.startsWith('food') ? <FoodSheet mode={(sheet.split(':')[1] || 'photo') as FoodMode} onClose={close} onPro={() => setSheet('pro')} /> : null}
       <ToastHost />
     </View>
   );

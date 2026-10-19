@@ -18,7 +18,7 @@ function errorText(e: unknown) {
   return t(`food.err.${c}` as any);
 }
 
-export function FoodSheet({ mode, onClose }: { mode: FoodMode; onClose: () => void }) {
+export function FoodSheet({ mode, onClose, onPro }: { mode: FoodMode; onClose: () => void; onPro?: () => void }) {
   const { S, update } = useApp();
   const toast = useToast();
   const [photo, setPhoto] = useState('');
@@ -95,6 +95,7 @@ export function FoodSheet({ mode, onClose }: { mode: FoodMode; onClose: () => vo
       ) : null}
       {loading ? <Row style={{ paddingVertical: 12 }}><ActivityIndicator color={colors.accent} /><Muted>{mode === 'photo' ? t('food.looking') : t('food.thinking')}</Muted></Row> : null}
       {error ? <Muted>{error}</Muted> : null}
+      {error === t('food.err.upgrade') && onPro ? <Button variant="ghost" small label={t('pro.cta')} onPress={onPro} /> : null}
       {result && !loading ? (
         <Stack gap={14}>
           <View style={{ gap: 6 }}>

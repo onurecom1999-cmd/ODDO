@@ -8,7 +8,7 @@ const ENDPOINT = `${BASE}/.netlify/functions/ai`;
 export type FoodEstimate = { name: string; items: { name: string; grams: number }[]; kcal: number; protein: number; carbs: number; fat: number; confidence: string; hint: string };
 
 export class AiError extends Error {
-  constructor(public code: 'offline' | 'limit' | 'unavailable' | 'no_food' | 'failed') { super(code); }
+  constructor(public code: 'offline' | 'limit' | 'upgrade' | 'unavailable' | 'no_food' | 'failed') { super(code); }
 }
 
 async function call<T>(task: string, body: Record<string, unknown>): Promise<T> {
@@ -18,6 +18,7 @@ async function call<T>(task: string, body: Record<string, unknown>): Promise<T> 
   try {
     res = await fetch(ENDPOINT, { method: 'POST', headers: { 'content-type': 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}) }, body: JSON.stringify({ task, ...body }) });
   } catch { throw new AiError('offline'); }
+  if (res.status === 402) throw new AiError('upgrade');
   if (res.status === 429) throw new AiError('limit');
   if (res.status === 404 || res.status === 503) throw new AiError('unavailable');
   if (!res.ok) throw new AiError('failed');
