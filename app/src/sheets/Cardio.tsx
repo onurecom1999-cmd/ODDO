@@ -24,11 +24,15 @@ export function CardioSheet({ onClose }: { onClose: () => void }) {
   const [secs, setSecs] = useState(0);
   const tracker = useRef<Tracker | null>(null);
   const base = useRef(0);
+  // Time comes from the clock, not from counting ticks: timers stop while the phone is locked.
+  const acc = useRef(0);
   useEffect(() => () => tracker.current?.stop(), []);
   useEffect(() => {
     if (live !== 'on') return;
-    const id = setInterval(() => setSecs(s => s + 1), 1000);
-    return () => clearInterval(id);
+    const since = Date.now();
+    const tick = () => setSecs(acc.current + Math.floor((Date.now() - since) / 1000));
+    const id = setInterval(tick, 1000);
+    return () => { clearInterval(id); acc.current += Math.floor((Date.now() - since) / 1000); };
   }, [live]);
 
   const start = async () => {
