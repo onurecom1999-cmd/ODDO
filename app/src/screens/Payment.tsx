@@ -3,7 +3,7 @@ import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-na
 import { claimPayment, PaymentMethod } from '../cloud';
 import { Button, Card, Eyebrow, styles as ui } from '../components/ui';
 import { Key, t } from '../i18n';
-import { checkoutUrl, hasBank, PAYMENT, paymentReference, price } from '../payment';
+import { bank, checkoutUrl, hasBank, PAYMENT, paymentReference, price } from '../payment';
 import { AppState } from '../storage';
 import { colors, radius } from '../theme';
 
@@ -63,9 +63,9 @@ export function Payment({ state, onClaimed, onClose }: {
                 {hasBank() && (
                   <Card>
                     <Eyebrow>{t('pay.bank')}</Eyebrow>
-                    {PAYMENT.bank.holder ? <Row label={t('pay.holder')} value={PAYMENT.bank.holder} /> : null}
-                    <Row label={t('pay.iban')} value={PAYMENT.bank.iban} />
-                    {PAYMENT.bank.bank ? <Row label={t('pay.bankName')} value={PAYMENT.bank.bank} /> : null}
+                    {bank().holder ? <Row label={t('pay.holder')} value={bank().holder} /> : null}
+                    <Row label={t('pay.iban')} value={bank().iban} />
+                    {bank().bank ? <Row label={t('pay.bankName')} value={bank().bank} /> : null}
                     <Row label={t('pay.reference')} value={reference} strong />
                   </Card>
                 )}
