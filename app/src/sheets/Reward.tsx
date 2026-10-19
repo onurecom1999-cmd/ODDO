@@ -8,8 +8,9 @@ import { dayCard, DayCard } from '../logic/reward';
 import { pickPhoto, shrink } from '../media';
 import { useApp } from '../state';
 import { colors, fonts } from '../theme';
-import { Button, Emblem, Muted, Row, Sheet, Stack, useToast } from '../ui/kit';
+import { Bold, Button, Card as Box, Chip, Chips, Emblem, Field, Muted, Row, Sheet, Stack, useToast } from '../ui/kit';
 import { cardImage } from './cardImage';
+import { CommunityError, post } from '../community';
 
 const upper = (s: string) => s.toLocaleUpperCase(LOCALE[getLang()]);
 
@@ -56,6 +57,16 @@ export function RewardSheet({ onClose }: { onClose: () => void }) {
   const [width, setWidth] = useState(0);
   const [busy, setBusy] = useState(false);
   const ref = useRef<ViewInstance>(null);
+  const [text, setText] = useState('');
+  const [vis, setVis] = useState<'friends' | 'public'>('friends');
+  const [posted, setPosted] = useState(false);
+
+  const publish = async () => {
+    setBusy(true);
+    try { await post(c, text, vis); setPosted(true); toast(t('com.posted')); }
+    catch (e) { toast(e instanceof CommunityError && e.code === 'offline' ? t('com.offline') : t('com.err.failed')); }
+    setBusy(false);
+  };
 
   const addPhoto = async () => {
     const p = await pickPhoto('library');
@@ -103,6 +114,19 @@ export function RewardSheet({ onClose }: { onClose: () => void }) {
           {photo ? <Button variant="ghost" small style={{ flex: 1 }} label={t('reward.removePhoto')} onPress={() => setPhoto('')} /> : null}
         </Row>
         <Button label={busy ? '…' : t('reward.share')} onPress={share} disabled={busy} />
+        {S.example || posted ? null : (
+          <Box>
+            <Stack gap={12}>
+              <Bold>{t('com.post')}</Bold>
+              <Field value={text} onChangeText={setText} placeholder={t('com.postPh')} maxLength={500} multiline />
+              <Chips>
+                <Chip label={t('com.visFriends')} on={vis === 'friends'} onPress={() => setVis('friends')} />
+                <Chip label={t('com.visPublic')} on={vis === 'public'} onPress={() => setVis('public')} />
+              </Chips>
+              <Button variant="ghost" label={t('com.post')} onPress={publish} disabled={busy} />
+            </Stack>
+          </Box>
+        )}
       </Stack>
     </Sheet>
   );

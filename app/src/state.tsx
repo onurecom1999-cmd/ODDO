@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { backup } from './cloud';
 import { dayKey } from './logic/day';
 import { AppState, DayLog, emptyDay, emptyState } from './logic/types';
 
@@ -31,6 +32,7 @@ export function StateProvider({ initial, children }: { initial: AppState; childr
     AsyncStorage.setItem(KEY, JSON.stringify(S)).catch(() => {
       // Storage can be full or unavailable (private browsing); the app keeps working in memory.
     });
+    backup(S);
   }, [S]);
   const update = useCallback((fn: (draft: AppState) => void) => {
     setS(prev => { const draft: AppState = JSON.parse(JSON.stringify(prev)); fn(draft); return draft; });
