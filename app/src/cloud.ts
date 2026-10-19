@@ -19,6 +19,9 @@ export function userId(): Promise<string | null> {
   return session;
 }
 
+// After signing in with email the cached id belongs to the old session.
+export function resetSession() { session = null; lastProfile = ''; }
+
 // Photos stay on the device; the backup carries everything else.
 function withoutImages(S: AppState): AppState {
   return {

@@ -56,6 +56,7 @@ export function PlanTab({ onOpen }: { onOpen: (sheet: string) => void }) {
         <Muted>{t('pro.pro1')} · {t('pro.pro2')}</Muted>
         <Button small label={t('pro.cta')} onPress={() => onOpen('pro')} />
       </Card>
+      {S.example ? null : <Button variant="ghost" label={t('acc.cta')} onPress={() => onOpen('account')} />}
       {remindersSupported ? (
         <Stack gap={8}>
           <Bold>{t('remind.title')}</Bold>

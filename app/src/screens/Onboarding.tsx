@@ -34,7 +34,7 @@ const STEPS: Step[] = [
 const toggle = <T,>(list: T[] | undefined, v: T) => (list || []).includes(v) ? (list || []).filter(x => x !== v) : [...(list || []), v];
 const num = (s: string) => Number(s.replace(',', '.'));
 
-export function Onboarding({ onExample }: { onExample: () => void }) {
+export function Onboarding({ onExample, onLogin }: { onExample: () => void; onLogin: () => void }) {
   const { update, S } = useApp();
   const [phase, setPhase] = useState<'intro' | 'intake' | 'building' | 'reveal'>(S.profile ? 'reveal' : 'intro');
   const [step, setStep] = useState(0);
@@ -89,6 +89,7 @@ export function Onboarding({ onExample }: { onExample: () => void }) {
           </Card>
           <Button label={t('intro.cta')} onPress={() => { setPhase('intake'); setStep(0); }} />
           <Button variant="ghost" label={t('example.cta')} onPress={onExample} />
+          <LinkButton label={t('acc.have')} onPress={onLogin} style={{ textAlign: 'center' }} />
           <Small style={{ textAlign: 'center' }}>{t('intro.duration')}</Small>
         </Stack>
       </Screen>

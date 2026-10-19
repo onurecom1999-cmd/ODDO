@@ -15,6 +15,7 @@ import { Progress } from './src/screens/Progress';
 import { Week } from './src/screens/Week';
 import { Today } from './src/screens/Today';
 import { CardioSheet } from './src/sheets/Cardio';
+import { AccountSheet } from './src/sheets/Account';
 import { ProSheet } from './src/sheets/Pro';
 import { RewardSheet } from './src/sheets/Reward';
 import { FoodMode, FoodSheet } from './src/sheets/Food';
@@ -52,7 +53,14 @@ export default function App() {
 
 function Root() {
   const { S, replace } = useApp();
-  if (!S.profile || !S.plan || !S.onboarded) return <View style={{ flex: 1 }}><Onboarding onExample={() => replace(exampleState())} /><ToastHost /></View>;
+  const [login, setLogin] = useState(false);
+  if (!S.profile || !S.plan || !S.onboarded) return (
+    <View style={{ flex: 1 }}>
+      <Onboarding onExample={() => replace(exampleState())} onLogin={() => setLogin(true)} />
+      {login ? <AccountSheet mode="login" onClose={() => setLogin(false)} onRestored={s => { setLang(s.lang ?? detectLang()); replace({ ...emptyState, ...s }); }} /> : null}
+      <ToastHost />
+    </View>
+  );
   return <Main />;
 }
 
@@ -99,6 +107,7 @@ function Main() {
       {sheet === 'cardio' ? <CardioSheet onClose={close} /> : null}
       {sheet === 'reward' ? <RewardSheet onClose={close} /> : null}
       {sheet === 'pro' ? <ProSheet onClose={close} /> : null}
+      {sheet === 'account' ? <AccountSheet mode="save" onClose={close} /> : null}
       {sheet?.startsWith('food') ? <FoodSheet mode={(sheet.split(':')[1] || 'photo') as FoodMode} onClose={close} onPro={() => setSheet('pro')} /> : null}
       <ToastHost />
     </View>

@@ -483,6 +483,26 @@ export const de = {
   'pro.upgradeTips': 'Persönliche KI-Tipps gibt es einmal am Tag kostenlos. Mit Pro bis zu fünf Auswertungen.',
   'pro.cta': 'ODDO Pro ansehen',
   'food.err.upgrade': 'Deine kostenlosen KI-Schätzungen für heute sind aufgebraucht. Trag die Werte unten selbst ein oder hol dir Pro.',
+  // account
+  'acc.title': 'Konto sichern',
+  'acc.loginTitle': 'Mit Konto anmelden',
+  'acc.lead': 'Mit deiner E-Mail bleiben Plan, Verlauf und Gruppen erhalten, auch wenn du das Handy wechselst. Kein Passwort, du bekommst einen Code.',
+  'acc.loginLead': 'Gib die E-Mail ein, mit der du dein Konto gesichert hast. Wir schicken dir einen Code.',
+  'acc.email': 'E-Mail',
+  'acc.code': 'Code aus der E-Mail',
+  'acc.send': 'Code schicken',
+  'acc.confirm': 'Bestätigen',
+  'acc.codeSent': 'Code geschickt an {email}. Schau auch im Spam-Ordner.',
+  'acc.other': 'Andere E-Mail',
+  'acc.badEmail': 'Diese E-Mail sieht nicht richtig aus.',
+  'acc.badCode': 'Der Code stimmt nicht oder ist abgelaufen.',
+  'acc.noAccount': 'Zu dieser E-Mail gibt es noch kein Konto.',
+  'acc.saved': 'Konto gesichert.',
+  'acc.savedAs': 'Dein Konto ist gesichert',
+  'acc.noData': 'Zu diesem Konto sind noch keine Daten gespeichert.',
+  'acc.welcomeBack': 'Willkommen zurück.',
+  'acc.cta': 'Konto sichern',
+  'acc.have': 'Ich habe schon ein Konto',
 };
 
 export type Key = keyof typeof de;
