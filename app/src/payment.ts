@@ -6,7 +6,12 @@ export const PAYMENT = {
   // Price per app language: DACH in euros, international in dollars, Turkey about a quarter in lira.
   price: { de: '69 €', en: '$69', tr: '799 ₺' },
   checkout: { de: '', en: '', tr: '' },
-  bank: { holder: '', iban: '', bank: '' },
+  // Turkish testers pay by FAST/EFT; a lira transfer from Germany would be a costly SWIFT payment.
+  bank: {
+    de: { holder: '', iban: '', bank: '' },
+    en: { holder: '', iban: '', bank: '' },
+    tr: { holder: 'Onur Ünal', iban: 'TR24 0001 0090 1088 7248 7050 04', bank: 'Ziraat Bankası' },
+  },
   paypal: '',
 };
 
@@ -18,8 +23,12 @@ export function checkoutUrl() {
   return PAYMENT.checkout[getLang()];
 }
 
+export function bank() {
+  return PAYMENT.bank[getLang()];
+}
+
 export function hasBank() {
-  return !!PAYMENT.bank.iban;
+  return !!bank().iban;
 }
 
 // A short code for the transfer reference, so a payment can be matched to a person.
