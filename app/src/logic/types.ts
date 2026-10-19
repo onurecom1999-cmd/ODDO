@@ -34,6 +34,8 @@ export type AppState = {
   example?: boolean;
   // Set once the person has seen their plan and tapped into day 1.
   onboarded?: boolean;
+  // Hour of the daily reminder, if one is set.
+  reminder?: number | null;
   lang?: Lang;
 };
 

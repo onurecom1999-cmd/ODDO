@@ -43,7 +43,13 @@
           "locationWhenInUsePermission": "ODDO records the route and pace of your runs and rides while you track them."
         }
       ],
-      "expo-sharing"
+      "expo-sharing",
+      [
+        "expo-notifications",
+        {
+          "color": "#d4ff3a"
+        }
+      ]
     ]
   }
 }

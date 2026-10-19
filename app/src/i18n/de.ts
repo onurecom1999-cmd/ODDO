@@ -446,6 +446,14 @@ export const de = {
   'com.ago.min': 'vor {n} Min.',
   'com.ago.h': 'vor {n} Std.',
   'com.ago.d': 'vor {n} T.',
+  // reminders
+  'remind.title': 'Tägliche Erinnerung',
+  'remind.off': 'Aus',
+  'remind.channel': 'Tägliche Erinnerung',
+  'remind.denied': 'Erlaub Mitteilungen für ODDO in den Einstellungen deines Handys.',
+  'remind.morning': 'Neuer Tag, neue Chance. Hak heute deine Punkte ab.',
+  'remind.noon': 'Halbzeit. Was steht heute noch an?',
+  'remind.evening': 'Noch nicht alles abgehakt? Ein Punkt geht immer noch.',
 };
 
 export type Key = keyof typeof de;

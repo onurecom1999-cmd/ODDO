@@ -447,4 +447,12 @@ export const tr: Record<Key, string> = {
   'com.ago.min': '{n} dk önce',
   'com.ago.h': '{n} sa önce',
   'com.ago.d': '{n} gün önce',
+  // reminders
+  'remind.title': 'Günlük hatırlatma',
+  'remind.off': 'Kapalı',
+  'remind.channel': 'Günlük hatırlatma',
+  'remind.denied': 'Telefon ayarlarından ODDO için bildirimlere izin ver.',
+  'remind.morning': 'Yeni gün, yeni şans. Bugünkü maddelerini işaretle.',
+  'remind.noon': 'Devre arası. Bugün daha ne var?',
+  'remind.evening': 'Hepsini işaretlemedin mi? Bir madde daha her zaman olur.',
 };

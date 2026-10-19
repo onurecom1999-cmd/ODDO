@@ -447,4 +447,12 @@ export const en: Record<Key, string> = {
   'com.ago.min': '{n} min ago',
   'com.ago.h': '{n} h ago',
   'com.ago.d': '{n} d ago',
+  // reminders
+  'remind.title': 'Daily reminder',
+  'remind.off': 'Off',
+  'remind.channel': 'Daily reminder',
+  'remind.denied': 'Allow notifications for ODDO in your phone settings.',
+  'remind.morning': 'New day, new chance. Tick off your points today.',
+  'remind.noon': 'Halftime. What is still on for today?',
+  'remind.evening': 'Not everything ticked off yet? One more point is always possible.',
 };

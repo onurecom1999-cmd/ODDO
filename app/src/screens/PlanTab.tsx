@@ -3,14 +3,16 @@ import { Pressable, Text, View } from 'react-native';
 import { getLang, Key, LANGS, setLang, t } from '../i18n';
 import { exName, exNote, sessionFocus, sessionTitle, weekday } from '../logic/names';
 import { emptyState } from '../logic/types';
+import { REMINDER_HOURS, remindersSupported, setReminder } from '../reminders';
 import { useApp } from '../state';
 import { colors, fonts } from '../theme';
-import { Body, Bold, Button, Card, Chip, Chips, Eyebrow, H1, H2, Muted, Small, Stack, Stat } from '../ui/kit';
+import { Body, Bold, Button, Card, Chip, Chips, Eyebrow, H1, H2, Muted, Small, Stack, Stat, useToast } from '../ui/kit';
 
 const WD_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
 export function PlanTab() {
   const { S, update, replace } = useApp();
+  const toast = useToast();
   const [confirm, setConfirm] = useState(false);
   const P = S.plan!, p = S.profile!;
   return (
@@ -49,6 +51,17 @@ export function PlanTab() {
           <Bold>{t(`fail.${s.reason}` as Key)}</Bold><Muted>{s.text}</Muted>
         </Card>
       ))}
+      {remindersSupported ? (
+        <Stack gap={8}>
+          <Bold>{t('remind.title')}</Bold>
+          <Chips>
+            {[null, ...REMINDER_HOURS].map(h => (
+              <Chip key={String(h)} label={h == null ? t('remind.off') : `${h}:00`} on={(S.reminder ?? null) === h}
+                onPress={async () => { const ok = await setReminder(h); if (ok) update(d => { d.reminder = h; }); else toast(t('remind.denied')); }} />
+            ))}
+          </Chips>
+        </Stack>
+      ) : null}
       <Stack gap={8}>
         <Bold>{t('plan.language')}</Bold>
         <Chips>{LANGS.map(l => <Chip key={l} label={l.toUpperCase()} on={getLang() === l} onPress={() => { setLang(l); update(d => { d.lang = l; }); }} />)}</Chips>
