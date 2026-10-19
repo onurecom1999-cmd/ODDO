@@ -288,7 +288,12 @@ export const tr: Record<Key, string> = {
   'cardio.save': 'Kaydet',
   'cardio.saved': 'Kaydedildi. Bugün için +{n} kcal.',
   'cardio.need': 'Mesafe ve süreyi gir.',
-  'cardio.gpsSoon': 'Yakında: rotanı Strava gibi GPS ile canlı kaydet.',
+  'cardio.gpsStart': 'GPS ile canlı kaydet',
+  'cardio.pause': 'Duraklat',
+  'cardio.resume': 'Devam',
+  'cardio.stop': 'Bitir',
+  'cardio.gpsDenied': 'Canlı kayıt için konum izni gerekiyor. Mesafe ve süreyi kendin gir.',
+  'cardio.gpsNote': 'Kayıt sırasında uygulamayı açık tut. Rotan bu cihazda kalır.',
   'today.cardioDone': '{km} km · {min} dk',
   // week, progress, strength
   'week.title': 'Haftan',

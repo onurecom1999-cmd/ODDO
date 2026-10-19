@@ -288,7 +288,12 @@ export const en: Record<Key, string> = {
   'cardio.save': 'Save',
   'cardio.saved': 'Saved. +{n} kcal for today.',
   'cardio.need': 'Enter distance and time.',
-  'cardio.gpsSoon': 'Coming soon: record your route live with GPS, like Strava.',
+  'cardio.gpsStart': 'Record live with GPS',
+  'cardio.pause': 'Pause',
+  'cardio.resume': 'Resume',
+  'cardio.stop': 'Finish',
+  'cardio.gpsDenied': 'Live recording needs location access. Enter distance and time yourself.',
+  'cardio.gpsNote': 'Keep the app open while recording. Your route stays on this device.',
   'today.cardioDone': '{km} km · {min} min',
   // week, progress, strength
   'week.title': 'Your week',

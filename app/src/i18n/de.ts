@@ -287,7 +287,12 @@ export const de = {
   'cardio.save': 'Speichern',
   'cardio.saved': 'Gespeichert. +{n} kcal für heute.',
   'cardio.need': 'Trag Strecke und Dauer ein.',
-  'cardio.gpsSoon': 'Bald: Strecke live per GPS aufzeichnen, wie bei Strava.',
+  'cardio.gpsStart': 'Live per GPS aufzeichnen',
+  'cardio.pause': 'Pause',
+  'cardio.resume': 'Weiter',
+  'cardio.stop': 'Beenden',
+  'cardio.gpsDenied': 'Ohne Standortfreigabe geht keine Live-Aufzeichnung. Trag Strecke und Dauer selbst ein.',
+  'cardio.gpsNote': 'Lass die App beim Aufzeichnen offen. Deine Strecke bleibt auf diesem Gerät.',
   'today.cardioDone': '{km} km · {min} min',
   // week, progress, strength
   'week.title': 'Deine Woche',
