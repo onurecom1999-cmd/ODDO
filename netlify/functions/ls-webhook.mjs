@@ -28,7 +28,7 @@ export default async req => {
   const founder = String(ev.meta?.custom_data?.founder || '') === '1';
   try {
     await upsertSubscription({
-      user_id: userId, tier, status: a.status || 'active', ls_subscription_id: String(ev.data.id),
+      user_id: userId, tier, status: a.status || 'active', source: 'lemonsqueezy', ls_subscription_id: String(ev.data.id),
       renews_at: a.renews_at || null, ends_at: a.ends_at || null, founder, updated_at: new Date().toISOString(),
     });
   } catch (e) {

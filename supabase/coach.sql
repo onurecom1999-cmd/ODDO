@@ -35,6 +35,9 @@ create table if not exists public.subscriptions (
   updated_at timestamptz not null default now()
 );
 alter table public.subscriptions add column if not exists ends_at timestamptz;
+-- Where the plan was bought: lemonsqueezy (web), apple or google (in the app, through RevenueCat).
+alter table public.subscriptions add column if not exists source text not null default 'lemonsqueezy';
+alter table public.subscriptions add column if not exists store_id text;
 
 -- ---------- groups ----------
 create table if not exists public.groups (

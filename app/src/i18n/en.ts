@@ -515,4 +515,11 @@ export const en: Record<Key, string> = {
   'step.consent': 'I agree that ODDO processes my body and health details (e.g. weight, height, training, food) to create my plan. I can withdraw at any time by deleting my account.',
   'step.consentLink': 'Read the privacy policy',
   'step.consentNeed': 'Please confirm your consent so we can build your plan.',
+  'pro.thanks': 'Thanks! Your plan is active.',
+  'pro.failed': 'The purchase didn\'t go through. Please try again.',
+  'pro.restore': 'Restore purchases',
+  'pro.restored': 'Your subscription is back.',
+  'pro.restoreNone': 'No active subscription found.',
+  'pro.legalStore': 'The subscription renews automatically every month. Cancel any time in your store\'s subscription settings.',
+  'pro.founderTitleStore': '{price} a month, forever',
 };

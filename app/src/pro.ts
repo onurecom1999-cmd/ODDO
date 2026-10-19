@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Linking } from 'react-native';
 import { userId } from './cloud';
+import { storeBilling, storeTier } from './store';
 import { supabase } from './supabase';
 
 export type Tier = 'free' | 'pro' | 'ultimate';
@@ -14,7 +15,16 @@ const FOUNDER_CODE = process.env.EXPO_PUBLIC_FOUNDER_CODE || '';
 export const checkoutReady = (t: 'pro' | 'ultimate') => !!CHECKOUT[t];
 export const founderOffer = !!FOUNDER_CODE;
 
+const RANK: Record<Tier, number> = { free: 0, pro: 1, ultimate: 2 };
+export const best = (a: Tier, b: Tier): Tier => RANK[a] >= RANK[b] ? a : b;
+
+// The higher of the server record (web or store purchase) and the store's own answer on this phone.
 export async function myTier(): Promise<Tier> {
+  const [server, store] = await Promise.all([serverTier().catch(() => 'free' as Tier), storeBilling ? storeTier().catch(() => 'free' as Tier) : 'free' as Tier]);
+  return best(server, store);
+}
+
+async function serverTier(): Promise<Tier> {
   const id = await userId();
   if (!id || !supabase) return 'free';
   const { data } = await supabase.from('subscriptions').select('tier,status,ends_at').eq('user_id', id).maybeSingle();
@@ -26,7 +36,7 @@ export async function myTier(): Promise<Tier> {
 export function useTier() {
   const [tier, setTier] = useState<Tier>('free');
   useEffect(() => { myTier().then(setTier, () => {}); }, []);
-  return tier;
+  return [tier, setTier] as const;
 }
 
 // Opens the checkout with the account id attached, so the webhook knows whom to upgrade.

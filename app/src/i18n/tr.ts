@@ -515,4 +515,11 @@ export const tr: Record<Key, string> = {
   'step.consent': 'ODDO\'nun planımı oluşturmak için vücut ve sağlık bilgilerimi (ör. kilo, boy, antrenman, yemek) işlemesine onay veriyorum. Hesabımı silerek istediğim zaman geri alabilirim.',
   'step.consentLink': 'Gizlilik politikasını oku',
   'step.consentNeed': 'Planını oluşturabilmemiz için lütfen onayını ver.',
+  'pro.thanks': 'Teşekkürler! Paketin aktif.',
+  'pro.failed': 'Satın alma tamamlanamadı. Lütfen tekrar dene.',
+  'pro.restore': 'Satın alımları geri yükle',
+  'pro.restored': 'Aboneliğin geri yüklendi.',
+  'pro.restoreNone': 'Aktif abonelik bulunamadı.',
+  'pro.legalStore': 'Abonelik her ay otomatik yenilenir. İstediğin zaman mağazanın abonelik ayarlarından iptal edebilirsin.',
+  'pro.founderTitleStore': 'Ayda {price}, ömür boyu',
 };

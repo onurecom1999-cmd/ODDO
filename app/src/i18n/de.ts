@@ -514,6 +514,13 @@ export const de = {
   'step.consent': 'Ich willige ein, dass ODDO meine Körper- und Gesundheitsangaben (z. B. Gewicht, Größe, Training, Essen) verarbeitet, um meinen Plan zu erstellen. Widerruf jederzeit durch Löschen des Kontos.',
   'step.consentLink': 'Datenschutz lesen',
   'step.consentNeed': 'Bitte bestätige die Einwilligung, damit wir deinen Plan erstellen können.',
+  'pro.thanks': 'Danke! Dein Paket ist aktiv.',
+  'pro.failed': 'Der Kauf hat nicht geklappt. Versuch es gleich noch einmal.',
+  'pro.restore': 'Käufe wiederherstellen',
+  'pro.restored': 'Dein Abo ist wieder da.',
+  'pro.restoreNone': 'Kein aktives Abo gefunden.',
+  'pro.legalStore': 'Das Abo verlängert sich jeden Monat automatisch und ist jederzeit in den Abo-Einstellungen deines Stores kündbar.',
+  'pro.founderTitleStore': '{price} im Monat, für immer',
 };
 
 export type Key = keyof typeof de;
