@@ -504,4 +504,15 @@ export const tr: Record<Key, string> = {
   'acc.welcomeBack': 'Tekrar hoş geldin.',
   'acc.cta': 'Hesabı kaydet',
   'acc.have': 'Zaten hesabım var',
+  // legal
+  'acc.delete': 'Hesabı ve verileri sil',
+  'acc.deleteQ': 'Hesabın gerçekten silinsin mi?',
+  'acc.deleteSub': 'Hesabın, yedeğin, paylaşımların, yorumların ve grup üyeliklerin kalıcı olarak silinir, bu cihazdaki tüm veriler de. Devam eden aboneliği Lemon Squeezy onay e-postasından iptal edersin.',
+  'acc.deleteYes': 'Evet, kalıcı olarak sil',
+  'legal.privacy': 'Gizlilik',
+  'legal.terms': 'Koşullar',
+  'legal.imprint': 'Künye',
+  'step.consent': 'ODDO\'nun planımı oluşturmak için vücut ve sağlık bilgilerimi (ör. kilo, boy, antrenman, yemek) işlemesine onay veriyorum. Hesabımı silerek istediğim zaman geri alabilirim.',
+  'step.consentLink': 'Gizlilik politikasını oku',
+  'step.consentNeed': 'Planını oluşturabilmemiz için lütfen onayını ver.',
 };

@@ -8,6 +8,8 @@ export type TestKey = 'push' | 'pull' | 'legs' | 'core';
 
 export type Profile = {
   name: string;
+  // When the person consented to processing their body and health details (ISO time).
+  consent?: string;
   goal: Goal;
   style: Style;
   // Beginner test answers, 0–3 per movement (bodyweight styles only).

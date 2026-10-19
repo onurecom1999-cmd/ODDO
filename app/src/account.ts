@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { restore, resetSession, userId } from './cloud';
 import type { AppState } from './logic/types';
 import { supabase } from './supabase';
@@ -37,4 +38,18 @@ export async function confirmLogin(email: string, code: string): Promise<AppStat
   if (error) throw error;
   resetSession();
   return restore();
+}
+
+const BASE = Platform.OS === 'web' ? '' : 'https://oddo-app.netlify.app';
+// Deletes the account on the server (if there is one) and signs out; the caller clears the device.
+export async function deleteAccount() {
+  if (!supabase) return;
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  if (token) {
+    const res = await fetch(`${BASE}/.netlify/functions/delete-account`, { method: 'POST', headers: { authorization: `Bearer ${token}` } });
+    if (!res.ok) throw new Error(`delete ${res.status}`);
+  }
+  await supabase.auth.signOut().catch(() => {});
+  resetSession();
 }

@@ -503,6 +503,17 @@ export const de = {
   'acc.welcomeBack': 'Willkommen zurück.',
   'acc.cta': 'Konto sichern',
   'acc.have': 'Ich habe schon ein Konto',
+  // legal
+  'acc.delete': 'Konto und Daten löschen',
+  'acc.deleteQ': 'Konto wirklich löschen?',
+  'acc.deleteSub': 'Dein Konto, deine Sicherung, Beiträge, Kommentare und Gruppen-Mitgliedschaften werden endgültig gelöscht, dazu alle Daten auf diesem Gerät. Ein laufendes Abo kündigst du in der Bestätigungs-Mail von Lemon Squeezy.',
+  'acc.deleteYes': 'Ja, endgültig löschen',
+  'legal.privacy': 'Datenschutz',
+  'legal.terms': 'AGB',
+  'legal.imprint': 'Impressum',
+  'step.consent': 'Ich willige ein, dass ODDO meine Körper- und Gesundheitsangaben (z. B. Gewicht, Größe, Training, Essen) verarbeitet, um meinen Plan zu erstellen. Widerruf jederzeit durch Löschen des Kontos.',
+  'step.consentLink': 'Datenschutz lesen',
+  'step.consentNeed': 'Bitte bestätige die Einwilligung, damit wir deinen Plan erstellen können.',
 };
 
 export type Key = keyof typeof de;

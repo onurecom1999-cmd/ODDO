@@ -1,5 +1,6 @@
 // ODDO's AI endpoint. The app sends a task; this calls Claude with the server-side key.
 // Env (set in Netlify, never in the repo): ANTHROPIC_API_KEY, optional AI_MODEL.
+import { createHash } from 'node:crypto';
 import { getStore } from '@netlify/blobs';
 import { tierOf, userFrom } from '../lib/supabase.mjs';
 
@@ -40,7 +41,8 @@ async function overLimit(task, req, context, user, tier) {
     const who = user || context?.ip || req.headers.get('x-nf-client-connection-ip') || 'unknown';
     const day = new Date().toISOString().slice(0, 10);
     const store = getStore('ai-limits');
-    const key = `${day}/${task}/${who}`;
+    // Only a one-way hash of the account or IP is kept, per day.
+    const key = `${day}/${task}/${createHash('sha256').update(`${day}:${who}`).digest('hex').slice(0, 32)}`;
     const n = Number((await store.get(key)) || 0);
     if (n >= LIMITS[tier][task]) return true;
     await store.set(key, String(n + 1));

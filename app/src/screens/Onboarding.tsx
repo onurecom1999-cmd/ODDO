@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Linking, Pressable, Text, View } from 'react-native';
 import { t, Key, LANGS, Lang, getLang, setLang } from '../i18n';
 import { rulePlan } from '../logic/build';
 import type { Fail, Goal, Profile, Style, TestKey, Weak } from '../logic/plan';
@@ -7,7 +7,7 @@ import { defaultRoutines, ROUTINES, WHEN } from '../logic/routines';
 import { l3 } from '../i18n';
 import { useApp } from '../state';
 import { colors, fonts } from '../theme';
-import { Body, Bold, Button, Card, Chip, Chips, Eyebrow, Field, H1, H2, LinkButton, Muted, Row, Screen, Small, Stack, Stat, Badge } from '../ui/kit';
+import { Body, Bold, Button, Card, Chip, Chips, Eyebrow, Field, H1, H2, LinkButton, Muted, Row, Screen, Small, Stack, Stat, Badge, CheckRow } from '../ui/kit';
 
 type Draft = Partial<Profile>;
 const GOALS: Goal[] = ['lose', 'muscle', 'fit', 'skill'];
@@ -27,7 +27,7 @@ const STEPS: Step[] = [
   { id: 'fails', ok: p => (p.fails || []).length > 0 },
   { id: 'weak', ok: () => true },
   { id: 'routine', ok: () => true },
-  { id: 'body', ok: p => !!p.sex && (p.age ?? 0) >= 14 && (p.age ?? 0) <= 90 && (p.height ?? 0) >= 120 && (p.height ?? 0) <= 230 && (p.weight ?? 0) >= 35 && (p.weight ?? 0) <= 250 },
+  { id: 'body', ok: p => !!p.sex && (p.age ?? 0) >= 14 && (p.age ?? 0) <= 90 && (p.height ?? 0) >= 120 && (p.height ?? 0) <= 230 && (p.weight ?? 0) >= 35 && (p.weight ?? 0) <= 250 && !!p.consent },
   { id: 'why', ok: p => (p.why || '').trim().length > 3 },
 ];
 
@@ -162,6 +162,8 @@ export function Onboarding({ onExample, onLogin }: { onExample: () => void; onLo
       <Field label={t('step.body.height')} keyboardType="number-pad" placeholder="178" value={p.height ? String(p.height) : ''} onChangeText={v => set({ height: num(v) || undefined })} />
       <Field label={t('step.body.weight')} keyboardType="decimal-pad" placeholder="82" defaultValue={p.weight ? String(p.weight) : ''} onChangeText={v => set({ weight: num(v) || undefined })} />
     </Row>
+    <CheckRow first done={!!p.consent} title={t('step.consent')} onPress={() => set({ consent: p.consent ? undefined : new Date().toISOString() })} />
+    <LinkButton label={t('step.consentLink')} onPress={() => Linking.openURL(`https://oddo-app.netlify.app/datenschutz.html#${getLang()}`)} />
   </Stack>;
   if (st.id === 'why') body = <Field multiline value={p.why || ''} onChangeText={v => set({ why: v })} placeholder={t('step.why.ph')} />;
 

@@ -1,17 +1,21 @@
 import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Linking, Pressable, Text, View } from 'react-native';
+import { deleteAccount } from '../account';
+
+const SITE = 'https://oddo-app.netlify.app';
 import { getLang, Key, LANGS, setLang, t } from '../i18n';
 import { exName, exNote, sessionFocus, sessionTitle, weekday } from '../logic/names';
 import { emptyState } from '../logic/types';
 import { REMINDER_HOURS, remindersSupported, setReminder } from '../reminders';
 import { useApp } from '../state';
 import { colors, fonts } from '../theme';
-import { Body, Bold, Button, Card, Chip, Chips, Eyebrow, H1, H2, Muted, Small, Stack, Stat, useToast } from '../ui/kit';
+import { Body, Bold, Button, Card, Chip, Chips, Eyebrow, H1, H2, LinkButton, Muted, Row, Small, Stack, Stat, useToast } from '../ui/kit';
 
 const WD_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
 export function PlanTab({ onOpen }: { onOpen: (sheet: string) => void }) {
   const { S, update, replace } = useApp();
+  const [wipe, setWipe] = useState(false);
   const toast = useToast();
   const [confirm, setConfirm] = useState(false);
   const P = S.plan!, p = S.profile!;
@@ -80,6 +84,21 @@ export function PlanTab({ onOpen }: { onOpen: (sheet: string) => void }) {
           <Button variant="ghost" label={t('plan.cancel')} onPress={() => setConfirm(false)} />
         </Card>
       ) : <Button variant="ghost" label={t('plan.reset')} onPress={() => setConfirm(true)} />}
+      {S.example ? null : wipe ? (
+        <Card style={{ gap: 12, borderColor: colors.bad }}>
+          <Bold>{t('acc.deleteQ')}</Bold>
+          <Muted>{t('acc.deleteSub')}</Muted>
+          <Button label={t('acc.deleteYes')} onPress={async () => {
+            try { await deleteAccount(); replace(emptyState); } catch { toast(t('com.err.failed')); }
+          }} />
+          <Button variant="ghost" label={t('plan.cancel')} onPress={() => setWipe(false)} />
+        </Card>
+      ) : <LinkButton label={t('acc.delete')} onPress={() => setWipe(true)} style={{ color: colors.dim, textAlign: 'center' }} />}
+      <Row style={{ justifyContent: 'center', gap: 18 }}>
+        <LinkButton label={t('legal.privacy')} onPress={() => Linking.openURL(`${SITE}/datenschutz.html#${getLang()}`)} style={{ color: colors.dim }} />
+        <LinkButton label={t('legal.terms')} onPress={() => Linking.openURL(`${SITE}/agb.html#${getLang()}`)} style={{ color: colors.dim }} />
+        <LinkButton label={t('legal.imprint')} onPress={() => Linking.openURL(`${SITE}/impressum.html`)} style={{ color: colors.dim }} />
+      </Row>
     </Stack>
   );
 }

@@ -43,3 +43,24 @@ export async function upsertSubscription(row) {
   });
   if (!res.ok) throw new Error(`supabase ${res.status}: ${await res.text()}`);
 }
+
+export async function deleteUser(id) {
+  if (!SERVICE()) throw new Error('SUPABASE_SERVICE_ROLE_KEY missing');
+  // Storage objects do not cascade; remove the person's progress photos and post images first.
+  for (const bucket of ['photos', 'posts']) {
+    const list = await fetch(`${SB_URL}/storage/v1/object/list/${bucket}`, {
+      method: 'POST', headers: { apikey: SERVICE(), authorization: `Bearer ${SERVICE()}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ prefix: `${id}/`, limit: 1000 }),
+    }).then(r => (r.ok ? r.json() : [])).catch(() => []);
+    if (list.length) {
+      await fetch(`${SB_URL}/storage/v1/object/${bucket}`, {
+        method: 'DELETE', headers: { apikey: SERVICE(), authorization: `Bearer ${SERVICE()}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ prefixes: list.map(o => `${id}/${o.name}`) }),
+      }).catch(() => {});
+    }
+  }
+  const res = await fetch(`${SB_URL}/auth/v1/admin/users/${encodeURIComponent(id)}`, {
+    method: 'DELETE', headers: { apikey: SERVICE(), authorization: `Bearer ${SERVICE()}` },
+  });
+  if (!res.ok && res.status !== 404) throw new Error(`delete ${res.status}`);
+}

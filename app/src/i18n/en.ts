@@ -504,4 +504,15 @@ export const en: Record<Key, string> = {
   'acc.welcomeBack': 'Welcome back.',
   'acc.cta': 'Save account',
   'acc.have': 'I already have an account',
+  // legal
+  'acc.delete': 'Delete account and data',
+  'acc.deleteQ': 'Really delete your account?',
+  'acc.deleteSub': 'Your account, backup, posts, comments and group memberships are deleted for good, along with all data on this device. Cancel a running subscription via the Lemon Squeezy confirmation email.',
+  'acc.deleteYes': 'Yes, delete for good',
+  'legal.privacy': 'Privacy',
+  'legal.terms': 'Terms',
+  'legal.imprint': 'Legal notice',
+  'step.consent': 'I agree that ODDO processes my body and health details (e.g. weight, height, training, food) to create my plan. I can withdraw at any time by deleting my account.',
+  'step.consentLink': 'Read the privacy policy',
+  'step.consentNeed': 'Please confirm your consent so we can build your plan.',
 };
