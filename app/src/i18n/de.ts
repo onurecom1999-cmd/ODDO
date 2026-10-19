@@ -361,6 +361,26 @@ export const de = {
   'level.advanced': 'Fortgeschritten',
   'level.strong': 'Stark',
   'level.elite': 'Elite',
+  // day card
+  'reward.title': 'Deine Tageskarte',
+  'reward.allDone': 'Alles durchgezogen',
+  'reward.partial': '{done} von {all} geschafft',
+  'reward.notYet': 'Noch dran',
+  'reward.trainDone': '{title} geschafft',
+  'reward.km': '{km} km {type}',
+  'reward.inBudget': 'Im Kalorienbudget',
+  'reward.routines': '{done}/{all} Routinen',
+  'reward.rank': '{ex}: stärker als {n} %',
+  'reward.streak1': '1 Tag am Stück',
+  'reward.streakN': '{n} Tage am Stück',
+  'reward.addPhoto': 'Foto dazu',
+  'reward.changePhoto': 'Anderes Foto',
+  'reward.removePhoto': 'Ohne Foto',
+  'reward.share': 'Teilen',
+  'reward.saved': 'Bild gespeichert. Jetzt in Instagram oder TikTok hochladen.',
+  'reward.shareText': 'Heute durchgezogen.',
+  'reward.hint': 'Hak alle Punkte ab, dann bekommst du dein Emblem für heute. Teilen kannst du die Karte jederzeit.',
+  'reward.failed': 'Teilen hat nicht geklappt.',
 };
 
 export type Key = keyof typeof de;

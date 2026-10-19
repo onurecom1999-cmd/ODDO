@@ -14,6 +14,7 @@ import { Progress } from './src/screens/Progress';
 import { Week } from './src/screens/Week';
 import { Today } from './src/screens/Today';
 import { CardioSheet } from './src/sheets/Cardio';
+import { RewardSheet } from './src/sheets/Reward';
 import { FoodMode, FoodSheet } from './src/sheets/Food';
 import { TrainSheet } from './src/sheets/Train';
 import { loadState, StateProvider, useApp } from './src/state';
@@ -60,7 +61,7 @@ function Main() {
   const [tab, setTab] = useState<Tab>('today');
   const scroll = useRef<ScrollViewInstance>(null);
   const [sheet, setSheet] = useState<string | null>(null);
-  const open = (name: string) => { if (name === 'reward') toast(t('soon')); else setSheet(name); };
+  const open = (name: string) => setSheet(name);
   const close = () => setSheet(null);
   const go = (next: Tab) => { setTab(next); scroll.current?.scrollTo({ y: 0, animated: false }); };
   return (
@@ -94,6 +95,7 @@ function Main() {
       </View>
       {sheet === 'train' ? <TrainSheet onClose={close} /> : null}
       {sheet === 'cardio' ? <CardioSheet onClose={close} /> : null}
+      {sheet === 'reward' ? <RewardSheet onClose={close} /> : null}
       {sheet?.startsWith('food') ? <FoodSheet mode={(sheet.split(':')[1] || 'photo') as FoodMode} onClose={close} /> : null}
       <ToastHost />
     </View>
