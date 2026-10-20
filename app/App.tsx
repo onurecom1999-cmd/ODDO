@@ -13,6 +13,7 @@ import { Activity } from './src/screens/Activity';
 import { Community } from './src/screens/Community';
 import { Me } from './src/screens/Me';
 import { Today } from './src/screens/Today';
+import { LiveRecord } from './src/sheets/LiveRecord';
 import { CardioSheet } from './src/sheets/Cardio';
 import { CreatorSheet } from './src/sheets/Creator';
 import { AccountSheet } from './src/sheets/Account';
@@ -104,7 +105,8 @@ function Main() {
         </View>
       </View>
       {sheet === 'train' ? <TrainSheet onClose={close} /> : null}
-      {sheet?.startsWith('cardio') ? <CardioSheet onClose={close} initialType={(sheet.split(':')[1] || 'run') as CardioType} autoStart={sheet.endsWith(':live')} /> : null}
+      {sheet?.startsWith('cardio') && !sheet.endsWith(':live') ? <CardioSheet onClose={close} initialType={(sheet.split(':')[1] || 'run') as CardioType} onLive={type => setSheet(`cardio:${type}:live`)} /> : null}
+      {sheet?.startsWith('cardio') && sheet.endsWith(':live') ? <LiveRecord onClose={close} type={(sheet.split(':')[1] || 'run') as CardioType} /> : null}
       {sheet === 'reward' ? <RewardSheet onClose={close} /> : null}
       {sheet === 'pro' ? <ProSheet onClose={close} /> : null}
       {sheet === 'creator' ? <CreatorSheet onClose={close} onPro={() => setSheet('pro')} /> : null}

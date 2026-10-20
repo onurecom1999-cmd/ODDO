@@ -1,60 +1,30 @@
-import { useEffect, useRef, useState } from 'react';
-import { Text, View } from 'react-native';
-import { Point, thin, track, Tracker } from '../gps';
-import { colors, fonts } from '../theme';
+import { useState } from 'react';
+import { View } from 'react-native';
+import type { Point } from '../gps';
 import { fmt, t, Key } from '../i18n';
 import { CARDIO, cardioKcal, pace } from '../logic/day';
 import { bodyWeight } from '../logic/strength';
 import type { CardioType } from '../logic/types';
 import { dayLog, useApp } from '../state';
 import { RouteMap } from '../ui/RouteMap';
-import { Button, Card, Chip, Chips, Field, Muted, Row, Sheet, Small, Stack, Stat, useToast } from '../ui/kit';
+import { Button, Chip, Chips, Field, Row, Sheet, Small, Stack, Stat, useToast } from '../ui/kit';
 
 const TYPES = Object.keys(CARDIO) as CardioType[];
 const num = (v: string) => { const n = Number(v.replace(',', '.')); return n > 0 ? n : 0; };
 
-export function CardioSheet({ onClose, initialType = 'run', autoStart }: { onClose: () => void; initialType?: CardioType; autoStart?: boolean }) {
+export function CardioSheet({ onClose, initialType = 'run', onLive }: { onClose: () => void; initialType?: CardioType; onLive: (type: CardioType) => void }) {
   const { S, update } = useApp();
   const toast = useToast();
   const [type, setType] = useState<CardioType>(initialType);
   const [km, setKm] = useState('');
   const [min, setMin] = useState('');
-  const [live, setLive] = useState<'off' | 'on' | 'paused' | 'done'>('off');
-  const [route, setRoute] = useState<Point[]>([]);
-  const [secs, setSecs] = useState(0);
-  const tracker = useRef<Tracker | null>(null);
-  const base = useRef(0);
-  // The route before the last pause; a new GPS session continues it.
-  const before = useRef<Point[]>([]);
-  // Time comes from the clock, not from counting ticks: timers stop while the phone is locked.
-  const acc = useRef(0);
-  useEffect(() => () => tracker.current?.stop(), []);
-  useEffect(() => {
-    if (live !== 'on') return;
-    const since = Date.now();
-    const tick = () => setSecs(acc.current + Math.floor((Date.now() - since) / 1000));
-    const id = setInterval(tick, 1000);
-    return () => { clearInterval(id); acc.current += Math.floor((Date.now() - since) / 1000); };
-  }, [live]);
-
-  const start = async () => {
-    const tr = await track((d, r) => { setKm((base.current + d).toFixed(2).replace('.', ',')); setRoute([...before.current, ...r]); });
-    if (!tr) { toast(t('cardio.gpsDenied')); return; }
-    tracker.current = tr; setLive('on');
-  };
-  // Opened from the record button: start tracking right away.
-  useEffect(() => { if (autoStart) start(); }, []);
-  const pause = () => { tracker.current?.stop(); tracker.current = null; base.current = num(km); before.current = route; setLive('paused'); };
-  const finish = () => { tracker.current?.stop(); tracker.current = null; setMin(String(Math.max(1, Math.round(secs / 60)))); setLive('done'); };
-  const clock = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
-
-  const k = num(km), m = live === 'on' || live === 'paused' ? secs / 60 : num(min);
+  const k = num(km), m = num(min);
   const p = pace({ type, km: k, min: m });
   const kcal = k ? cardioKcal(type, k, bodyWeight(S)) : 0;
 
   const save = () => {
     if (!k || !m) { toast(t('cardio.need')); return; }
-    update(d => { const l = dayLog(d); l.cardio.push({ at: new Date().toISOString(), type, km: Math.round(k * 100) / 100, min: Math.round(m), kcal, ...(route.length > 1 ? { route: thin(route) } : {}) }); l.walk = true; });
+    update(d => { const l = dayLog(d); l.cardio.push({ at: new Date().toISOString(), type, km: Math.round(k * 100) / 100, min: Math.round(m), kcal }); l.walk = true; });
     onClose();
     toast(t('cardio.saved', { n: Math.round(kcal / 2 / 10) * 10 }));
   };
@@ -63,36 +33,17 @@ export function CardioSheet({ onClose, initialType = 'run', autoStart }: { onClo
     <Sheet visible title={t('cardio.title')} onClose={onClose}>
       <Stack gap={16}>
         <Chips>{TYPES.map(x => <Chip key={x} label={t(`cardio.${x}` as Key)} on={type === x} onPress={() => setType(x)} />)}</Chips>
-        {live === 'off' ? (
-          <Button variant="ghost" label={t('cardio.gpsStart')} onPress={start} />
-        ) : live !== 'done' ? (
-          <Stack gap={12}>
-            <Text style={{ fontFamily: fonts.display, fontSize: 64, color: colors.text, textAlign: 'center' }}>{km || '0,00'} km</Text>
-            <Text style={{ fontFamily: fonts.bold, fontSize: 20, color: colors.muted, textAlign: 'center' }}>{clock}</Text>
-            <Row style={{ gap: 10 }}>
-              <Button small variant="ghost" style={{ flex: 1 }} label={live === 'on' ? t('cardio.pause') : t('cardio.resume')} onPress={live === 'on' ? pause : start} />
-              <Button small style={{ flex: 1 }} label={t('cardio.stop')} onPress={finish} />
-            </Row>
-          </Stack>
-        ) : null}
-        {live === 'on' || live === 'paused' ? (
-          route.length ? <RouteMap points={route} height={280} live={live === 'on'} /> : (
-            <View style={{ height: 280, borderRadius: 16, backgroundColor: colors.surface2, alignItems: 'center', justifyContent: 'center' }}><Muted>{t('cardio.gpsSearch')}</Muted></View>
-          )
-        ) : route.length > 1 ? <Route points={route} height={220} /> : null}
-        {live === 'on' || live === 'paused' ? null : (
-          <Row style={{ gap: 12 }}>
-            <Field label={t('cardio.km')} value={km} onChangeText={setKm} keyboardType="decimal-pad" placeholder="5" />
-            <Field label={t('cardio.min')} value={min} onChangeText={setMin} keyboardType="number-pad" placeholder="30" />
-          </Row>
-        )}
+        <Button variant="ghost" label={t('cardio.gpsStart')} onPress={() => onLive(type)} />
+        <Row style={{ gap: 12 }}>
+          <Field label={t('cardio.km')} value={km} onChangeText={setKm} keyboardType="decimal-pad" placeholder="5" />
+          <Field label={t('cardio.min')} value={min} onChangeText={setMin} keyboardType="number-pad" placeholder="30" />
+        </Row>
         <View>
           <Stat first label={p?.unit === 'km/h' ? t('cardio.speed') : t('cardio.pace')} value={p ? `${p.value} ${p.unit}` : '–'} />
           <Stat label={t('cardio.burn')} value={kcal ? `${fmt(kcal)} kcal` : '–'} />
         </View>
         <Small>{t('cardio.note')}</Small>
-        {live === 'on' || live === 'paused' ? null : <Button label={t('cardio.save')} onPress={save} />}
-        {live === 'off' ? <Small>{t('cardio.gpsNote')}</Small> : null}
+        <Button label={t('cardio.save')} onPress={save} />
       </Stack>
     </Sheet>
   );
