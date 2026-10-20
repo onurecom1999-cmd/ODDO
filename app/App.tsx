@@ -28,7 +28,9 @@ type Tab = 'today' | 'week' | 'community' | 'progress' | 'plan';
 const TABS: Tab[] = ['today', 'week', 'community', 'progress', 'plan'];
 
 export default function App() {
-  const [loaded] = useFonts({ Anton_400Regular, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold, Caveat_600SemiBold });
+  const [fontsLoaded, fontError] = useFonts({ Anton_400Regular, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold, Caveat_600SemiBold });
+  // A font that fails to load falls back to the system font instead of blocking the app.
+  const loaded = fontsLoaded || !!fontError;
   const [initial, setInitial] = useState<AppState | null>(null);
   useEffect(() => {
     loadState().then(s => { setLang(s.lang ?? detectLang()); setInitial(s); });
