@@ -14,6 +14,7 @@ import { Community } from './src/screens/Community';
 import { Me } from './src/screens/Me';
 import { Today } from './src/screens/Today';
 import { LiveRecord } from './src/sheets/LiveRecord';
+import { Icon } from './src/ui/icons';
 import { CardioSheet } from './src/sheets/Cardio';
 import { CreatorSheet } from './src/sheets/Creator';
 import { AccountSheet } from './src/sheets/Account';
@@ -97,8 +98,8 @@ function Main() {
       <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.line, paddingBottom: insets.bottom }}>
         <View style={{ flexDirection: 'row', maxWidth: 480, width: '100%', alignSelf: 'center' }}>
           {TABS.map(k => (
-            <Pressable key={k} accessibilityRole="tab" accessibilityState={{ selected: tab === k }} onPress={() => go(k)} style={{ flex: 1, alignItems: 'center', paddingTop: 12, paddingBottom: 12, gap: 6 }}>
-              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: tab === k ? colors.accent : 'transparent' }} />
+            <Pressable key={k} accessibilityRole="tab" accessibilityState={{ selected: tab === k }} onPress={() => go(k)} style={{ flex: 1, alignItems: 'center', paddingTop: 10, paddingBottom: 10, gap: 4 }}>
+              <Icon name={k} size={24} color={tab === k ? colors.accent : colors.dim} />
               <Text numberOfLines={1} style={{ fontFamily: fonts.bold, fontSize: 12, color: tab === k ? colors.text : colors.dim }}>{t(`tab.${k}` as Key)}</Text>
             </Pressable>
           ))}

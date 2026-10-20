@@ -161,10 +161,6 @@ export function Progress() {
         <Stat label={t('progress.sessions')} value={String(sessions)} />
       </Card>
 
-      <Card><Stack gap={10}><Eyebrow>{t('progress.chart')}</Eyebrow><WeightChart S={S} points={points} /></Stack></Card>
-
-      <StrengthCard />
-
       <Card>
         <Stack gap={12}>
           <Eyebrow>{t('progress.today')}</Eyebrow>
@@ -176,6 +172,8 @@ export function Progress() {
           <Button label={today?.img ? t('progress.photoReplace') : t('progress.photo')} onPress={photo} />
         </Stack>
       </Card>
+
+      <Card><Stack gap={10}><Eyebrow>{t('progress.chart')}</Eyebrow><WeightChart S={S} points={points} /></Stack></Card>
 
       {photos.length >= 2 ? (
         <Card>
@@ -195,6 +193,7 @@ export function Progress() {
           {photos.slice(1, -1).reverse().map(e => <View key={e.date} style={{ width: '30%' }}><Photo S={S} uri={e.img!} date={e.date} /></View>)}
         </Row>
       ) : null}
+      <StrengthCard />
       <Small>{t('progress.local')}</Small>
     </Stack>
   );

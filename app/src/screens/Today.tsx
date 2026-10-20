@@ -7,7 +7,9 @@ import { WHEN } from '../logic/routines';
 import { dayLog, useApp } from '../state';
 import { RoutineSheet, RoutinesEditSheet } from '../sheets/Routines';
 import { colors, fonts } from '../theme';
-import { Bar, Body, Bold, Card, CheckRow, Emblem, Eyebrow, H1, H2, LinkButton, Muted, Row, Small, Stack, useToast, Button } from '../ui/kit';
+import Svg, { Circle } from 'react-native-svg';
+import { Bar, Body, Card, CheckRow, Emblem, Eyebrow, H1, H2, LinkButton, Muted, Row, Small, Stack, useToast, Button } from '../ui/kit';
+import { Icon, IconName } from '../ui/icons';
 
 export function Today({ onOpen }: { onOpen: (sheet: string) => void }) {
   const { S, update } = useApp();
@@ -34,7 +36,7 @@ export function Today({ onOpen }: { onOpen: (sheet: string) => void }) {
 
   const check = (k: string) => {
     if (k === 'train') onOpen('train');
-    else if (k === 'walk') { if (st.l.cardio.length) update(d => { const l = dayLog(d); l.walk = !l.walk; }); else onOpen('cardio'); }
+    else if (k === 'walk') { if (st.l.cardio.length) update(d => { const l = dayLog(d); l.walk = !l.walk; }); else onOpen('cardio:walk:live'); }
     else toast(t('today.autoCheck'));
   };
 
@@ -46,14 +48,35 @@ export function Today({ onOpen }: { onOpen: (sheet: string) => void }) {
     if (!rs.done) toast(t('today.routineDone', { t: routineTitle(r) }));
   };
 
+  // The one thing to do next, so the screen always answers "what now?".
+  const hour = new Date().getHours();
+  const now = hour < 11 ? 'morning' : hour < 18 ? 'day' : 'evening';
+  const openRoutine = S.routines.find(r => !routineState(st.l, r).done && WHEN.indexOf(r.when) <= WHEN.indexOf(now));
+  const next: { title: string; sub: string; cta: string; go: () => void } | null =
+    trainDay && !st.l.trained ? { title: t('today.train', { title: sessionTitle(session) }), sub: t('today.trainSub', { minutes: pr.minutes, n: session.exercises.length }), cta: t('today.nextTrain'), go: () => onOpen('train') }
+    : openRoutine && openRoutine.when === 'morning' && hour < 11 ? { title: routineTitle(openRoutine), sub: routineSub(openRoutine), cta: routineSteps(openRoutine) ? t('start') : t('today.nextDone'), go: () => tapRoutine(openRoutine.id) }
+    : st.l.meals.length < 2 ? { title: st.l.meals.length ? t('today.nextMeal2') : t('today.nextMeal1'), sub: t('today.nextMealSub'), cta: t('food.photo'), go: () => onOpen('food:photo') }
+    : !trainDay && !st.training ? { title: t('today.rest'), sub: t('today.nextMoveSub'), cta: t('today.nextMove'), go: () => onOpen('cardio:walk:live') }
+    : !st.protein ? { title: t('today.nextProtein', { n: fmt(Math.max(0, P.protein - st.t.protein)) }), sub: t('today.nextProteinSub'), cta: t('food.describe'), go: () => onOpen('food:describe') }
+    : openRoutine ? { title: routineTitle(openRoutine), sub: routineSub(openRoutine), cta: routineSteps(openRoutine) ? t('start') : t('today.nextDone'), go: () => tapRoutine(openRoutine.id) }
+    : null;
+
+  const routinesSorted = [...S.routines].sort((a, b) => WHEN.indexOf(a.when) - WHEN.indexOf(b.when));
+  const quick: { icon: IconName; label: string; go: () => void }[] = [
+    { icon: 'food', label: t('today.qFood'), go: () => onOpen('food:photo') },
+    { icon: 'train', label: t('today.qTrain'), go: () => onOpen('train') },
+    { icon: 'run', label: t('today.qMove'), go: () => onOpen('cardio:run:live') },
+    { icon: 'video', label: t('today.qVideo'), go: () => onOpen('creator') },
+  ];
+
   return (
     <Stack gap={18} style={{ paddingTop: 6 }}>
-      <Row style={{ justifyContent: 'space-between', alignItems: 'flex-end' }}>
+      <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
         <View>
           <Eyebrow>{new Date().toLocaleDateString(LOCALE[getLang()], { weekday: 'long', day: 'numeric', month: 'long' })}</Eyebrow>
           <H1 style={{ marginTop: 4 }}>{t('today.day', { n: dayNumber(S) })}</H1>
         </View>
-        <Text style={{ fontFamily: fonts.display, fontSize: 28, color: score.perfect ? colors.accent : colors.muted }}>{score.done}/{score.all}</Text>
+        <Pressable accessibilityRole="button" onPress={() => onOpen('reward')}><Ring done={score.done} all={score.all} /></Pressable>
       </Row>
 
       {score.perfect ? (
@@ -68,67 +91,61 @@ export function Today({ onOpen }: { onOpen: (sheet: string) => void }) {
           </Row>
           <Button label={t('reward.cta')} onPress={() => onOpen('reward')} />
         </Card>
-      ) : (
-        <Pressable onPress={() => onOpen('reward')}><Small>{t('today.toEmblem', { n: score.all - score.done })} · <Text style={{ textDecorationLine: 'underline' }}>{t('reward.preview')}</Text></Small></Pressable>
-      )}
+      ) : next ? (
+        <Card style={{ backgroundColor: colors.accent, borderColor: colors.accent, gap: 12 }}>
+          <Text style={{ fontFamily: fonts.heavy, fontSize: 12, letterSpacing: 1.6, color: colors.ink, textTransform: 'uppercase' }}>{t('today.next')}</Text>
+          <View style={{ gap: 4 }}>
+            <Text style={{ fontFamily: fonts.display, fontSize: 30, lineHeight: 34, color: colors.ink, textTransform: 'uppercase' }}>{next.title}</Text>
+            {next.sub ? <Text style={{ fontFamily: fonts.medium, fontSize: 15, color: colors.ink, opacity: 0.75 }}>{next.sub}</Text> : null}
+          </View>
+          <Pressable accessibilityRole="button" onPress={next.go} style={{ backgroundColor: colors.ink, borderRadius: 999, paddingVertical: 15, alignItems: 'center' }}>
+            <Text style={{ fontFamily: fonts.heavy, fontSize: 16, color: colors.accent }}>{next.cta} →</Text>
+          </Pressable>
+        </Card>
+      ) : null}
+
+      <Row style={{ gap: 10 }}>
+        {quick.map(q => (
+          <Pressable key={q.icon} accessibilityRole="button" onPress={q.go} style={{ flex: 1, alignItems: 'center', gap: 8, paddingVertical: 14, borderRadius: 18, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line }}>
+            <Icon name={q.icon} size={26} color={colors.accent} />
+            <Text numberOfLines={1} style={{ fontFamily: fonts.bold, fontSize: 12, color: colors.text }}>{q.label}</Text>
+          </Pressable>
+        ))}
+      </Row>
 
       <Card style={{ gap: 10 }}>
-        <Eyebrow>{t('today.left')}</Eyebrow>
+        <Row style={{ justifyContent: 'space-between' }}>
+          <Eyebrow>{t('today.left')}</Eyebrow>
+          <Small>{t('today.budget')} <Text style={{ color: colors.text, fontFamily: fonts.bold }}>{fmt(st.allowed)}</Text></Small>
+        </Row>
         <Row style={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
-          <Text style={{ fontFamily: fonts.display, fontSize: 64, lineHeight: 68, color: left < 0 ? colors.bad : colors.text }}>{fmt(left)}</Text>
+          <Text style={{ fontFamily: fonts.display, fontSize: 56, lineHeight: 60, color: left < 0 ? colors.bad : colors.text }}>{fmt(left)}</Text>
           <Muted>{t('kcal')}</Muted>
         </Row>
         <Bar pct={(st.t.kcal / st.allowed) * 100} over={left < 0} />
-        <Row style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
-          <Small>{t('today.eaten')} <Text style={{ color: colors.text, fontFamily: fonts.bold }}>{fmt(st.t.kcal)}</Text></Small>
-          <Small>{t('today.budget')} <Text style={{ color: colors.text, fontFamily: fonts.bold }}>{fmt(P.budget)}</Text>{st.l.trained ? ' ' + t('today.plusTraining', { n: P.bonus }) : ''}{cb ? ' ' + t('today.plusCardio', { n: cb }) : ''}</Small>
-        </Row>
-        <Row style={{ justifyContent: 'space-between', marginTop: 4 }}><Small>{t('today.protein')}</Small><Small><Text style={{ color: colors.text, fontFamily: fonts.bold }}>{fmt(st.t.protein)}</Text> / {P.protein} g</Small></Row>
+        <Small>
+          {t('today.eaten')} <Text style={{ color: colors.text, fontFamily: fonts.bold }}>{fmt(st.t.kcal)}</Text>
+          {st.l.trained ? ' · ' + t('today.plusTraining', { n: P.bonus }) : ''}{cb ? ' · ' + t('today.plusCardio', { n: cb }) : ''}
+        </Small>
+        <Row style={{ justifyContent: 'space-between', marginTop: 6 }}><Small>{t('today.protein')}</Small><Small><Text style={{ color: colors.text, fontFamily: fonts.bold }}>{fmt(st.t.protein)}</Text> / {P.protein} g</Small></Row>
         <Bar thin pct={(st.t.protein / P.protein) * 100} />
       </Card>
 
-      <Card style={{ paddingVertical: 4 }}>
-        {items.map((i, idx) => <CheckRow key={i.k} first={idx === 0} done={i.done} title={i.t} sub={i.s} go={i.go} onPress={() => check(i.k)} />)}
-      </Card>
-      {st.l.cardio.map((c, i) => (
-        <Row key={`c${i}`} style={{ justifyContent: 'space-between' }}>
-          <Body>{t(`cardio.${c.type}` as Key)}</Body>
-          <Muted>{t('today.cardioDone', { km: fmt(c.km, 1), min: c.min })} · {fmt(c.kcal)} {t('kcal')}</Muted>
-        </Row>
-      ))}
-      <LinkButton label={`+ ${t('cardio.title')}`} onPress={() => onOpen('cardio')} />
-
-      <Pressable accessibilityRole="button" onPress={() => onOpen('creator')}>
-        <Card style={{ borderColor: colors.accent }}>
-          <Row style={{ justifyContent: 'space-between' }}>
-            <View style={{ flex: 1 }}>
-              <Bold>{t('today.creator')}</Bold>
-              <Muted>{t('today.creatorSub')}</Muted>
-            </View>
-            <Text style={{ color: colors.accent, fontFamily: fonts.heavy, fontSize: 20 }}>→</Text>
-          </Row>
-        </Card>
-      </Pressable>
-
       <Stack gap={10}>
         <Row style={{ justifyContent: 'space-between' }}>
-          <H2 style={{ fontSize: 24 }}>{t('today.routines')}</H2>
-          <LinkButton label={S.routines.length ? t('edit') : t('add')} onPress={() => setSheet({ type: 'routines' })} />
+          <H2 style={{ fontSize: 24 }}>{t('today.list')}</H2>
+          <Small>{t('today.listSub', { done: score.done, all: score.all })}</Small>
         </Row>
-        {S.routines.length ? (
-          <Card style={{ paddingVertical: 4 }}>
-            {WHEN.filter(w => S.routines.some(r => r.when === w)).map(w => (
-              <View key={w}>
-                <Text style={{ color: colors.muted, fontFamily: fonts.heavy, fontSize: 11, letterSpacing: 1.4, textTransform: 'uppercase', paddingTop: 12 }}>{t(`when.${w}` as Key)}</Text>
-                {S.routines.filter(r => r.when === w).map((r, i) => {
-                  const rs = routineState(st.l, r), steps = routineSteps(r), sub = routineSub(r);
-                  const subText = steps ? `${sub}${sub ? ' · ' : ''}${t('today.steps', { done: rs.done ? steps.length : rs.steps.length, all: steps.length })}` : sub;
-                  return <CheckRow key={r.id} first={i === 0} done={rs.done} title={routineTitle(r)} sub={subText} go={steps && !rs.done ? t('start') : ''} onPress={() => tapRoutine(r.id)} />;
-                })}
-              </View>
-            ))}
-          </Card>
-        ) : <Muted>{t('today.routinesEmpty')}</Muted>}
+        <Card style={{ paddingVertical: 4 }}>
+          {items.slice(0, 1).map(i => <CheckRow key={i.k} first done={i.done} title={i.t} sub={i.s} go={i.go} onPress={() => check(i.k)} />)}
+          {routinesSorted.map(r => {
+            const rs = routineState(st.l, r), steps = routineSteps(r), sub = routineSub(r);
+            const subText = [t(`when.${r.when}` as Key), sub, steps ? t('today.steps', { done: rs.done ? steps.length : rs.steps.length, all: steps.length }) : ''].filter(Boolean).join(' · ');
+            return <CheckRow key={r.id} done={rs.done} title={routineTitle(r)} sub={subText} go={steps && !rs.done ? t('start') : ''} onPress={() => tapRoutine(r.id)} />;
+          })}
+          {items.slice(1).map(i => <CheckRow key={i.k} done={i.done} title={i.t} sub={`${i.s} · ${t('today.auto')}`} go={i.go} onPress={() => check(i.k)} />)}
+        </Card>
+        <LinkButton label={S.routines.length ? t('today.editRoutines') : t('today.addRoutines')} onPress={() => setSheet({ type: 'routines' })} />
       </Stack>
 
       <Stack gap={10}>
@@ -145,12 +162,24 @@ export function Today({ onOpen }: { onOpen: (sheet: string) => void }) {
             </Pressable>
           </Row>
         )) : <Muted>{t('today.foodEmpty')}</Muted>}
-        <Button label={t('food.photo')} onPress={() => onOpen('food:photo')} />
         <Row style={{ gap: 10 }}>
-          <Button variant="ghost" small style={{ flex: 1 }} label={t('food.describe')} onPress={() => onOpen('food:describe')} />
-          <Button variant="ghost" small style={{ flex: 1 }} label={t('food.quick')} onPress={() => onOpen('food:quick')} />
+          <Button variant="ghost" small style={{ flex: 1 }} label={t('food.photoShort')} onPress={() => onOpen('food:photo')} />
+          <Button variant="ghost" small style={{ flex: 1 }} label={t('food.describeShort')} onPress={() => onOpen('food:describe')} />
+          <Button variant="ghost" small style={{ flex: 1 }} label={t('food.quickShort')} onPress={() => onOpen('food:quick')} />
         </Row>
       </Stack>
+
+      {st.l.cardio.length ? (
+        <Stack gap={8}>
+          <H2 style={{ fontSize: 24 }}>{t('today.cardio')}</H2>
+          {st.l.cardio.map((c, i) => (
+            <Row key={`c${i}`} style={{ justifyContent: 'space-between' }}>
+              <Body>{t(`cardio.${c.type}` as Key)}</Body>
+              <Muted>{t('today.cardioDone', { km: fmt(c.km, 1), min: c.min })} · {fmt(c.kcal)} {t('kcal')}</Muted>
+            </Row>
+          ))}
+        </Stack>
+      ) : null}
 
       {pr.why ? (
         <Stack gap={6} style={{ paddingTop: 6 }}>
@@ -164,5 +193,19 @@ export function Today({ onOpen }: { onOpen: (sheet: string) => void }) {
       {sheet?.type === 'routine' ? <RoutineSheet id={sheet.id} onClose={() => setSheet(null)} /> : null}
       {sheet?.type === 'routines' ? <RoutinesEditSheet onClose={() => setSheet(null)} /> : null}
     </Stack>
+  );
+}
+
+// Today's progress as a ring: done of all.
+function Ring({ done, all }: { done: number; all: number }) {
+  const r = 26, c = 2 * Math.PI * r, pct = all ? done / all : 0;
+  return (
+    <View style={{ width: 64, height: 64, alignItems: 'center', justifyContent: 'center' }}>
+      <Svg width={64} height={64} style={{ position: 'absolute' }}>
+        <Circle cx={32} cy={32} r={r} stroke={colors.line} strokeWidth={6} fill="none" />
+        <Circle cx={32} cy={32} r={r} stroke={colors.accent} strokeWidth={6} fill="none" strokeDasharray={`${c * pct} ${c}`} strokeLinecap="round" transform="rotate(-90 32 32)" />
+      </Svg>
+      <Text style={{ fontFamily: fonts.display, fontSize: 18, color: colors.text }}>{done}/{all}</Text>
+    </View>
   );
 }
