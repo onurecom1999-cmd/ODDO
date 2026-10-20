@@ -18,7 +18,13 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "app.oddo.coach"
+      "package": "app.oddo.coach",
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -30,17 +36,22 @@
     "backgroundColor": "#0a0a0a",
     "plugins": [
       "expo-font",
+      "expo-system-ui",
       [
         "expo-image-picker",
         {
           "photosPermission": "ODDO uses your photos for meal estimates, progress photos and your day card.",
-          "cameraPermission": "ODDO uses the camera to estimate meals and take progress photos."
+          "cameraPermission": "ODDO uses the camera to estimate meals and take progress photos.",
+          "microphonePermission": false
         }
       ],
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "ODDO records the route and pace of your runs and rides while you track them."
+          "locationWhenInUsePermission": "ODDO records the route and pace of your runs and rides while you track them.",
+          "locationAlwaysAndWhenInUsePermission": "ODDO records the route and pace of your runs and rides while you track them.",
+          "locationAlwaysPermission": "ODDO records the route and pace of your runs and rides while you track them.",
+          "motionUsagePermission": "ODDO uses motion data to keep your run and ride tracking accurate."
         }
       ],
       "expo-sharing",
