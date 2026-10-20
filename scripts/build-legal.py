@@ -2,7 +2,7 @@
 #   python3 scripts/build-legal.py landing
 import html, re, sys
 OUT = sys.argv[1]
-ADDR = '[ADRESSE IN NORDZYPERN]'
+ADDR = 'Semih Sancar Caddesi 17, Girne Merkez, Girne, North Cyprus (KKTC)'
 MAIL = '[E-MAIL]'
 STAND = '19.10.2026'
 
