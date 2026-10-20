@@ -8,6 +8,13 @@ export type SetEntry = { ex: string; kg?: number; reps?: number; done?: boolean 
 export type CardioType = 'run' | 'bike' | 'walk' | 'swim';
 export type Cardio = { at?: string; type: CardioType; km: number; min: number; kcal: number; route?: [number, number][] };
 
+// The recipe behind a video: structure and style only, never the video itself.
+export type VideoTemplate = {
+  id: string; name: string; summary: string; hook: string; cuts: number; pace: string;
+  shots: { shot: string; angle: string; motion: string; text: string }[];
+  text: string; mood: string; music: string; why: string[];
+};
+
 export type DayLog = {
   meals: Meal[];
   trained: boolean;
@@ -37,6 +44,8 @@ export type AppState = {
   // Hour of the daily reminder, if one is set.
   reminder?: number | null;
   lang?: Lang;
+  // Video templates the person made from their own videos.
+  templates?: VideoTemplate[];
 };
 
 export const emptyState: AppState = { profile: null, plan: null, log: {}, progress: [], routines: [], strength: [], startedAt: null };

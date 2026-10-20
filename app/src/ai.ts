@@ -47,4 +47,4 @@ export async function estimateText(text: string, lang: string): Promise<FoodEsti
   if (!r) throw new AiError('no_food');
   return r;
 }
-export async function aiJson<T>(task: 'plan' | 'tips' | 'creator', payload: Record<string, unknown>): Promise<T> { return call<T>(task, payload); }
+export async function aiJson<T>(task: 'plan' | 'tips' | 'creator' | 'template', payload: Record<string, unknown>): Promise<T> { return call<T>(task, payload); }

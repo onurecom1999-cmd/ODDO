@@ -284,3 +284,33 @@ create policy "posts: own folder write" on storage.objects for insert
 drop policy if exists "posts: own folder delete" on storage.objects;
 create policy "posts: own folder delete" on storage.objects for delete
   using (bucket_id = 'posts' and (storage.foldername(name))[1] = auth.uid()::text);
+
+-- ---------- creator templates ----------
+-- Onur's library of video templates. Only the analysis is stored (hook, cuts, angles, mood), never the video.
+-- Make yourself an admin once (your own login email):
+--   insert into public.admins select id from auth.users where email = 'DEINE-EMAIL' on conflict do nothing;
+create table if not exists public.admins (
+  user_id uuid primary key references auth.users on delete cascade
+);
+alter table public.admins enable row level security;
+
+create or replace function public.is_admin() returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (select 1 from admins where user_id = auth.uid())
+$$;
+
+create table if not exists public.video_templates (
+  id uuid primary key default gen_random_uuid(),
+  name text not null check (char_length(name) between 1 and 60),
+  template jsonb not null,
+  created_by uuid default auth.uid() references auth.users on delete set null,
+  created_at timestamptz not null default now()
+);
+alter table public.video_templates enable row level security;
+drop policy if exists "video_templates: read" on public.video_templates;
+create policy "video_templates: read" on public.video_templates for select to authenticated using (true);
+drop policy if exists "video_templates: admin write" on public.video_templates;
+create policy "video_templates: admin write" on public.video_templates for all to authenticated
+  using (public.is_admin()) with check (public.is_admin());
+
+grant execute on function public.is_admin() to authenticated;
