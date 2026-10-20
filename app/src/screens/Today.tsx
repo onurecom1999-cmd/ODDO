@@ -145,7 +145,7 @@ export function Today({ onOpen }: { onOpen: (sheet: string) => void }) {
           })}
           {items.slice(1).map(i => <CheckRow key={i.k} done={i.done} title={i.t} sub={`${i.s} · ${t('today.auto')}`} go={i.go} onPress={() => check(i.k)} />)}
         </Card>
-        <LinkButton label={S.routines.length ? t('today.editRoutines') : t('today.addRoutines')} onPress={() => setSheet({ type: 'routines' })} />
+        <LinkButton label={S.routines.length ? t('today.editRoutines') : t('today.addRoutines')} onPress={() => onOpen('settings')} />
       </Stack>
 
       <Stack gap={10}>

@@ -15,6 +15,7 @@ import { Me } from './src/screens/Me';
 import { Today } from './src/screens/Today';
 import { LiveRecord } from './src/sheets/LiveRecord';
 import { Icon } from './src/ui/icons';
+import { SettingsSheet } from './src/sheets/Settings';
 import { CardioSheet } from './src/sheets/Cardio';
 import { CreatorSheet } from './src/sheets/Creator';
 import { AccountSheet } from './src/sheets/Account';
@@ -24,7 +25,7 @@ import { FoodMode, FoodSheet } from './src/sheets/Food';
 import { TrainSheet } from './src/sheets/Train';
 import { loadState, StateProvider, useApp } from './src/state';
 import { colors, fonts } from './src/theme';
-import { Badge, Muted, Row, Screen, Stack, ToastHost, ToastProvider, useToast, H1 } from './src/ui/kit';
+import { Row, Screen, ToastHost, ToastProvider, useToast } from './src/ui/kit';
 
 type Tab = 'today' | 'move' | 'community' | 'me';
 const TABS: Tab[] = ['today', 'move', 'community', 'me'];
@@ -83,7 +84,11 @@ function Main() {
       <Screen scrollRef={scroll}>
         <Row style={{ justifyContent: 'space-between', paddingVertical: 10 }}>
           <Logo />
-          <Badge label={S.plan!.byAI ? t('plan.badgeAI') : t('plan.badge')} accent={S.plan!.byAI} />
+          <Pressable accessibilityRole="button" accessibilityLabel={t('set.title')} onPress={() => open('settings')} hitSlop={8}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: colors.line }}>
+            <Icon name="settings" size={18} color={colors.text} />
+            <Text style={{ fontFamily: fonts.bold, fontSize: 13, color: colors.text }}>{t('set.short')}</Text>
+          </Pressable>
         </Row>
         {S.example ? (
           <Row style={{ backgroundColor: colors.warn, borderRadius: 12, padding: 10, paddingHorizontal: 14, justifyContent: 'space-between', marginBottom: 8 }}>
@@ -109,6 +114,7 @@ function Main() {
       {sheet?.startsWith('cardio') && !sheet.endsWith(':live') ? <CardioSheet onClose={close} initialType={(sheet.split(':')[1] || 'run') as CardioType} onLive={type => setSheet(`cardio:${type}:live`)} /> : null}
       {sheet?.startsWith('cardio') && sheet.endsWith(':live') ? <LiveRecord onClose={close} type={(sheet.split(':')[1] || 'run') as CardioType} /> : null}
       {sheet === 'reward' ? <RewardSheet onClose={close} /> : null}
+      {sheet === 'settings' ? <SettingsSheet onClose={close} onOpen={open} /> : null}
       {sheet === 'pro' ? <ProSheet onClose={close} /> : null}
       {sheet === 'creator' ? <CreatorSheet onClose={close} onPro={() => setSheet('pro')} /> : null}
       {sheet === 'account' ? <AccountSheet mode="save" onClose={close} /> : null}
