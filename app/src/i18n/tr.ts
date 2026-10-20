@@ -607,4 +607,5 @@ export const tr: Record<Key, string> = {
   'creator.tpl.removeLib': 'Kütüphaneden kaldır',
   'creator.tpl.delete': 'Şablonu sil',
   'creator.tpl.used': 'Şablon: {name}',
+  'cardio.gpsSearch': 'GPS sinyali aranıyor …',
 };

@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
-import Svg, { Polyline } from 'react-native-svg';
 import { Point, thin, track, Tracker } from '../gps';
 import { colors, fonts } from '../theme';
 import { fmt, t, Key } from '../i18n';
@@ -8,6 +7,7 @@ import { CARDIO, cardioKcal, pace } from '../logic/day';
 import { bodyWeight } from '../logic/strength';
 import type { CardioType } from '../logic/types';
 import { dayLog, useApp } from '../state';
+import { RouteMap } from '../ui/RouteMap';
 import { Button, Card, Chip, Chips, Field, Muted, Row, Sheet, Small, Stack, Stat, useToast } from '../ui/kit';
 
 const TYPES = Object.keys(CARDIO) as CardioType[];
@@ -24,6 +24,8 @@ export function CardioSheet({ onClose, initialType = 'run', autoStart }: { onClo
   const [secs, setSecs] = useState(0);
   const tracker = useRef<Tracker | null>(null);
   const base = useRef(0);
+  // The route before the last pause; a new GPS session continues it.
+  const before = useRef<Point[]>([]);
   // Time comes from the clock, not from counting ticks: timers stop while the phone is locked.
   const acc = useRef(0);
   useEffect(() => () => tracker.current?.stop(), []);
@@ -36,13 +38,13 @@ export function CardioSheet({ onClose, initialType = 'run', autoStart }: { onClo
   }, [live]);
 
   const start = async () => {
-    const tr = await track((d, r) => { setKm((base.current + d).toFixed(2).replace('.', ',')); setRoute([...r]); });
+    const tr = await track((d, r) => { setKm((base.current + d).toFixed(2).replace('.', ',')); setRoute([...before.current, ...r]); });
     if (!tr) { toast(t('cardio.gpsDenied')); return; }
     tracker.current = tr; setLive('on');
   };
   // Opened from the record button: start tracking right away.
   useEffect(() => { if (autoStart) start(); }, []);
-  const pause = () => { tracker.current?.stop(); tracker.current = null; base.current = num(km); setLive('paused'); };
+  const pause = () => { tracker.current?.stop(); tracker.current = null; base.current = num(km); before.current = route; setLive('paused'); };
   const finish = () => { tracker.current?.stop(); tracker.current = null; setMin(String(Math.max(1, Math.round(secs / 60)))); setLive('done'); };
   const clock = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
 
@@ -73,7 +75,11 @@ export function CardioSheet({ onClose, initialType = 'run', autoStart }: { onClo
             </Row>
           </Stack>
         ) : null}
-        {route.length > 1 ? <Route points={route} /> : null}
+        {live === 'on' || live === 'paused' ? (
+          route.length ? <RouteMap points={route} height={280} live={live === 'on'} /> : (
+            <View style={{ height: 280, borderRadius: 16, backgroundColor: colors.surface2, alignItems: 'center', justifyContent: 'center' }}><Muted>{t('cardio.gpsSearch')}</Muted></View>
+          )
+        ) : route.length > 1 ? <Route points={route} height={220} /> : null}
         {live === 'on' || live === 'paused' ? null : (
           <Row style={{ gap: 12 }}>
             <Field label={t('cardio.km')} value={km} onChangeText={setKm} keyboardType="decimal-pad" placeholder="5" />
@@ -92,16 +98,7 @@ export function CardioSheet({ onClose, initialType = 'run', autoStart }: { onClo
   );
 }
 
-// The route as a line, start and end at their real places (it stays on this device).
+// The route on a street map (the route itself stays on this device).
 export function Route({ points, height = 160 }: { points: Point[]; height?: number }) {
-  const lats = points.map(p => p[0]), lngs = points.map(p => p[1]);
-  const la0 = Math.min(...lats), la1 = Math.max(...lats), lo0 = Math.min(...lngs), lo1 = Math.max(...lngs);
-  const kx = Math.cos(((la0 + la1) / 2) * Math.PI / 180);
-  const w = Math.max((lo1 - lo0) * kx, 1e-5), h = Math.max(la1 - la0, 1e-5), sc = Math.min(320 / w, 140 / h);
-  const pts = points.map(([la, lo]) => `${(10 + ((lo - lo0) * kx) * sc + (320 - w * sc) / 2).toFixed(1)},${(10 + (la1 - la) * sc + (140 - h * sc) / 2).toFixed(1)}`).join(' ');
-  return (
-    <Svg width="100%" height={height} viewBox="0 0 340 160">
-      <Polyline points={pts} fill="none" stroke={colors.accent} strokeWidth={4} strokeLinejoin="round" strokeLinecap="round" />
-    </Svg>
-  );
+  return <RouteMap points={points} height={height} />;
 }

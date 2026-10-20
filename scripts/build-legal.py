@@ -80,6 +80,7 @@ ODDO ist ein Fitness-Coach. Wir verarbeiten nur, was die App dafür braucht, ver
 - Supabase (Server in Frankfurt, EU): Konten, Sicherung, Community
 - Netlify (USA): Website, App-Auslieferung, Server-Funktionen, Warteliste
 - Anthropic (USA): KI-Schätzungen und Wochentipps; Daten über die API werden laut Anbieter nicht zum Training verwendet
+- CARTO (Spanien/USA): Kartenbilder beim Laufen und Radfahren; dabei werden nur deine IP-Adresse und der Kartenausschnitt übertragen, nicht deine Strecke
 - Lemon Squeezy (USA): Bezahlung und Abos
 - Apple und Google: wenn du die App aus ihren Stores lädst
 Bei Übermittlungen in die USA stützen wir uns auf den EU-US Data Privacy Framework, soweit der Anbieter zertifiziert ist, sonst auf EU-Standardvertragsklauseln.
@@ -122,6 +123,7 @@ ODDO is a fitness coach. We only process what the app needs for that, never sell
 - Supabase (servers in Frankfurt, EU): accounts, backup, community
 - Netlify (USA): website, app delivery, server functions, waitlist
 - Anthropic (USA): AI estimates and weekly tips; per the provider, API data is not used for training
+- CARTO (Spain/USA): map images for runs and rides; only your IP address and the map area are sent, not your route
 - Lemon Squeezy (USA): payments and subscriptions
 - Apple and Google: if you install the app from their stores
 For transfers to the USA we rely on the EU-US Data Privacy Framework where the provider is certified, otherwise on EU standard contractual clauses.
@@ -164,6 +166,7 @@ ODDO bir fitness koçudur. Sadece uygulamanın bunun için ihtiyaç duyduğu ver
 - Supabase (sunucular Frankfurt, AB): hesaplar, yedek, topluluk
 - Netlify (ABD): web sitesi, uygulama dağıtımı, sunucu fonksiyonları, bekleme listesi
 - Anthropic (ABD): YZ tahminleri ve haftalık ipuçları; sağlayıcıya göre API verileri eğitim için kullanılmaz
+- CARTO (İspanya/ABD): koşu ve bisiklette harita görüntüleri; yalnızca IP adresin ve harita bölgesi iletilir, rotan değil
 - Lemon Squeezy (ABD): ödemeler ve abonelikler
 - Apple ve Google: uygulamayı mağazalarından indirirsen
 ABD'ye aktarımlarda, sağlayıcı sertifikalıysa AB-ABD Veri Gizliliği Çerçevesi'ne, değilse AB standart sözleşme maddelerine dayanırız.

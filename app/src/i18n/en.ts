@@ -607,4 +607,5 @@ export const en: Record<Key, string> = {
   'creator.tpl.removeLib': 'Remove from the library',
   'creator.tpl.delete': 'Delete template',
   'creator.tpl.used': 'Based on: {name}',
+  'cardio.gpsSearch': 'Finding your GPS signal …',
 };

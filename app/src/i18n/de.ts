@@ -606,6 +606,7 @@ export const de = {
   'creator.tpl.removeLib': 'Aus der Bibliothek entfernen',
   'creator.tpl.delete': 'Vorlage löschen',
   'creator.tpl.used': 'Nach Vorlage: {name}',
+  'cardio.gpsSearch': 'Suche dein GPS-Signal …',
 };
 
 export type Key = keyof typeof de;
