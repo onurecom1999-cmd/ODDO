@@ -13,10 +13,10 @@ import { Button, Card, Chip, Chips, Field, Muted, Row, Sheet, Small, Stack, Stat
 const TYPES = Object.keys(CARDIO) as CardioType[];
 const num = (v: string) => { const n = Number(v.replace(',', '.')); return n > 0 ? n : 0; };
 
-export function CardioSheet({ onClose }: { onClose: () => void }) {
+export function CardioSheet({ onClose, initialType = 'run', autoStart }: { onClose: () => void; initialType?: CardioType; autoStart?: boolean }) {
   const { S, update } = useApp();
   const toast = useToast();
-  const [type, setType] = useState<CardioType>('run');
+  const [type, setType] = useState<CardioType>(initialType);
   const [km, setKm] = useState('');
   const [min, setMin] = useState('');
   const [live, setLive] = useState<'off' | 'on' | 'paused' | 'done'>('off');
@@ -40,6 +40,8 @@ export function CardioSheet({ onClose }: { onClose: () => void }) {
     if (!tr) { toast(t('cardio.gpsDenied')); return; }
     tracker.current = tr; setLive('on');
   };
+  // Opened from the record button: start tracking right away.
+  useEffect(() => { if (autoStart) start(); }, []);
   const pause = () => { tracker.current?.stop(); tracker.current = null; base.current = num(km); setLive('paused'); };
   const finish = () => { tracker.current?.stop(); tracker.current = null; setMin(String(Math.max(1, Math.round(secs / 60)))); setLive('done'); };
   const clock = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
@@ -50,7 +52,7 @@ export function CardioSheet({ onClose }: { onClose: () => void }) {
 
   const save = () => {
     if (!k || !m) { toast(t('cardio.need')); return; }
-    update(d => { const l = dayLog(d); l.cardio.push({ type, km: Math.round(k * 100) / 100, min: Math.round(m), kcal, ...(route.length > 1 ? { route: thin(route) } : {}) }); l.walk = true; });
+    update(d => { const l = dayLog(d); l.cardio.push({ at: new Date().toISOString(), type, km: Math.round(k * 100) / 100, min: Math.round(m), kcal, ...(route.length > 1 ? { route: thin(route) } : {}) }); l.walk = true; });
     onClose();
     toast(t('cardio.saved', { n: Math.round(kcal / 2 / 10) * 10 }));
   };
@@ -91,14 +93,14 @@ export function CardioSheet({ onClose }: { onClose: () => void }) {
 }
 
 // The route as a line, start and end at their real places (it stays on this device).
-function Route({ points }: { points: Point[] }) {
+export function Route({ points, height = 160 }: { points: Point[]; height?: number }) {
   const lats = points.map(p => p[0]), lngs = points.map(p => p[1]);
   const la0 = Math.min(...lats), la1 = Math.max(...lats), lo0 = Math.min(...lngs), lo1 = Math.max(...lngs);
   const kx = Math.cos(((la0 + la1) / 2) * Math.PI / 180);
   const w = Math.max((lo1 - lo0) * kx, 1e-5), h = Math.max(la1 - la0, 1e-5), sc = Math.min(320 / w, 140 / h);
   const pts = points.map(([la, lo]) => `${(10 + ((lo - lo0) * kx) * sc + (320 - w * sc) / 2).toFixed(1)},${(10 + (la1 - la) * sc + (140 - h * sc) / 2).toFixed(1)}`).join(' ');
   return (
-    <Svg width="100%" height={160} viewBox="0 0 340 160">
+    <Svg width="100%" height={height} viewBox="0 0 340 160">
       <Polyline points={pts} fill="none" stroke={colors.accent} strokeWidth={4} strokeLinejoin="round" strokeLinecap="round" />
     </Svg>
   );

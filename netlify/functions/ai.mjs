@@ -7,9 +7,9 @@ import { tierOf, userFrom } from '../lib/supabase.mjs';
 const MODEL = process.env.AI_MODEL || 'claude-sonnet-5-5';
 // Per account (or IP) and day. Free gets a taste; Pro is generous but still capped against abuse.
 const LIMITS = {
-  free: { food_photo: 3, food_text: 5, tips: 1, plan: 1 },
-  pro: { food_photo: 25, food_text: 40, tips: 5, plan: 5 },
-  ultimate: { food_photo: 40, food_text: 60, tips: 10, plan: 10 },
+  free: { food_photo: 3, food_text: 5, tips: 1, plan: 1, creator: 1 },
+  pro: { food_photo: 25, food_text: 40, tips: 5, plan: 5, creator: 1 },
+  ultimate: { food_photo: 40, food_text: 60, tips: 10, plan: 10, creator: 15 },
 };
 const LANG = { de: 'German', en: 'English', tr: 'Turkish' };
 
@@ -24,10 +24,14 @@ function prompt(task, b) {
     { type: 'text', text: `Estimate the nutrition of the meal in this photo. Write name, item names and hint in ${lang}.\n${FOOD_FORMAT}` },
   ];
   if (task === 'food_text') return `Estimate the nutrition of this meal: "${String(b.text || '').slice(0, 500)}". Write name, item names and hint in ${lang}.\n${FOOD_FORMAT}`;
-  if (task === 'tips') return `You are a strength and nutrition coach. Review this person's last week and give 3 concrete tips for next week.
+  if (task === 'tips') return `You are an experienced coach and lifelong athlete who has trained hundreds of people in the gym, at home and on the road. Review this person's last week and give 3 concrete tips for next week, the way a good personal coach talks to their athlete: direct, warm, specific, from experience. Never mention AI or that you are a model.
 Rules: informal "you" (in Turkish "sen", in German "du"), written in ${lang}. Each tip has a title (max 6 words) and a text (1 to 2 sentences) with concrete numbers from the data (e.g. add 2.5 kg, the next exercise step, protein in grams). If every set of an exercise reached the top of its rep range, progress it. No medical advice.
 Answer only with JSON: {"tips":[{"title":"…","text":"…"}]}
 Data: ${JSON.stringify({ goal: b.goal, style: b.style, days: b.days, budget: b.budget, protein: b.protein, exercises: b.exercises, week: b.week, weights: b.weights }).slice(0, 12000)}`;
+  if (task === 'creator') return `You are a fitness content creator and video editor who grows gym accounts on TikTok and Instagram Reels. Plan a ${Number(b.seconds) || 30}-second vertical video (9:16) about this person's workout today, style: ${String(b.style || 'motivation').slice(0, 40)}, for ${String(b.platform || 'TikTok and Reels').slice(0, 40)}.
+Rules: written in ${lang}, informal "you". A hook that stops the scroll in the first 2 seconds. 5 to 8 shots with timing; each shot says exactly what to film and from which angle (phone on the floor, side view, close-up of hands on the bar, mirror …), one B-roll idea (chalk, lacing shoes, plates clinking, sweat, walking into the gym, slow motion), and short on-screen text or "". Cuts on the beat. Shoot only what one person with a phone can film alone. No medical claims, no body shaming.
+Answer only with JSON: {"title":"…","hook":"…","shots":[{"time":"0-2s","shot":"…","broll":"…","text":"…"}],"caption":"…","hashtags":["…"],"music":"mood and tempo in BPM","tips":["editing tip"]}
+Data: ${JSON.stringify({ goal: b.goal, place: b.place, workout: b.workout, day: b.day, name: b.name }).slice(0, 4000)}`;
   if (task === 'plan') return `You are a coach. Adjust this training plan for the person. Keep the same JSON shape and only use exercise ids from the given catalog. Write notes in ${lang}.
 Answer only with JSON of the plan.
 Data: ${JSON.stringify(b.data || {}).slice(0, 12000)}`;
@@ -64,14 +68,16 @@ export default async (req, context) => {
   if (!content) return json(400, { error: 'task' });
   const user = await userFrom(req);
   const tier = await tierOf(user);
-  if (await overLimit(task, req, context, user, tier)) return json(tier === 'free' ? 402 : 429, { error: tier === 'free' ? 'upgrade' : 'limit', tier });
+  // Over the limit: point to the plan that lifts it (the creator studio is an Ultimate feature), else wait for tomorrow.
+  const upgrade = tier === 'free' || (tier === 'pro' && task === 'creator');
+  if (await overLimit(task, req, context, user, tier)) return json(upgrade ? 402 : 429, { error: upgrade ? 'upgrade' : 'limit', tier });
 
   let res;
   try {
     res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({ model: MODEL, max_tokens: task === 'plan' ? 4000 : 1200, messages: [{ role: 'user', content }] }),
+      body: JSON.stringify({ model: MODEL, max_tokens: task === 'plan' ? 4000 : task === 'creator' ? 2000 : 1200, messages: [{ role: 'user', content }] }),
     });
   } catch {
     return json(503, { error: 'unavailable' });

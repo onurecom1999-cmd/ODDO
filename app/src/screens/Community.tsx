@@ -10,7 +10,7 @@ import { Bold, Button, Card, Chip, Chips, Field, H1, H2, LinkButton, Muted, Row,
 const APP_URL = 'https://oddo-app.netlify.app';
 type Scope = 'foryou' | 'friends' | 'near';
 
-function errText(e: unknown) {
+export function errText(e: unknown) {
   const c = e instanceof C.CommunityError ? e.code : 'failed';
   return c === 'offline' ? t('com.offline') : t(`com.err.${c}` as Key);
 }

@@ -6,7 +6,7 @@ export type Meal = { name: string; kcal: number; protein: number; img?: string; 
 // One logged set. `ex` is the exercise key: the catalog id, or the name for exercises the AI invented.
 export type SetEntry = { ex: string; kg?: number; reps?: number; done?: boolean };
 export type CardioType = 'run' | 'bike' | 'walk' | 'swim';
-export type Cardio = { type: CardioType; km: number; min: number; kcal: number; route?: [number, number][] };
+export type Cardio = { at?: string; type: CardioType; km: number; min: number; kcal: number; route?: [number, number][] };
 
 export type DayLog = {
   meals: Meal[];

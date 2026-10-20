@@ -7,14 +7,14 @@ import { ActivityIndicator, Pressable, ScrollViewInstance, Text, View } from 're
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { detectLang, Key, setLang, t } from './src/i18n';
 import { exampleState } from './src/logic/example';
-import { AppState, emptyState } from './src/logic/types';
+import { AppState, CardioType, emptyState } from './src/logic/types';
 import { Logo, Onboarding } from './src/screens/Onboarding';
+import { Activity } from './src/screens/Activity';
 import { Community } from './src/screens/Community';
-import { PlanTab } from './src/screens/PlanTab';
-import { Progress } from './src/screens/Progress';
-import { Week } from './src/screens/Week';
+import { Me } from './src/screens/Me';
 import { Today } from './src/screens/Today';
 import { CardioSheet } from './src/sheets/Cardio';
+import { CreatorSheet } from './src/sheets/Creator';
 import { AccountSheet } from './src/sheets/Account';
 import { ProSheet } from './src/sheets/Pro';
 import { RewardSheet } from './src/sheets/Reward';
@@ -24,8 +24,8 @@ import { loadState, StateProvider, useApp } from './src/state';
 import { colors, fonts } from './src/theme';
 import { Badge, Muted, Row, Screen, Stack, ToastHost, ToastProvider, useToast, H1 } from './src/ui/kit';
 
-type Tab = 'today' | 'week' | 'community' | 'progress' | 'plan';
-const TABS: Tab[] = ['today', 'week', 'community', 'progress', 'plan'];
+type Tab = 'today' | 'move' | 'community' | 'me';
+const TABS: Tab[] = ['today', 'move', 'community', 'me'];
 
 export default function App() {
   const [fontsLoaded, fontError] = useFonts({ Anton_400Regular, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold, Caveat_600SemiBold });
@@ -91,9 +91,7 @@ function Main() {
             </Pressable>
           </Row>
         ) : null}
-        {tab === 'today' ? <Today onOpen={open} /> : tab === 'plan' ? <PlanTab onOpen={open} /> : tab === 'week' ? <Week onOpen={open} /> : tab === 'progress' ? <Progress /> : tab === 'community' ? <Community /> : (
-          <Stack gap={14} style={{ paddingTop: 6 }}><H1>{t(`tab.${tab}` as Key)}</H1><Muted>{t('soon')}</Muted></Stack>
-        )}
+        {tab === 'today' ? <Today onOpen={open} /> : tab === 'move' ? <Activity onOpen={open} /> : tab === 'community' ? <Community /> : <Me onOpen={open} />}
       </Screen>
       <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.line, paddingBottom: insets.bottom }}>
         <View style={{ flexDirection: 'row', maxWidth: 480, width: '100%', alignSelf: 'center' }}>
@@ -106,9 +104,10 @@ function Main() {
         </View>
       </View>
       {sheet === 'train' ? <TrainSheet onClose={close} /> : null}
-      {sheet === 'cardio' ? <CardioSheet onClose={close} /> : null}
+      {sheet?.startsWith('cardio') ? <CardioSheet onClose={close} initialType={(sheet.split(':')[1] || 'run') as CardioType} autoStart={sheet.endsWith(':live')} /> : null}
       {sheet === 'reward' ? <RewardSheet onClose={close} /> : null}
       {sheet === 'pro' ? <ProSheet onClose={close} /> : null}
+      {sheet === 'creator' ? <CreatorSheet onClose={close} onPro={() => setSheet('pro')} /> : null}
       {sheet === 'account' ? <AccountSheet mode="save" onClose={close} /> : null}
       {sheet?.startsWith('food') ? <FoodSheet mode={(sheet.split(':')[1] || 'photo') as FoodMode} onClose={close} onPro={() => setSheet('pro')} /> : null}
       <ToastHost />

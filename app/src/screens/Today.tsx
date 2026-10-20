@@ -7,7 +7,7 @@ import { WHEN } from '../logic/routines';
 import { dayLog, useApp } from '../state';
 import { RoutineSheet, RoutinesEditSheet } from '../sheets/Routines';
 import { colors, fonts } from '../theme';
-import { Bar, Body, Card, CheckRow, Emblem, Eyebrow, H1, H2, LinkButton, Muted, Row, Small, Stack, useToast, Button } from '../ui/kit';
+import { Bar, Body, Bold, Card, CheckRow, Emblem, Eyebrow, H1, H2, LinkButton, Muted, Row, Small, Stack, useToast, Button } from '../ui/kit';
 
 export function Today({ onOpen }: { onOpen: (sheet: string) => void }) {
   const { S, update } = useApp();
@@ -97,6 +97,18 @@ export function Today({ onOpen }: { onOpen: (sheet: string) => void }) {
         </Row>
       ))}
       <LinkButton label={`+ ${t('cardio.title')}`} onPress={() => onOpen('cardio')} />
+
+      <Pressable accessibilityRole="button" onPress={() => onOpen('creator')}>
+        <Card style={{ borderColor: colors.accent }}>
+          <Row style={{ justifyContent: 'space-between' }}>
+            <View style={{ flex: 1 }}>
+              <Bold>{t('today.creator')}</Bold>
+              <Muted>{t('today.creatorSub')}</Muted>
+            </View>
+            <Text style={{ color: colors.accent, fontFamily: fonts.heavy, fontSize: 20 }}>→</Text>
+          </Row>
+        </Card>
+      </Pressable>
 
       <Stack gap={10}>
         <Row style={{ justifyContent: 'space-between' }}>
