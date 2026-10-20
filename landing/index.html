@@ -131,7 +131,15 @@
 
     .hero-sub { font-size: clamp(22px, 3vw, 30px); font-weight: 800; line-height: 1.2; margin-bottom: 12px; text-wrap: balance; }
     .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-top: 32px; }
+    html { overflow-x: clip; }
     .hero-note { font-size: 13px; color: var(--dim); }
+    /* Shown from launch day on (APP_LIVE in the script). */
+    .app-only { display: none !important; }
+    body.app-live .app-only { display: inline-flex !important; }
+    body.app-live p.app-only { display: block !important; }
+    .stores { margin-top: 14px; font-size: 13px; color: var(--muted); }
+    footer .legal { display: flex; gap: 18px; flex-wrap: wrap; }
+    footer .legal a { color: var(--dim); }
 
     /* Phone screen */
     .scr-budget { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 14px 16px; }
@@ -287,8 +295,10 @@
         <p class="hero-lead" data-i18n-html="hero_lead"></p>
         <div class="hero-actions">
           <a href="#pact" class="btn"><span data-i18n="hero_cta"></span><span class="arrow">→</span></a>
+          <a href="/app/" class="btn btn-ghost app-only" data-i18n="try_web"></a>
           <span class="hero-note" data-i18n="hero_note"></span>
         </div>
+        <p class="stores app-only" data-i18n="stores"></p>
       </div>
 
       <div class="phone-wrap" aria-hidden="true">
@@ -432,6 +442,11 @@
     <div class="wrap">
       <span class="logo" style="font-size:18px;color:var(--muted)">ODDO</span>
       <span data-i18n="footer"></span>
+      <span class="legal">
+        <a data-legal="datenschutz" href="/datenschutz.html" data-i18n="privacy"></a>
+        <a data-legal="agb" href="/agb.html" data-i18n="terms"></a>
+        <a href="/impressum.html" data-i18n="imprint"></a>
+      </span>
     </div>
   </footer>
 
@@ -504,12 +519,17 @@
         fq2: "Gym, Zuhause oder Calisthenics?", fa2: "Alles drei. Du wählst am Anfang, und dein Plan nutzt nur, was du wirklich hast.",
         fq3: "Wie genau ist das Essen per Foto?", fa3: "Es ist eine gute Schätzung, keine Laborwaage. Du kannst die Portion anpassen oder Werte selbst eintragen. Für den Alltag reicht das, und es kostet dich Sekunden statt Minuten.",
         fq4: "Ersetzt ODDO einen Arzt oder Ernährungsberater?", fa4: "Nein. ODDO ist eine App für Training und Alltag, keine medizinische Beratung. Bei Schmerzen oder Vorerkrankungen sprich bitte vorher mit einem Arzt.",
-        fq5: "Was kostet ODDO?", fa5: "Wer sich jetzt einträgt, bekommt beim Start den Gründer-Preis. Wir schicken dir alle Infos, bevor du irgendetwas bezahlst.",
+        fq5: "Was kostet ODDO?", fa5: "ODDO ist kostenlos. Pro kostet 9,99 € im Monat und bringt mehr KI-Schätzungen per Foto und persönliche Tipps. Die ersten 100 Gründer zahlen 4,99 € im Monat, für immer. Monatlich kündbar.",
         or: "oder",
         later: "One day …",
         now: "Day One",
         nopes: ["Irgendwann ist kein Tag.", "Montag sagst du seit Jahren.", "Der Knopf ist kaputt. Nimm den anderen."],
-        footer: "© 2026 ODDO · One Day or Day One"
+        footer: "© 2026 ODDO · One Day or Day One",
+        try_web: "Im Browser starten",
+        stores: "iPhone und Android: bald im App Store und bei Google Play.",
+        privacy: "Datenschutz",
+        terms: "AGB",
+        imprint: "Impressum"
       },
       tr: {
         nav_cta: "Yerini ayır",
@@ -578,12 +598,17 @@
         fq2: "Salon, ev ya da calisthenics?", fa2: "Üçü de. Başta seçersin ve planın sadece gerçekten elinde olanı kullanır.",
         fq3: "Fotoğrafla yemek takibi ne kadar doğru?", fa3: "İyi bir tahmin, laboratuvar terazisi değil. Porsiyonu ayarlayabilir ya da değerleri kendin girebilirsin. Günlük hayat için yeterli ve dakikalar yerine saniyeler sürer.",
         fq4: "ODDO doktorun veya diyetisyenin yerini tutar mı?", fa4: "Hayır. ODDO antrenman ve günlük hayat için bir uygulama, tıbbi danışmanlık değil. Ağrın ya da bir rahatsızlığın varsa lütfen önce bir doktorla konuş.",
-        fq5: "ODDO ne kadar?", fa5: "Şimdi kaydolan, başlangıçta kurucu fiyatını alır. Herhangi bir ödeme yapmadan önce tüm bilgileri sana göndereceğiz.",
+        fq5: "ODDO ne kadar?", fa5: "ODDO ücretsiz. Pro ayda 9,99 € ve fotoğrafla daha fazla yapay zeka tahmini ile kişisel ipuçları sunar. İlk 100 kurucu ömür boyu ayda 4,99 € öder. Her ay iptal edilebilir.",
         or: "yoksa",
         later: "One day …",
         now: "Day One",
         nopes: ["\"Bir gün\" diye bir gün yok.", "Yıllardır pazartesi diyorsun.", "Bu buton bozuk. Diğerini seç."],
-        footer: "© 2026 ODDO · One Day or Day One"
+        footer: "© 2026 ODDO · One Day or Day One",
+        try_web: "Tarayıcıda başla",
+        stores: "iPhone ve Android: yakında App Store ve Google Play'de.",
+        privacy: "Gizlilik",
+        terms: "Koşullar",
+        imprint: "Künye"
       },
       en: {
         nav_cta: "Save my spot",
@@ -652,16 +677,25 @@
         fq2: "Gym, home or calisthenics?", fa2: "All three. You choose at the start, and your plan only uses what you actually have.",
         fq3: "How accurate is food by photo?", fa3: "It's a good estimate, not a lab scale. You can adjust the portion or enter values yourself. For everyday life that's enough, and it takes seconds instead of minutes.",
         fq4: "Does ODDO replace a doctor or dietitian?", fa4: "No. ODDO is an app for training and everyday life, not medical advice. If you have pain or a health condition, please talk to a doctor first.",
-        fq5: "What does ODDO cost?", fa5: "Sign up now and you get the founder price at launch. We'll send you all details before you pay anything.",
+        fq5: "What does ODDO cost?", fa5: "ODDO is free. Pro costs 9.99 € a month and adds more AI photo estimates and personal tips. The first 100 founders pay 4.99 € a month, forever. Cancel any month.",
         or: "or",
         later: "One day …",
         now: "Day One",
         nopes: ["Someday isn't a day.", "You've been saying Monday for years.", "This button is broken. Pick the other one."],
-        footer: "© 2026 ODDO · One Day or Day One"
+        footer: "© 2026 ODDO · One Day or Day One",
+        try_web: "Start in your browser",
+        stores: "iPhone and Android: coming soon to the App Store and Google Play.",
+        privacy: "Privacy",
+        terms: "Terms",
+        imprint: "Imprint"
       }
     };
 
     let lang = "de";
+
+    // Launch day: set to true. Shows "start in your browser" and the store note.
+    const APP_LIVE = false;
+    document.body.classList.toggle("app-live", APP_LIVE);
 
     function setLang(next) {
       lang = next;
@@ -670,6 +704,7 @@
       document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t[el.dataset.i18n]; });
       document.querySelectorAll("[data-i18n-html]").forEach(el => { el.innerHTML = t[el.dataset.i18nHtml]; });
       document.querySelectorAll(".lang button").forEach(b => b.classList.toggle("active", b.dataset.lang === lang));
+      document.querySelectorAll("[data-legal]").forEach(a => { a.href = `/${a.dataset.legal}.html#${lang}`; });
       syncName();
       try { localStorage.setItem("oddo-lang", lang); } catch (e) {}
     }
