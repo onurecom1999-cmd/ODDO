@@ -10,6 +10,7 @@ import { useApp } from '../state';
 import { colors, fonts } from '../theme';
 import { Body, Bold, Button, Card, Chip, Chips, Eyebrow, Field, LinkButton, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
 import { MyCoachSection } from './Coach';
+import { MyStudioSection } from './Studio';
 import { RoutinesEditSheet } from './Routines';
 
 const SITE = 'https://oddo-app.netlify.app';
@@ -105,8 +106,12 @@ export function SettingsSheet({ onClose, onOpen }: { onClose: () => void; onOpen
           <MyCoachSection onChat={() => { onClose(); onOpen('coachchat'); }} />
         </Section>
 
-        <Section title={t('coach.forTrainers')} sub={t('coach.forTrainersSub')}>
-          <Button small variant="ghost" label={t('coach.openArea')} onPress={() => { onClose(); onOpen('coach'); }} />
+        <Section title={t('studio.mineSet')} sub={t('studio.mineSetSub')}>
+          <MyStudioSection onChange={() => onOpen('studio-changed')} />
+        </Section>
+
+        <Section title={t('biz.forBiz')} sub={t('biz.forBizSub')}>
+          <Button small variant="ghost" label={t('biz.open')} onPress={() => { onClose(); onOpen('business'); }} />
         </Section>
 
         <Section title={t('set.account')}>

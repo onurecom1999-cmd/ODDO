@@ -473,3 +473,282 @@ end $$;
 grant execute on function public.is_client_of(uuid), public.become_coach(text), public.coach_me(), public.join_coach(text), public.leave_coach(),
   public.remove_client(uuid), public.coach_overview(), public.coach_client_state(uuid), public.set_client_plan(uuid, jsonb, text),
   public.coach_chat(uuid), public.coach_send(uuid, text) to authenticated;
+
+-- ---------- studios (gyms): members, check-in, crowd, classes ----------
+-- An owner creates a studio and shares its code; members join with it. Memberships are paid in the studio;
+-- the studio only records until when one is valid. Everything goes through functions, the tables stay closed.
+create table if not exists public.studios (
+  id uuid primary key default gen_random_uuid(),
+  owner uuid not null references auth.users on delete cascade,
+  name text not null check (char_length(name) between 1 and 60),
+  city text not null default '' check (char_length(city) <= 40),
+  code text not null unique check (code ~ '^[A-Z0-9]{6}$'),
+  capacity int not null default 100 check (capacity between 1 and 5000),
+  active boolean not null default true,
+  created_at timestamptz not null default now()
+);
+create table if not exists public.studio_staff (
+  studio_id uuid not null references public.studios on delete cascade,
+  user_id uuid not null references auth.users on delete cascade,
+  role text not null default 'admin' check (role in ('admin', 'trainer')),
+  primary key (studio_id, user_id)
+);
+create table if not exists public.studio_members (
+  studio_id uuid not null references public.studios on delete cascade,
+  user_id uuid not null references auth.users on delete cascade,
+  member_until date,
+  joined_at timestamptz not null default now(),
+  primary key (studio_id, user_id)
+);
+create table if not exists public.studio_checkins (
+  id bigint generated always as identity primary key,
+  studio_id uuid not null references public.studios on delete cascade,
+  user_id uuid not null references auth.users on delete cascade,
+  at timestamptz not null default now(),
+  by_user uuid references auth.users on delete set null
+);
+create index if not exists studio_checkins_time on public.studio_checkins (studio_id, at desc);
+-- A member's check-in code: 6 digits, valid for 2 minutes, shown as QR and as digits.
+create table if not exists public.studio_passes (
+  user_id uuid primary key references auth.users on delete cascade,
+  code text not null,
+  expires_at timestamptz not null
+);
+create table if not exists public.studio_classes (
+  id uuid primary key default gen_random_uuid(),
+  studio_id uuid not null references public.studios on delete cascade,
+  title text not null check (char_length(title) between 1 and 60),
+  trainer text not null default '' check (char_length(trainer) <= 40),
+  starts_at timestamptz not null,
+  minutes int not null default 60 check (minutes between 10 and 240),
+  capacity int not null default 15 check (capacity between 1 and 500),
+  created_at timestamptz not null default now()
+);
+create index if not exists studio_classes_time on public.studio_classes (studio_id, starts_at);
+create table if not exists public.studio_bookings (
+  class_id uuid not null references public.studio_classes on delete cascade,
+  user_id uuid not null references auth.users on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (class_id, user_id)
+);
+alter table public.studios enable row level security;
+alter table public.studio_staff enable row level security;
+alter table public.studio_members enable row level security;
+alter table public.studio_checkins enable row level security;
+alter table public.studio_passes enable row level security;
+alter table public.studio_classes enable row level security;
+alter table public.studio_bookings enable row level security;
+
+create or replace function public.is_studio_staff(p_studio uuid) returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (select 1 from studio_staff where studio_id = p_studio and user_id = auth.uid())
+$$;
+create or replace function public.is_studio_member(p_studio uuid) returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (select 1 from studio_members where studio_id = p_studio and user_id = auth.uid())
+$$;
+-- People in the studio now: check-ins of the last 90 minutes.
+create or replace function public.studio_crowd(p_studio uuid) returns int
+language sql stable security definer set search_path = public as $$
+  select count(distinct user_id)::int from studio_checkins where studio_id = p_studio and at > now() - interval '90 minutes'
+$$;
+
+create or replace function public.create_studio(p_name text, p_city text, p_capacity int) returns public.studios
+language plpgsql security definer set search_path = public as $$
+declare s studios; v text;
+begin
+  if auth.uid() is null then raise exception 'not signed in'; end if;
+  if (select count(*) from studios where owner = auth.uid()) >= 3 then raise exception 'too many studios'; end if;
+  loop
+    select string_agg(substr('ABCDEFGHJKMNPQRSTUVWXYZ23456789', (floor(random() * 31) + 1)::int, 1), '') into v from generate_series(1, 6);
+    exit when not exists (select 1 from studios where code = v) and not exists (select 1 from coaches where code = v);
+  end loop;
+  insert into studios (owner, name, city, code, capacity)
+  values (auth.uid(), trim(p_name), trim(coalesce(p_city, '')), v, greatest(1, least(5000, coalesce(p_capacity, 100)))) returning * into s;
+  insert into studio_staff (studio_id, user_id, role) values (s.id, auth.uid(), 'admin');
+  return s;
+end $$;
+
+create or replace function public.update_studio(p_studio uuid, p_name text, p_city text, p_capacity int) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not public.is_studio_staff(p_studio) then raise exception 'not staff'; end if;
+  update studios set name = trim(p_name), city = trim(coalesce(p_city, '')), capacity = greatest(1, least(5000, p_capacity)) where id = p_studio;
+end $$;
+
+create or replace function public.join_studio(p_code text) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare s studios;
+begin
+  if auth.uid() is null then raise exception 'not signed in'; end if;
+  select * into s from studios where code = upper(trim(p_code)) and active;
+  if s.id is null then raise exception 'studio not found'; end if;
+  if not exists (select 1 from studio_members where studio_id = s.id and user_id = auth.uid())
+     and (select count(*) from studio_members where user_id = auth.uid()) >= 3 then raise exception 'too many studios'; end if;
+  insert into studio_members (studio_id, user_id) values (s.id, auth.uid()) on conflict do nothing;
+  return jsonb_build_object('id', s.id, 'name', s.name);
+end $$;
+
+create or replace function public.leave_studio(p_studio uuid) returns void
+language sql security definer set search_path = public as $$
+  delete from studio_bookings b using studio_classes c where b.class_id = c.id and c.studio_id = p_studio and b.user_id = auth.uid() and c.starts_at > now();
+  delete from studio_members where studio_id = p_studio and user_id = auth.uid();
+$$;
+
+-- The member's view: each studio with crowd, membership and the classes of the next 7 days.
+create or replace function public.studio_home() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select coalesce(jsonb_agg(jsonb_build_object(
+    'id', s.id, 'name', s.name, 'city', s.city, 'capacity', s.capacity, 'crowd', public.studio_crowd(s.id),
+    'member_until', m.member_until,
+    'last_visit', (select max(at) from studio_checkins c where c.studio_id = s.id and c.user_id = auth.uid()),
+    'classes', (select coalesce(jsonb_agg(jsonb_build_object('id', k.id, 'title', k.title, 'trainer', k.trainer, 'starts_at', k.starts_at,
+                  'minutes', k.minutes, 'capacity', k.capacity,
+                  'booked', (select count(*) from studio_bookings b where b.class_id = k.id),
+                  'mine', exists (select 1 from studio_bookings b where b.class_id = k.id and b.user_id = auth.uid()))
+                  order by k.starts_at), '[]'::jsonb)
+                from studio_classes k where k.studio_id = s.id and k.starts_at > now() - interval '30 minutes' and k.starts_at < now() + interval '7 days')
+  ) order by m.joined_at), '[]'::jsonb)
+  from studio_members m join studios s on s.id = m.studio_id and s.active
+  where m.user_id = auth.uid()
+$$;
+
+create or replace function public.my_pass() returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare c text; e timestamptz;
+begin
+  if auth.uid() is null then raise exception 'not signed in'; end if;
+  select code, expires_at into c, e from studio_passes where user_id = auth.uid() and expires_at > now() + interval '20 seconds';
+  if c is null then
+    loop
+      c := lpad((floor(random() * 1000000))::int::text, 6, '0');
+      exit when not exists (select 1 from studio_passes where code = c and expires_at > now());
+    end loop;
+    e := now() + interval '2 minutes';
+    insert into studio_passes (user_id, code, expires_at) values (auth.uid(), c, e)
+      on conflict (user_id) do update set code = excluded.code, expires_at = excluded.expires_at;
+  end if;
+  return jsonb_build_object('code', c, 'expires_at', e);
+end $$;
+
+-- Staff checks a member in with the code from their phone (scanned QR or typed digits).
+create or replace function public.studio_checkin(p_studio uuid, p_code text) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare u uuid; m studio_members; n text;
+begin
+  if not public.is_studio_staff(p_studio) then raise exception 'not staff'; end if;
+  select user_id into u from studio_passes where code = regexp_replace(p_code, '\D', '', 'g') and expires_at > now();
+  if u is null then return jsonb_build_object('status', 'invalid'); end if;
+  select coalesce(nullif(name, ''), '?') into n from profiles where id = u;
+  select * into m from studio_members where studio_id = p_studio and user_id = u;
+  if m.user_id is null then return jsonb_build_object('status', 'not_member', 'name', n); end if;
+  if m.member_until is not null and m.member_until < current_date then
+    return jsonb_build_object('status', 'expired', 'name', n, 'member_until', m.member_until, 'user_id', u);
+  end if;
+  if exists (select 1 from studio_checkins where studio_id = p_studio and user_id = u and at > now() - interval '30 minutes') then
+    return jsonb_build_object('status', 'already', 'name', n, 'member_until', m.member_until);
+  end if;
+  insert into studio_checkins (studio_id, user_id, by_user) values (p_studio, u, auth.uid());
+  delete from studio_passes where user_id = u;
+  return jsonb_build_object('status', 'ok', 'name', n, 'member_until', m.member_until);
+end $$;
+
+-- The business side: studios I run, and one studio's numbers.
+create or replace function public.my_studios() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select coalesce(jsonb_agg(jsonb_build_object('id', s.id, 'name', s.name, 'city', s.city, 'code', s.code, 'capacity', s.capacity, 'role', f.role) order by s.created_at), '[]'::jsonb)
+  from studio_staff f join studios s on s.id = f.studio_id where f.user_id = auth.uid()
+$$;
+
+create or replace function public.studio_overview(p_studio uuid) returns jsonb
+language sql stable security definer set search_path = public as $$
+  select case when public.is_studio_staff(p_studio) then jsonb_build_object(
+    'crowd', public.studio_crowd(p_studio),
+    'today', (select count(*) from studio_checkins where studio_id = p_studio and at >= date_trunc('day', now())),
+    'week', (select count(*) from studio_checkins where studio_id = p_studio and at >= now() - interval '7 days'),
+    'members', (select count(*) from studio_members where studio_id = p_studio),
+    'expiring', (select count(*) from studio_members where studio_id = p_studio and member_until between current_date and current_date + 7),
+    'expired', (select count(*) from studio_members where studio_id = p_studio and member_until < current_date),
+    'recent', (select coalesce(jsonb_agg(x order by x->>'at' desc), '[]'::jsonb) from (
+       select jsonb_build_object('name', coalesce(nullif(p.name, ''), '?'), 'at', c.at) x
+       from studio_checkins c left join profiles p on p.id = c.user_id
+       where c.studio_id = p_studio order by c.at desc limit 8) r)
+  ) end
+$$;
+
+create or replace function public.studio_member_list(p_studio uuid)
+returns table (user_id uuid, name text, member_until date, joined_at timestamptz, last_visit timestamptz, visits_30 int, streak int)
+language sql stable security definer set search_path = public as $$
+  select m.user_id, coalesce(p.name, ''), m.member_until, m.joined_at,
+         (select max(at) from studio_checkins c where c.studio_id = m.studio_id and c.user_id = m.user_id),
+         (select count(*)::int from studio_checkins c where c.studio_id = m.studio_id and c.user_id = m.user_id and c.at > now() - interval '30 days'),
+         coalesce(p.streak, 0)
+  from studio_members m left join profiles p on p.id = m.user_id
+  where m.studio_id = p_studio and public.is_studio_staff(p_studio)
+  order by coalesce(p.name, '')
+$$;
+
+create or replace function public.studio_set_member_until(p_studio uuid, p_user uuid, p_until date) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not public.is_studio_staff(p_studio) then raise exception 'not staff'; end if;
+  update studio_members set member_until = p_until where studio_id = p_studio and user_id = p_user;
+end $$;
+
+create or replace function public.studio_remove_member(p_studio uuid, p_user uuid) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not public.is_studio_staff(p_studio) then raise exception 'not staff'; end if;
+  delete from studio_members where studio_id = p_studio and user_id = p_user;
+end $$;
+
+create or replace function public.studio_add_class(p_studio uuid, p_title text, p_trainer text, p_starts timestamptz, p_minutes int, p_capacity int) returns uuid
+language plpgsql security definer set search_path = public as $$
+declare i uuid;
+begin
+  if not public.is_studio_staff(p_studio) then raise exception 'not staff'; end if;
+  insert into studio_classes (studio_id, title, trainer, starts_at, minutes, capacity)
+  values (p_studio, trim(p_title), trim(coalesce(p_trainer, '')), p_starts, p_minutes, p_capacity) returning id into i;
+  return i;
+end $$;
+
+create or replace function public.studio_delete_class(p_class uuid) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  delete from studio_classes c where c.id = p_class and public.is_studio_staff(c.studio_id);
+end $$;
+
+create or replace function public.studio_class_list(p_studio uuid)
+returns table (id uuid, title text, trainer text, starts_at timestamptz, minutes int, capacity int, booked int, names text[])
+language sql stable security definer set search_path = public as $$
+  select k.id, k.title, k.trainer, k.starts_at, k.minutes, k.capacity,
+         (select count(*)::int from studio_bookings b where b.class_id = k.id),
+         (select coalesce(array_agg(coalesce(nullif(p.name, ''), '?') order by b.created_at), '{}') from studio_bookings b left join profiles p on p.id = b.user_id where b.class_id = k.id)
+  from studio_classes k
+  where k.studio_id = p_studio and public.is_studio_staff(p_studio) and k.starts_at > now() - interval '1 day' and k.starts_at < now() + interval '14 days'
+  order by k.starts_at
+$$;
+
+create or replace function public.book_class(p_class uuid) returns void
+language plpgsql security definer set search_path = public as $$
+declare k studio_classes;
+begin
+  select * into k from studio_classes where id = p_class for update;
+  if k.id is null or not public.is_studio_member(k.studio_id) then raise exception 'not found'; end if;
+  if k.starts_at < now() then raise exception 'too late'; end if;
+  if exists (select 1 from studio_bookings where class_id = p_class and user_id = auth.uid()) then return; end if;
+  if (select count(*) from studio_bookings where class_id = p_class) >= k.capacity then raise exception 'class full'; end if;
+  insert into studio_bookings (class_id, user_id) values (p_class, auth.uid());
+end $$;
+
+create or replace function public.unbook_class(p_class uuid) returns void
+language sql security definer set search_path = public as $$
+  delete from studio_bookings where class_id = p_class and user_id = auth.uid()
+$$;
+
+grant execute on function public.is_studio_staff(uuid), public.is_studio_member(uuid), public.studio_crowd(uuid),
+  public.create_studio(text, text, int), public.update_studio(uuid, text, text, int), public.join_studio(text), public.leave_studio(uuid),
+  public.studio_home(), public.my_pass(), public.studio_checkin(uuid, text), public.my_studios(), public.studio_overview(uuid),
+  public.studio_member_list(uuid), public.studio_set_member_until(uuid, uuid, date), public.studio_remove_member(uuid, uuid),
+  public.studio_add_class(uuid, text, text, timestamptz, int, int), public.studio_delete_class(uuid), public.studio_class_list(uuid),
+  public.book_class(uuid), public.unbook_class(uuid) to authenticated;

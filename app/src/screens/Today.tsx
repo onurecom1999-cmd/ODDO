@@ -11,8 +11,9 @@ import Svg, { Circle } from 'react-native-svg';
 import { Bar, Body, Card, CheckRow, Emblem, Eyebrow, H1, H2, LinkButton, Muted, Row, Small, Stack, useToast, Button } from '../ui/kit';
 import { Icon, IconName } from '../ui/icons';
 import { CoachBanner } from '../sheets/Coach';
+import { StudioCard } from '../sheets/Studio';
 
-export function Today({ onOpen }: { onOpen: (sheet: string) => void }) {
+export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => void; studioTick?: number }) {
   const { S, update } = useApp();
   const toast = useToast();
   const [sheet, setSheet] = useState<{ type: 'routine'; id: string } | { type: 'routines' } | null>(null);
@@ -79,6 +80,8 @@ export function Today({ onOpen }: { onOpen: (sheet: string) => void }) {
         </View>
         <Pressable accessibilityRole="button" onPress={() => onOpen('reward')}><Ring done={score.done} all={score.all} /></Pressable>
       </Row>
+
+      <StudioCard refresh={studioTick} />
 
       {score.perfect ? (
         <Card style={{ borderColor: colors.accent, gap: 14 }}>

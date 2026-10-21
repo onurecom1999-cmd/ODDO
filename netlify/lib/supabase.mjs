@@ -34,15 +34,20 @@ export async function tierOf(userId) {
   }
 }
 
-// Trainers and the clients of an active trainer get Pro: the trainer pays for the clients.
+// Trainers, studios and their clients and members get Pro: the business pays for them.
 async function withCoach(userId) {
   const h = { apikey: SERVICE(), authorization: `Bearer ${SERVICE()}` };
   const id = encodeURIComponent(userId);
-  const [own, client] = await Promise.all([
-    fetch(`${SB_URL}/rest/v1/coaches?user_id=eq.${id}&active=is.true&select=user_id`, { headers: h }).then(r => (r.ok ? r.json() : [])),
-    fetch(`${SB_URL}/rest/v1/coach_clients?client_id=eq.${id}&select=coaches!inner(active)&coaches.active=is.true`, { headers: h }).then(r => (r.ok ? r.json() : [])),
+  const get = q => fetch(`${SB_URL}/rest/v1/${q}`, { headers: h }).then(r => (r.ok ? r.json() : []));
+  const today = new Date().toISOString().slice(0, 10);
+  const [own, client, staff, member] = await Promise.all([
+    get(`coaches?user_id=eq.${id}&active=is.true&select=user_id`),
+    get(`coach_clients?client_id=eq.${id}&select=coaches!inner(active)&coaches.active=is.true`),
+    get(`studio_staff?user_id=eq.${id}&select=studios!inner(active)&studios.active=is.true`),
+    // Members of an active studio, while their membership is valid (or has no end date).
+    get(`studio_members?user_id=eq.${id}&or=(member_until.is.null,member_until.gte.${today})&select=studios!inner(active)&studios.active=is.true`),
   ]);
-  return own.length > 0 || client.length > 0;
+  return own.length > 0 || client.length > 0 || staff.length > 0 || member.length > 0;
 }
 
 export async function upsertSubscription(row) {

@@ -31,8 +31,10 @@ async function serverTier(): Promise<Tier> {
     supabase.from('subscriptions').select('tier,status,ends_at').eq('user_id', id).maybeSingle(),
     supabase.rpc('coach_me').then(r => r.data as { coach?: { active: boolean } | null; mine?: { active: boolean } | null } | null, () => null),
   ]);
-  // Trainers and their clients get Pro; the trainer pays for the clients.
-  const viaCoach: Tier = coach?.coach?.active || coach?.mine?.active ? 'pro' : 'free';
+  const studio = await supabase.rpc('studio_home').then(r => (r.data ?? []) as { member_until: string | null }[], () => []);
+  const today = new Date().toISOString().slice(0, 10);
+  // Trainers, their clients and studio members with a valid membership get Pro; the business pays for them.
+  const viaCoach: Tier = coach?.coach?.active || coach?.mine?.active || studio.some(s => !s.member_until || s.member_until >= today) ? 'pro' : 'free';
   if (!data) return viaCoach;
   const live = ['on_trial', 'active', 'past_due'].includes(data.status) || (data.status === 'cancelled' && data.ends_at && new Date(data.ends_at) > new Date());
   return best(live ? (data.tier as Tier) : 'free', viaCoach);

@@ -17,6 +17,7 @@ import { LiveRecord } from './src/sheets/LiveRecord';
 import { Icon } from './src/ui/icons';
 import { SettingsSheet } from './src/sheets/Settings';
 import { ChatSheet, CoachSheet, useCoachSync } from './src/sheets/Coach';
+import { BusinessSheet, useStudioSync } from './src/sheets/Studio';
 import { CardioSheet } from './src/sheets/Cardio';
 import { CreatorSheet } from './src/sheets/Creator';
 import { AccountSheet } from './src/sheets/Account';
@@ -77,9 +78,12 @@ function Main() {
   const [tab, setTab] = useState<Tab>('today');
   const scroll = useRef<ScrollViewInstance>(null);
   const [sheet, setSheet] = useState<string | null>(null);
-  const open = (name: string) => setSheet(name);
+  const [studioTick, setStudioTick] = useState(0);
+  // 'studio-changed' is not a sheet: it tells Today to reload the studio card after joining or leaving.
+  const open = (name: string) => (name === 'studio-changed' ? setStudioTick(n => n + 1) : setSheet(name));
   const close = () => setSheet(null);
   useCoachSync();
+  useStudioSync(() => setStudioTick(n => n + 1));
   const go = (next: Tab) => { setTab(next); scroll.current?.scrollTo({ y: 0, animated: false }); };
   return (
     <View style={{ flex: 1 }}>
@@ -100,7 +104,7 @@ function Main() {
             </Pressable>
           </Row>
         ) : null}
-        {tab === 'today' ? <Today onOpen={open} /> : tab === 'move' ? <Activity onOpen={open} /> : tab === 'community' ? <Community /> : <Me onOpen={open} />}
+        {tab === 'today' ? <Today onOpen={open} studioTick={studioTick} /> : tab === 'move' ? <Activity onOpen={open} /> : tab === 'community' ? <Community /> : <Me onOpen={open} />}
       </Screen>
       <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.line, paddingBottom: insets.bottom }}>
         <View style={{ flexDirection: 'row', maxWidth: 480, width: '100%', alignSelf: 'center' }}>
@@ -119,6 +123,7 @@ function Main() {
       {sheet === 'settings' ? <SettingsSheet onClose={close} onOpen={open} /> : null}
       {sheet === 'pro' ? <ProSheet onClose={close} /> : null}
       {sheet === 'coach' ? <CoachSheet onClose={close} /> : null}
+      {sheet === 'business' ? <BusinessSheet onClose={() => { close(); setStudioTick(n => n + 1); }} /> : null}
       {sheet === 'coachchat' && S.coach ? <ChatSheet other={S.coach.id} title={S.coach.name} asCoach={false} onClose={close} /> : null}
       {sheet === 'creator' ? <CreatorSheet onClose={close} onPro={() => setSheet('pro')} /> : null}
       {sheet === 'account' ? <AccountSheet mode="save" onClose={close} /> : null}
