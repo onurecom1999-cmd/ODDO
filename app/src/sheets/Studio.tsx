@@ -165,7 +165,7 @@ export function MyStudioSection({ onChange }: { onChange: () => void }) {
           <LinkButton label={t('studio.leave')} style={{ color: colors.dim }} onPress={async () => { try { await leaveStudio(s.id); await load(); onChange(); } catch (e) { toast(errText(e)); } }} />
         </Row>
       ))}
-      <Field label={t('studio.code')} value={code} onChangeText={v => setCode(v.toUpperCase())} autoCapitalize="characters" maxLength={6} placeholder="ABC123" />
+      <Field label={t('studio.code')} value={code} onChangeText={v => setCode(v.toUpperCase())} autoCapitalize="characters" maxLength={6} />
       <Button small label={busy ? '…' : t('studio.join')} disabled={busy} onPress={join} />
     </Stack>
   );

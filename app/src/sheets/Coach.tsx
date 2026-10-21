@@ -90,7 +90,7 @@ export function MyCoachSection({ onChat }: { onChat: () => void }) {
   );
   return (
     <Stack gap={10}>
-      <Field label={t('coach.code')} value={code} onChangeText={v => setCode(v.toUpperCase())} autoCapitalize="characters" maxLength={6} placeholder="ABC123" />
+      <Field label={t('coach.code')} value={code} onChangeText={v => setCode(v.toUpperCase())} autoCapitalize="characters" maxLength={6} />
       <Button small label={busy ? '…' : t('coach.join')} disabled={busy} onPress={join} />
     </Stack>
   );
