@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Linking, Pressable, Text, View } from 'react-native';
 import { account, AccountInfo, deleteAccount } from '../account';
-import { useTier } from '../pro';
+import { partnerPerks, Perks, useTier } from '../pro';
+import { isAdmin } from '../templates';
 import { studioHome } from '../studio';
 import { Icon, IconName } from '../ui/icons';
-import { getLang, Key, LANGS, setLang, t } from '../i18n';
+import { getLang, Key, LANGS, LOCALE, setLang, t } from '../i18n';
 import { routineSub, routineTitle, weekday } from '../logic/names';
 import { WHEN } from '../logic/routines';
 import { emptyState } from '../logic/types';
@@ -13,12 +14,13 @@ import { useApp } from '../state';
 import { colors, fonts } from '../theme';
 import { Body, Bold, Button, Card, Chip, Chips, Eyebrow, Field, LinkButton, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
 import { MyCoachSection } from './Coach';
+import { AdminPayouts } from './Partner';
 import { MyStudioSection } from './Studio';
 import { RoutinesEditSheet } from './Routines';
 
 const SITE = 'https://oddo-app.netlify.app';
 const WD_ORDER = [1, 2, 3, 4, 5, 6, 0];
-export type SettingsPage = 'routines' | 'days' | 'targets' | 'remind' | 'lang' | 'coach' | 'studio' | 'account';
+export type SettingsPage = 'routines' | 'days' | 'targets' | 'remind' | 'lang' | 'coach' | 'studio' | 'account' | 'payouts';
 
 // Settings as a short menu; each row opens its own page.
 export function SettingsSheet({ onClose, onOpen, initial }: { onClose: () => void; onOpen: (sheet: string) => void; initial?: SettingsPage }) {
@@ -33,9 +35,13 @@ export function SettingsSheet({ onClose, onOpen, initial }: { onClose: () => voi
   const [tier] = useTier();
   const [acc, setAcc] = useState<AccountInfo | null>(null);
   const [studio, setStudio] = useState<string | null>(null);
+  const [perks, setPerks] = useState<Perks | null>(null);
+  const [admin, setAdmin] = useState(false);
   useEffect(() => {
     if (S.example) return;
     account().then(setAcc, () => {});
+    partnerPerks().then(setPerks, () => {});
+    isAdmin().then(setAdmin, () => {});
     studioHome().then(l => setStudio(l[0]?.name ?? null), () => {});
   }, [S.example]);
 
@@ -54,7 +60,7 @@ export function SettingsSheet({ onClose, onOpen, initial }: { onClose: () => voi
   const back = () => setPage(null);
   const pageTitle: Record<SettingsPage, string> = {
     routines: t('set.routines'), days: t('set.days'), targets: t('set.targets'), remind: t('remind.title'), lang: t('plan.language'),
-    coach: t('coach.mine'), studio: t('studio.mineSet'), account: t('set.account'),
+    coach: t('coach.mine'), studio: t('studio.mineSet'), account: t('set.account'), payouts: t('payouts.title'),
   };
   const days = WD_ORDER.filter(d => P.schedule.includes(d)).map(d => weekday(d)).join(', ');
 
@@ -131,6 +137,8 @@ export function SettingsSheet({ onClose, onOpen, initial }: { onClose: () => voi
           <Section sub={t('studio.mineSetSub')}>
             <MyStudioSection onChange={() => { onOpen('studio-changed'); studioHome().then(l => setStudio(l[0]?.name ?? null), () => {}); }} />
           </Section>
+        ) : page === 'payouts' ? (
+          <AdminPayouts />
         ) : (
           <Stack gap={14}>
             {confirm === 'reset' ? (
@@ -176,6 +184,9 @@ export function SettingsSheet({ onClose, onOpen, initial }: { onClose: () => voi
           <View style={{ flex: 1, gap: 2 }}>
             <Bold style={{ fontSize: 18 }}>{S.profile?.name}</Bold>
             <Small>{tier === 'free' ? t('set.tierFree') : tier === 'pro' ? 'ODDO Pro' : 'ODDO Ultimate'} · {acc?.email ? acc.email : t('set.notSaved')}</Small>
+            {perks?.free_until && !perks.partner ? (
+              <Small style={{ color: colors.accent }}>{t('partner.freeUntil', { date: new Date(perks.free_until).toLocaleDateString(LOCALE[getLang()], { day: 'numeric', month: 'long' }), via: perks.via || '' })}</Small>
+            ) : null}
           </View>
         </Card>
 
@@ -199,6 +210,7 @@ export function SettingsSheet({ onClose, onOpen, initial }: { onClose: () => voi
         <Group title={t('set.g.account')}>
           <MenuRow icon="star" label="ODDO Pro" value={tier === 'free' ? t('set.proSee') : t('set.proActive')} onPress={() => go('pro')} accent={tier === 'free'} />
           {S.example ? null : <MenuRow icon="shield" label={t('acc.cta')} value={acc?.email ? '✓' : t('set.notSaved')} onPress={() => go('account')} />}
+          {admin ? <MenuRow icon="briefcase" label={t('payouts.title')} value="" onPress={() => setPage('payouts')} /> : null}
           <MenuRow icon="settings" label={t('set.more')} value="" onPress={() => setPage('account')} />
         </Group>
       </Stack>

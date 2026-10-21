@@ -27,17 +27,23 @@ export async function myTier(): Promise<Tier> {
 async function serverTier(): Promise<Tier> {
   const id = await userId();
   if (!id || !supabase) return 'free';
-  const [{ data }, coach] = await Promise.all([
+  const [{ data }, perks] = await Promise.all([
     supabase.from('subscriptions').select('tier,status,ends_at').eq('user_id', id).maybeSingle(),
-    supabase.rpc('coach_me').then(r => r.data as { coach?: { active: boolean } | null; mine?: { active: boolean } | null } | null, () => null),
+    partnerPerks().catch(() => null),
   ]);
-  const studio = await supabase.rpc('studio_home').then(r => (r.data ?? []) as { member_until: string | null }[], () => []);
-  const today = new Date().toISOString().slice(0, 10);
-  // Trainers, their clients and studio members with a valid membership get Pro; the business pays for them.
-  const viaCoach: Tier = coach?.coach?.active || coach?.mine?.active || studio.some(s => !s.member_until || s.member_until >= today) ? 'pro' : 'free';
+  // Trainers and studios get Pro; people who joined one get it for their free month.
+  const viaCoach: Tier = perks?.partner || perks?.free_until ? 'pro' : 'free';
   if (!data) return viaCoach;
   const live = ['on_trial', 'active', 'past_due'].includes(data.status) || (data.status === 'cancelled' && data.ends_at && new Date(data.ends_at) > new Date());
   return best(live ? (data.tier as Tier) : 'free', viaCoach);
+}
+
+export type Perks = { partner: boolean; free_until: string | null; via: string | null };
+export async function partnerPerks(): Promise<Perks | null> {
+  if (!supabase || !(await userId())) return null;
+  const { data, error } = await supabase.rpc('partner_perks');
+  if (error) throw error;
+  return data as Perks;
 }
 
 export function useTier() {

@@ -1,8 +1,10 @@
-// Lemon Squeezy subscription events -> public.subscriptions.
+// Lemon Squeezy subscription events -> public.subscriptions; paid invoices -> partner commissions.
+// Webhook events to tick in Lemon Squeezy: subscription_created, subscription_updated, subscription_cancelled,
+// subscription_expired, subscription_payment_success, subscription_payment_refunded.
 // Env (Netlify only): LEMONSQUEEZY_WEBHOOK_SECRET, SUPABASE_SERVICE_ROLE_KEY,
 // LS_VARIANTS_PRO, LS_VARIANTS_ULTIMATE (comma-separated variant ids).
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { upsertSubscription } from '../lib/supabase.mjs';
+import { creditCommission, upsertSubscription, userForLsSubscription, voidCommission } from '../lib/supabase.mjs';
 
 const ids = name => new Set((process.env[name] || '').split(',').map(s => s.trim()).filter(Boolean));
 
@@ -19,6 +21,7 @@ export default async req => {
   const name = ev?.meta?.event_name || '';
   if (!name.startsWith('subscription_')) return new Response('ignored');
   const a = ev.data?.attributes || {};
+  if (name.startsWith('subscription_payment_')) return payment(name, ev, a);
   const userId = ev.meta?.custom_data?.user_id;
   if (!userId) return new Response('no user', { status: 200 });
   const variant = String(a.variant_id || '');
@@ -37,3 +40,21 @@ export default async req => {
   }
   return new Response('ok');
 };
+
+// Lemon Squeezy keeps 5 % + 50 cents of each payment; the partner's share is of what is left after tax and that fee.
+async function payment(name, ev, a) {
+  const key = `ls:${ev.data?.id}`;
+  try {
+    if (name === 'subscription_payment_refunded') { await voidCommission(key); return new Response('ok'); }
+    if (name !== 'subscription_payment_success') return new Response('ignored');
+    const userId = ev.meta?.custom_data?.user_id || (await userForLsSubscription(a.subscription_id));
+    if (!userId) return new Response('no user');
+    const total = Number(a.total_usd ?? a.total) || 0;
+    const net = (Number(a.subtotal_usd ?? a.subtotal) || 0) - (total * 0.05 + 50);
+    if (net > 0) await creditCommission(userId, key, 'lemonsqueezy', net, 'USD');
+  } catch (e) {
+    console.error(e);
+    return new Response('store failed', { status: 500 });
+  }
+  return new Response('ok');
+}

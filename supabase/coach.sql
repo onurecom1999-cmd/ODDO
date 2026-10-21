@@ -752,3 +752,203 @@ grant execute on function public.is_studio_staff(uuid), public.is_studio_member(
   public.studio_member_list(uuid), public.studio_set_member_until(uuid, uuid, date), public.studio_remove_member(uuid, uuid),
   public.studio_add_class(uuid, text, text, timestamptz, int, int), public.studio_delete_class(uuid), public.studio_class_list(uuid),
   public.book_class(uuid), public.unbook_class(uuid) to authenticated;
+
+-- ---------- partner program: trainers and studios earn a share of what their people pay ----------
+-- Whoever brings a person in first (trainer code or studio code) is that person's partner for good.
+-- The person gets Pro free for 30 days; after that, the partner earns a share of every payment.
+-- Shares: the first 20 partners 50 % for their first 6 months, then by paying clients 30 % (1-9), 35 % (10-49), 40 % (50+).
+-- Amounts are in US cents: Lemon Squeezy and RevenueCat both report USD. Only the payment webhooks write commissions.
+create table if not exists public.partners (
+  user_id uuid primary key references auth.users on delete cascade,
+  founding boolean not null default false,
+  payout text not null default '' check (char_length(payout) <= 200),
+  created_at timestamptz not null default now()
+);
+create table if not exists public.referrals (
+  user_id uuid primary key references auth.users on delete cascade,
+  partner_id uuid not null references auth.users on delete cascade,
+  kind text not null check (kind in ('coach', 'studio')),
+  free_until timestamptz not null default now() + interval '30 days',
+  created_at timestamptz not null default now(),
+  check (user_id <> partner_id)
+);
+create index if not exists referrals_partner on public.referrals (partner_id);
+create table if not exists public.commissions (
+  id bigint generated always as identity primary key,
+  partner_id uuid not null references auth.users on delete cascade,
+  user_id uuid references auth.users on delete set null,
+  event_key text not null unique,
+  source text not null,
+  net_cents int not null,
+  rate numeric(4, 2) not null,
+  amount_cents int not null,
+  currency text not null default 'USD',
+  status text not null default 'pending' check (status in ('pending', 'void', 'paid')),
+  created_at timestamptz not null default now(),
+  -- 30 days to cover refunds before the money can be paid out.
+  available_at timestamptz not null default now() + interval '30 days',
+  paid_at timestamptz
+);
+create index if not exists commissions_partner on public.commissions (partner_id, created_at desc);
+alter table public.partners enable row level security;
+alter table public.referrals enable row level security;
+alter table public.commissions enable row level security;
+
+create or replace function public.add_partner(p uuid) returns void
+language sql security definer set search_path = public as $$
+  insert into partners (user_id, founding) values (p, (select count(*) from partners) < 20) on conflict do nothing
+$$;
+create or replace function public.on_coach_created() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin perform public.add_partner(new.user_id); return new; end $$;
+create or replace function public.on_studio_created() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin perform public.add_partner(new.owner); return new; end $$;
+create or replace function public.on_client_joined() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  insert into referrals (user_id, partner_id, kind) values (new.client_id, new.coach_id, 'coach') on conflict do nothing;
+  return new;
+end $$;
+create or replace function public.on_member_joined() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare o uuid;
+begin
+  select owner into o from studios where id = new.studio_id;
+  if o is not null and o <> new.user_id then
+    insert into referrals (user_id, partner_id, kind) values (new.user_id, o, 'studio') on conflict do nothing;
+  end if;
+  return new;
+end $$;
+drop trigger if exists partner_coach on public.coaches;
+create trigger partner_coach after insert on public.coaches for each row execute function public.on_coach_created();
+drop trigger if exists partner_studio on public.studios;
+create trigger partner_studio after insert on public.studios for each row execute function public.on_studio_created();
+drop trigger if exists referral_client on public.coach_clients;
+create trigger referral_client after insert or update of coach_id on public.coach_clients for each row execute function public.on_client_joined();
+drop trigger if exists referral_member on public.studio_members;
+create trigger referral_member after insert on public.studio_members for each row execute function public.on_member_joined();
+
+-- Trainers, studios and their people from before the partner program.
+insert into partners (user_id, founding, created_at)
+  select u, false, min(at) from (select user_id u, created_at at from coaches union all select owner, created_at from studios) x group by u
+  on conflict do nothing;
+update partners set founding = true where user_id in (select user_id from partners order by created_at limit 20) and not founding
+  and (select count(*) from partners where founding) < 20;
+insert into referrals (user_id, partner_id, kind, created_at) select client_id, coach_id, 'coach', created_at from coach_clients on conflict do nothing;
+insert into referrals (user_id, partner_id, kind, created_at)
+  select m.user_id, s.owner, 'studio', m.joined_at from studio_members m join studios s on s.id = m.studio_id where s.owner <> m.user_id
+  on conflict do nothing;
+
+create or replace function public.sub_live(s subscriptions) returns boolean
+language sql stable as $$
+  select s.status in ('on_trial', 'active', 'past_due') or (s.status = 'cancelled' and s.ends_at > now())
+$$;
+create or replace function public.partner_active(p uuid) returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (select 1 from coaches where user_id = p and active) or exists (select 1 from studios where owner = p and active)
+$$;
+create or replace function public.partner_paying(p uuid) returns int
+language sql stable security definer set search_path = public as $$
+  select count(*)::int from referrals r join subscriptions s on s.user_id = r.user_id where r.partner_id = p and public.sub_live(s)
+$$;
+create or replace function public.partner_rate(p uuid) returns numeric
+language sql stable security definer set search_path = public as $$
+  select case when pa.founding and pa.created_at > now() - interval '6 months' then 0.50
+              when n >= 50 then 0.40 when n >= 10 then 0.35 else 0.30 end
+  from partners pa, lateral (select public.partner_paying(p) n) x where pa.user_id = p
+$$;
+
+-- Called by the payment webhooks for each paid invoice. Returns the commission in cents (0 when none is due).
+create or replace function public.credit_commission(p_user uuid, p_key text, p_source text, p_net_cents int, p_currency text) returns int
+language plpgsql security definer set search_path = public as $$
+declare r referrals; rate numeric; amt int;
+begin
+  select * into r from referrals where user_id = p_user;
+  if r.user_id is null or p_net_cents <= 0 or not public.partner_active(r.partner_id) then return 0; end if;
+  perform public.add_partner(r.partner_id);
+  rate := public.partner_rate(r.partner_id);
+  insert into commissions (partner_id, user_id, event_key, source, net_cents, rate, amount_cents, currency)
+    values (r.partner_id, p_user, p_key, p_source, p_net_cents, rate, floor(p_net_cents * rate), upper(coalesce(p_currency, 'USD')))
+    on conflict (event_key) do nothing returning amount_cents into amt;
+  return coalesce(amt, 0);
+end $$;
+-- A refunded payment takes its commission back, unless it was already paid out.
+create or replace function public.void_commission(p_key text) returns void
+language sql security definer set search_path = public as $$
+  update commissions set status = 'void' where event_key = p_key and status = 'pending'
+$$;
+
+-- What the app needs about a person's free Pro: as a partner, or in the free month after joining one.
+create or replace function public.partner_perks() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object(
+    'partner', exists (select 1 from coaches where user_id = auth.uid() and active)
+               or exists (select 1 from studio_staff t join studios s on s.id = t.studio_id and s.active where t.user_id = auth.uid()),
+    'free_until', (select free_until from referrals where user_id = auth.uid() and free_until > now()),
+    'via', (select coalesce((select name from coaches where user_id = r.partner_id and r.kind = 'coach'),
+                            (select name from studios where owner = r.partner_id order by created_at limit 1))
+            from referrals r where r.user_id = auth.uid()))
+$$;
+
+-- The partner's earnings page.
+create or replace function public.partner_earnings() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object(
+    'founding', pa.founding and pa.created_at > now() - interval '6 months',
+    'founding_until', case when pa.founding then pa.created_at + interval '6 months' end,
+    'rate', public.partner_rate(pa.user_id),
+    'paying', public.partner_paying(pa.user_id),
+    'trial', (select count(*) from referrals r where r.partner_id = pa.user_id and r.free_until > now()
+              and not exists (select 1 from subscriptions s where s.user_id = r.user_id and public.sub_live(s))),
+    'people', (select count(*) from referrals r where r.partner_id = pa.user_id),
+    'month_cents', (select coalesce(sum(amount_cents), 0) from commissions c where c.partner_id = pa.user_id and c.status <> 'void'
+                    and c.created_at >= date_trunc('month', now())),
+    'pending_cents', (select coalesce(sum(amount_cents), 0) from commissions c where c.partner_id = pa.user_id and c.status = 'pending' and c.available_at > now()),
+    'available_cents', (select coalesce(sum(amount_cents), 0) from commissions c where c.partner_id = pa.user_id and c.status = 'pending' and c.available_at <= now()),
+    'paid_cents', (select coalesce(sum(amount_cents), 0) from commissions c where c.partner_id = pa.user_id and c.status = 'paid'),
+    'payout', pa.payout,
+    'recent', (select coalesce(jsonb_agg(x order by x.at desc), '[]'::jsonb) from (
+                 select coalesce(nullif(p.name, ''), '?') as name, c.amount_cents as cents, c.currency, c.status, c.created_at as at,
+                        c.available_at <= now() as ready
+                 from commissions c left join profiles p on p.id = c.user_id
+                 where c.partner_id = pa.user_id order by c.created_at desc limit 20) x))
+  from partners pa where pa.user_id = auth.uid()
+$$;
+
+create or replace function public.set_payout(p_text text) returns void
+language sql security definer set search_path = public as $$
+  update partners set payout = left(trim(p_text), 200) where user_id = auth.uid()
+$$;
+
+-- For Onur: who is owed money this month, and marking it paid after the transfer.
+create or replace function public.admin_payouts()
+returns table (partner_id uuid, name text, payout text, available_cents int, pending_cents int, paid_cents int)
+language sql stable security definer set search_path = public as $$
+  select pa.user_id,
+         coalesce((select name from coaches where user_id = pa.user_id), (select name from studios where owner = pa.user_id order by created_at limit 1), ''),
+         pa.payout,
+         coalesce(sum(c.amount_cents) filter (where c.status = 'pending' and c.available_at <= now()), 0)::int,
+         coalesce(sum(c.amount_cents) filter (where c.status = 'pending' and c.available_at > now()), 0)::int,
+         coalesce(sum(c.amount_cents) filter (where c.status = 'paid'), 0)::int
+  from partners pa left join commissions c on c.partner_id = pa.user_id
+  where public.is_admin()
+  group by pa.user_id, pa.payout
+  having coalesce(sum(c.amount_cents) filter (where c.status <> 'void'), 0) > 0
+  order by 4 desc
+$$;
+create or replace function public.admin_mark_paid(p_partner uuid) returns int
+language plpgsql security definer set search_path = public as $$
+declare n int;
+begin
+  if not public.is_admin() then raise exception 'not admin'; end if;
+  update commissions set status = 'paid', paid_at = now() where partner_id = p_partner and status = 'pending' and available_at <= now();
+  get diagnostics n = row_count;
+  return n;
+end $$;
+
+revoke execute on function public.add_partner(uuid), public.credit_commission(uuid, text, text, int, text), public.void_commission(text),
+  public.partner_paying(uuid), public.partner_rate(uuid), public.partner_active(uuid) from public, anon, authenticated;
+grant execute on function public.credit_commission(uuid, text, text, int, text), public.void_commission(text) to service_role;
+grant execute on function public.partner_perks(), public.partner_earnings(), public.set_payout(text), public.admin_payouts(),
+  public.admin_mark_paid(uuid) to authenticated;

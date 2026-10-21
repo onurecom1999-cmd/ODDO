@@ -34,20 +34,37 @@ export async function tierOf(userId) {
   }
 }
 
-// Trainers, studios and their clients and members get Pro: the business pays for them.
+// Trainers and studio staff get Pro. People who joined through a trainer or studio code get Pro for their free month.
 async function withCoach(userId) {
-  const h = { apikey: SERVICE(), authorization: `Bearer ${SERVICE()}` };
   const id = encodeURIComponent(userId);
-  const get = q => fetch(`${SB_URL}/rest/v1/${q}`, { headers: h }).then(r => (r.ok ? r.json() : []));
-  const today = new Date().toISOString().slice(0, 10);
-  const [own, client, staff, member] = await Promise.all([
-    get(`coaches?user_id=eq.${id}&active=is.true&select=user_id`),
-    get(`coach_clients?client_id=eq.${id}&select=coaches!inner(active)&coaches.active=is.true`),
-    get(`studio_staff?user_id=eq.${id}&select=studios!inner(active)&studios.active=is.true`),
-    // Members of an active studio, while their membership is valid (or has no end date).
-    get(`studio_members?user_id=eq.${id}&or=(member_until.is.null,member_until.gte.${today})&select=studios!inner(active)&studios.active=is.true`),
+  const now = new Date().toISOString();
+  const [own, staff, trial] = await Promise.all([
+    rest(`coaches?user_id=eq.${id}&active=is.true&select=user_id`),
+    rest(`studio_staff?user_id=eq.${id}&select=studios!inner(active)&studios.active=is.true`),
+    rest(`referrals?user_id=eq.${id}&free_until=gt.${now}&select=user_id`),
   ]);
-  return own.length > 0 || client.length > 0 || staff.length > 0 || member.length > 0;
+  return own.length > 0 || staff.length > 0 || trial.length > 0;
+}
+
+const headers = () => ({ apikey: SERVICE(), authorization: `Bearer ${SERVICE()}`, 'content-type': 'application/json' });
+const rest = q => fetch(`${SB_URL}/rest/v1/${q}`, { headers: headers() }).then(r => (r.ok ? r.json() : []));
+async function rpc(fn, args) {
+  if (!SERVICE()) throw new Error('SUPABASE_SERVICE_ROLE_KEY missing');
+  const res = await fetch(`${SB_URL}/rest/v1/rpc/${fn}`, { method: 'POST', headers: headers(), body: JSON.stringify(args) });
+  if (!res.ok) throw new Error(`supabase ${fn} ${res.status}: ${await res.text()}`);
+  return res.json().catch(() => null);
+}
+
+// Partner commission for one paid invoice; key makes repeats harmless. Net is in US cents after taxes and fees.
+export const creditCommission = (userId, key, source, netCents, currency = 'USD') =>
+  rpc('credit_commission', { p_user: userId, p_key: key, p_source: source, p_net_cents: Math.round(netCents), p_currency: currency });
+export const voidCommission = key => rpc('void_commission', { p_key: key });
+
+// The account behind a Lemon Squeezy subscription, for invoice events that come without custom data.
+export async function userForLsSubscription(subId) {
+  if (!SERVICE() || !subId) return null;
+  const [row] = await rest(`subscriptions?ls_subscription_id=eq.${encodeURIComponent(String(subId))}&select=user_id`);
+  return row?.user_id || null;
 }
 
 export async function upsertSubscription(row) {

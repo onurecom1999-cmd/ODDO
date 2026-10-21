@@ -14,6 +14,7 @@ import type { AppState } from '../logic/types';
 import { useApp } from '../state';
 import { colors, fonts } from '../theme';
 import { Body, Bold, Button, Card, Eyebrow, Field, H2, LinkButton, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
+import { EarningsCard } from './Partner';
 
 const errText = (e: unknown) => {
   const c = e instanceof CoachError ? e.code : 'failed';
@@ -222,6 +223,7 @@ export function CoachSheet({ onClose }: { onClose: () => void }) {
               <Button small variant="ghost" label={t('coach.share')} onPress={() => share(me.code)} style={{ flex: 1 }} />
             </Row>
           </Card>
+          <EarningsCard />
 
           <Row style={{ justifyContent: 'space-between' }}>
             <Eyebrow>{t('coach.clients')}</Eyebrow>

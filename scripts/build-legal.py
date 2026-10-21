@@ -73,6 +73,7 @@ ODDO ist ein Fitness-Coach. Wir verarbeiten nur, was die App dafür braucht, ver
 - **Standort:** nur während du eine Strecke live aufzeichnest. Die Strecke bleibt auf deinem Gerät.
 - **Community:** Wenn du Gruppen nutzt oder postest, sehen andere deinen Vornamen, deine Tagesserie, deinen heutigen Stand, deine Nachrichten, Beiträge und Kommentare: Gruppenmitglieder bei „Nur Gruppen“, alle angemeldeten Nutzer bei „Öffentlich“. Meldungen und Blockierungen speichern wir, um Missbrauch zu verhindern.
 - **Trainer:** Wenn du dich mit dem Code eines Trainers verbindest, sieht dieser Trainer deinen Vornamen, deine Tagesserie und deine gesicherten App-Daten (Trainings, Mahlzeiten, Kalorien, Eiweiß, Gewicht, Aktivitäten). Er kann dir einen Trainingsplan schicken und mit dir schreiben. Du kannst die Verbindung jederzeit unter Einstellungen → Dein Trainer trennen; danach sieht er nichts mehr.
+- **Partnerprogramm:** Wenn du mit dem Code eines Trainers oder Studios startest, speichern wir, über wen du gekommen bist, damit der Partner eine Provision auf deine Zahlungen erhält. Der Partner sieht dabei nur deinen Vornamen und die Höhe seiner Provision. Partner, die Auszahlungen erhalten, hinterlegen dafür IBAN oder PayPal-Adresse; wir nutzen sie nur für die Überweisung.
 - **Studios:** Wenn du einem Studio mit dessen Code beitrittst, sieht das Studio deinen Vornamen, deine Tagesserie, deine Check-ins, deine Kursbuchungen und bis wann deine Mitgliedschaft gilt. Deine Trainings-, Ernährungs- und Gewichtsdaten sieht das Studio nicht. Du kannst das Studio jederzeit unter Einstellungen → Dein Studio verlassen.
 - **Zahlungen:** laufen über Lemon Squeezy als Verkäufer (Merchant of Record). Wir erhalten nur, welches Paket aktiv ist, nie deine Kartendaten.
 - **Missbrauchsschutz:** Für die Tageslimits der KI speichern wir pro Tag einen nicht rückrechenbaren Hashwert deiner Konto-ID oder IP-Adresse.
@@ -118,6 +119,7 @@ ODDO is a fitness coach. We only process what the app needs for that, never sell
 - **Location:** only while you record a route live. The route stays on your device.
 - **Community:** if you use groups or post, others see your first name, streak, today's progress, messages, posts and comments: group members for "Groups only", all signed-in users for "Public". We keep reports and blocks to prevent abuse.
 - **Trainers:** if you connect with a trainer's code, that trainer sees your first name, streak and backed-up app data (workouts, meals, calories, protein, weight, activities). They can send you a training plan and message you. You can disconnect any time under Settings → Your trainer; after that they see nothing.
+- **Partner program:** if you start with a trainer's or gym's code, we store who brought you in so that partner earns a commission on your payments. The partner only sees your first name and the amount of their commission. Partners who receive payouts enter an IBAN or PayPal address for it; we use it only for the transfer.
 - **Studios:** if you join a studio with its code, the studio sees your first name, streak, check-ins, class bookings and until when your membership is valid. It does not see your workout, food or weight data. You can leave the studio any time under Settings → Your studio.
 - **Payments:** handled by Lemon Squeezy as merchant of record. We only learn which plan is active, never your card details.
 - **Abuse protection:** for the daily AI limits we keep a one-way hash of your account ID or IP address per day.
@@ -163,6 +165,7 @@ ODDO bir fitness koçudur. Sadece uygulamanın bunun için ihtiyaç duyduğu ver
 - **Konum:** sadece bir rotayı canlı kaydederken. Rota cihazında kalır.
 - **Topluluk:** grupları kullanır veya paylaşım yaparsan, başkaları adını, serini, bugünkü durumunu, mesajlarını, paylaşımlarını ve yorumlarını görür: "Sadece gruplar" seçeneğinde grup üyeleri, "Herkese açık" seçeneğinde tüm giriş yapmış kullanıcılar. Kötüye kullanımı önlemek için bildirimleri ve engellemeleri saklarız.
 - **Antrenör:** bir antrenörün koduyla bağlanırsan, o antrenör adını, serini ve yedeklenen uygulama verilerini (antrenmanlar, öğünler, kalori, protein, kilo, aktiviteler) görür. Sana antrenman planı gönderebilir ve seninle yazışabilir. Bağlantıyı istediğin zaman Ayarlar → Antrenörün bölümünden kesebilirsin; sonrasında hiçbir şey göremez.
+- **Ortaklık programı:** bir antrenörün veya salonun koduyla başlarsan, ödemelerinden komisyon alabilmesi için seni kimin getirdiğini kaydederiz. Ortak yalnızca adını ve komisyon tutarını görür. Ödeme alan ortaklar bunun için IBAN veya PayPal adresi girer; bunu yalnızca havale için kullanırız.
 - **Salonlar:** bir salona koduyla katılırsan, salon adını, serini, girişlerini, ders rezervasyonlarını ve üyeliğinin ne zamana kadar geçerli olduğunu görür. Antrenman, beslenme ve kilo verilerini göremez. Salondan istediğin zaman Ayarlar → Salonun bölümünden ayrılabilirsin.
 - **Ödemeler:** satıcı olarak Lemon Squeezy üzerinden yapılır. Sadece hangi paketin aktif olduğunu öğreniriz, kart bilgilerini asla.
 - **Kötüye kullanım koruması:** günlük YZ limitleri için hesap kimliğinin veya IP adresinin geri döndürülemez bir özetini gün bazında saklarız.
@@ -274,6 +277,129 @@ Kasıt, ağır ihmal ve hayata, bedene veya sağlığa verilen zararlardan sın�
 Bu koşulları güncelleyebiliriz ve önceden uygulamada haber veririz. Aboneler değişiklikler yürürlüğe girmeden iptal edebilir.
 '''
 
+PARTNER_DE = f'''
+Stand: {STAND}
+
+## Parteien
+Diese Vereinbarung gilt zwischen Onur Ünal, Betreiber von ODDO ({ADDR}), und dir als Trainer oder Studio („Partner“), sobald du im ODDO Business-Bereich einen Trainer- oder Studio-Code anlegst.
+
+## Was du bekommst
+- Personen, die mit deinem Code in ODDO starten, sind deine geworbenen Kunden. Es zählt der erste Code, mit dem jemand startet.
+- Geworbene Kunden bekommen den ersten Monat ODDO Pro gratis.
+- Danach erhältst du eine Provision auf jede bezahlte Abo-Zahlung deiner geworbenen Kunden, solange sie zahlen und du aktiv bist.
+- Bemessungsgrundlage ist der Nettobetrag, den ODDO tatsächlich erhält: Zahlung abzüglich Steuern und der Gebühren von Lemon Squeezy, Apple oder Google.
+
+## Provisionssätze
+- Gründungspartner: die ersten 20 Partner erhalten 50 % für die ersten 6 Monate ab Anlage ihres Codes.
+- Starter: 30 % bei 1 bis 9 zahlenden Kunden.
+- Pro-Partner: 35 % bei 10 bis 49 zahlenden Kunden.
+- Elite: 40 % ab 50 zahlenden Kunden.
+- Der Satz richtet sich nach der Zahl deiner zahlenden Kunden zum Zeitpunkt der jeweiligen Zahlung.
+- Partner-Bonus: Wirbst du einen anderen Trainer oder ein Studio, erhältst du einmalig 50 €, sobald dort 10 Kunden zahlen.
+
+## Auszahlung
+- Provisionen werden 30 Tage nach der Zahlung auszahlbar. Erstattete Zahlungen werden vorher wieder abgezogen.
+- Wir zahlen einmal im Monat bis zum 15. aus, sobald mindestens 25 $ auszahlbar sind, per Überweisung oder PayPal an die Daten, die du in der App hinterlegst.
+- Provisionen werden in US-Dollar berechnet, weil unsere Zahlungsanbieter in US-Dollar abrechnen.
+- Du bist selbst für die Versteuerung deiner Provisionen verantwortlich.
+
+## Regeln
+- Keine Eigenwerbung: Käufe für dich selbst oder für eigene Zweitkonten zählen nicht.
+- Kein Spam, keine falschen Versprechen, keine Werbung mit Rabatten, die es nicht gibt, keine bezahlte Suchmaschinenwerbung auf den Namen ODDO.
+- Du darfst ODDO nicht als medizinische Behandlung oder als Ersatz für ärztlichen Rat bewerben.
+- Bei Verstößen oder Betrug können wir offene Provisionen einbehalten und die Partnerschaft beenden.
+
+## Laufzeit und Änderungen
+- Du kannst jederzeit aufhören, indem du deinen Code im Business-Bereich deaktivierst oder uns schreibst.
+- Als aktiv giltst du, solange dein Trainer- oder Studio-Code aktiv ist und du ODDO mindestens alle 90 Tage nutzt.
+- Wir können die Sätze für die Zukunft ändern und kündigen das mindestens 30 Tage vorher in der App an. Bereits verdiente Provisionen bleiben unberührt.
+
+## Kontakt
+{MAIL}
+'''
+
+PARTNER_EN = f'''
+Last updated: {STAND}
+
+## Parties
+This agreement is between Onur Ünal, operator of ODDO ({ADDR}), and you as a trainer or gym ("partner"), as soon as you create a trainer or gym code in the ODDO business area.
+
+## What you get
+- People who start ODDO with your code are your referred clients. The first code someone starts with counts.
+- Referred clients get the first month of ODDO Pro free.
+- After that you earn a commission on every paid subscription payment of your referred clients, as long as they pay and you are active.
+- The basis is the net amount ODDO actually receives: the payment minus taxes and the fees of Lemon Squeezy, Apple or Google.
+
+## Commission rates
+- Founding partner: the first 20 partners get 50 % for the first 6 months after creating their code.
+- Starter: 30 % with 1 to 9 paying clients.
+- Pro partner: 35 % with 10 to 49 paying clients.
+- Elite: 40 % with 50 or more paying clients.
+- The rate depends on the number of your paying clients at the time of each payment.
+- Partner bonus: if you bring in another trainer or gym, you get a one-time 50 € once 10 of their clients pay.
+
+## Payouts
+- Commissions become payable 30 days after the payment. Refunded payments are deducted before that.
+- We pay out once a month by the 15th, once at least 25 $ is payable, by bank transfer or PayPal to the details you enter in the app.
+- Commissions are calculated in US dollars because our payment providers settle in US dollars.
+- You are responsible for any taxes on your commissions.
+
+## Rules
+- No self-referral: purchases for yourself or your own second accounts do not count.
+- No spam, no false promises, no discounts that do not exist, no paid search ads on the name ODDO.
+- You may not promote ODDO as medical treatment or as a replacement for medical advice.
+- In case of violations or fraud we may withhold open commissions and end the partnership.
+
+## Term and changes
+- You can stop at any time by deactivating your code in the business area or by writing to us.
+- You count as active while your trainer or gym code is active and you use ODDO at least every 90 days.
+- We may change the rates for the future and announce this in the app at least 30 days in advance. Commissions already earned are not affected.
+
+## Contact
+{MAIL}
+'''
+
+PARTNER_TR = f'''
+Son güncelleme: {STAND}
+
+## Taraflar
+Bu sözleşme, ODDO işletmecisi Onur Ünal ({ADDR}) ile antrenör veya salon olarak sen ("ortak") arasında, ODDO iş alanında bir antrenör veya salon kodu oluşturduğun anda geçerlidir.
+
+## Ne kazanırsın
+- Kodunla ODDO'ya başlayan kişiler senin getirdiğin danışanlardır. Kişinin başladığı ilk kod geçerlidir.
+- Getirdiğin danışanlar ilk ay ODDO Pro'yu ücretsiz alır.
+- Sonrasında, ödedikleri ve sen aktif olduğun sürece, getirdiğin danışanların her abonelik ödemesinden komisyon alırsın.
+- Hesaplama esası ODDO'nun gerçekten aldığı net tutardır: ödeme eksi vergiler ve Lemon Squeezy, Apple veya Google ücretleri.
+
+## Komisyon oranları
+- Kurucu ortak: ilk 20 ortak, kodunu oluşturduktan sonraki ilk 6 ay boyunca %50 alır.
+- Başlangıç: 1-9 ödeyen danışanda %30.
+- Pro ortak: 10-49 ödeyen danışanda %35.
+- Elit: 50 ve üzeri ödeyen danışanda %40.
+- Oran, her ödeme anındaki ödeyen danışan sayına göre belirlenir.
+- Ortak bonusu: başka bir antrenör veya salon getirirsen, orada 10 danışan ödediğinde bir kerelik 50 € alırsın.
+
+## Ödeme
+- Komisyonlar ödemeden 30 gün sonra ödenebilir olur. İade edilen ödemeler daha önce düşülür.
+- En az 25 $ ödenebilir olduğunda ayda bir, ayın 15'ine kadar, uygulamada girdiğin bilgilere havale veya PayPal ile öderiz.
+- Ödeme sağlayıcılarımız ABD doları ile çalıştığı için komisyonlar ABD doları ile hesaplanır.
+- Komisyonlarının vergilendirilmesinden sen sorumlusun.
+
+## Kurallar
+- Kendine yönlendirme yok: kendin veya kendi ikinci hesapların için yapılan satın almalar sayılmaz.
+- Spam, sahte vaat, var olmayan indirimler ve ODDO adına ücretli arama reklamı yok.
+- ODDO'yu tıbbi tedavi veya doktor tavsiyesinin yerine geçen bir şey olarak tanıtamazsın.
+- İhlal veya dolandırıcılık durumunda açık komisyonları tutabilir ve ortaklığı sonlandırabiliriz.
+
+## Süre ve değişiklikler
+- İş alanında kodunu devre dışı bırakarak veya bize yazarak istediğin zaman bırakabilirsin.
+- Antrenör veya salon kodun aktif olduğu ve ODDO'yu en az 90 günde bir kullandığın sürece aktif sayılırsın.
+- Oranları ileriye dönük değiştirebiliriz ve bunu en az 30 gün önce uygulamada duyururuz. Kazanılmış komisyonlar etkilenmez.
+
+## İletişim
+{MAIL}
+'''
+
 IMPRINT = f'''
 ## Angaben / Details / Bilgiler
 Onur Ünal
@@ -292,3 +418,4 @@ Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor e
 page('datenschutz.html', 'Datenschutz', [('de', 'Datenschutz', PRIV_DE), ('en', 'Privacy policy', PRIV_EN), ('tr', 'Gizlilik politikası', PRIV_TR)])
 page('agb.html', 'AGB', [('de', 'Nutzungsbedingungen', TERMS_DE), ('en', 'Terms of use', TERMS_EN), ('tr', 'Kullanım koşulları', TERMS_TR)])
 page('impressum.html', 'Impressum', [('de', 'Impressum', IMPRINT)], single=True)
+page('partner.html', 'Partnervereinbarung', [('de', 'Partnervereinbarung', PARTNER_DE), ('en', 'Partner agreement', PARTNER_EN), ('tr', 'Ortaklık sözleşmesi', PARTNER_TR)])

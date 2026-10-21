@@ -1,8 +1,8 @@
-// RevenueCat events (App Store / Google Play subscriptions) -> public.subscriptions.
+// RevenueCat events (App Store / Google Play subscriptions) -> public.subscriptions; paid renewals -> partner commissions.
 // Env (Netlify only): REVENUECAT_WEBHOOK_AUTH (the Authorization value set in RevenueCat), SUPABASE_SERVICE_ROLE_KEY.
 // The app logs in to RevenueCat with the Supabase user id, so app_user_id is the account to upgrade.
 import { timingSafeEqual } from 'node:crypto';
-import { upsertSubscription } from '../lib/supabase.mjs';
+import { creditCommission, upsertSubscription, voidCommission } from '../lib/supabase.mjs';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 // RevenueCat event type -> the status names the Lemon Squeezy rows already use.
@@ -36,9 +36,20 @@ export default async req => {
       user_id: userId, tier, status, source: ev.store === 'PLAY_STORE' ? 'google' : 'apple', store_id: String(ev.original_transaction_id || '') || null,
       renews_at: status === 'active' ? exp : null, ends_at: exp, founder: /founder/i.test(product), updated_at: new Date().toISOString(),
     });
+    await commission(ev, userId, status);
   } catch (e) {
     console.error(e);
     return new Response('store failed', { status: 500 });
   }
   return new Response('ok');
 };
+
+// The partner's share is of what Apple or Google pay out: price in USD minus tax and the store's cut.
+async function commission(ev, userId, status) {
+  const key = `rc:${ev.transaction_id || ev.id}`;
+  if (ev.type === 'CANCELLATION' && ev.cancel_reason === 'CUSTOMER_SUPPORT') return voidCommission(key);
+  if (status !== 'active' || !['INITIAL_PURCHASE', 'RENEWAL'].includes(ev.type) || ev.period_type === 'TRIAL') return;
+  const price = Number(ev.price) || 0;
+  const net = price * (1 - (Number(ev.tax_percentage) || 0) - (Number(ev.commission_percentage) || 0.15)) * 100;
+  if (net > 0) await creditCommission(userId, key, ev.store === 'PLAY_STORE' ? 'google' : 'apple', net, 'USD');
+}

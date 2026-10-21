@@ -9,6 +9,7 @@ import {
 import { useApp } from '../state';
 import { colors, fonts } from '../theme';
 import { Body, Bold, Button, Card, Chip, Chips, Eyebrow, Field, H2, LinkButton, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
+import { EarningsCard } from './Partner';
 import { QR } from '../ui/QR';
 import { Scanner } from '../ui/Scanner';
 import { CoachError, joinCoach } from '../coach';
@@ -352,6 +353,7 @@ function OverviewTab({ s }: { s: RunStudio }) {
           <Button small variant="ghost" label={t('coach.share')} style={{ flex: 1 }} onPress={() => Share.share({ message: text }).catch(() => {})} />
         </Row>
       </Card>
+      {s.role === 'admin' ? <EarningsCard /> : null}
     </Stack>
   );
 }
