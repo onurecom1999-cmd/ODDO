@@ -6,6 +6,7 @@ import { dayKey } from '../logic/day';
 import { useApp } from '../state';
 import { colors, fonts } from '../theme';
 import { Body, Bold, Button, Card, Chip, Chips, Field, H1, H2, LinkButton, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
+import { EarnTeaser } from '../sheets/Earn';
 
 const APP_URL = 'https://oddo-app.netlify.app';
 type Scope = 'foryou' | 'friends' | 'near';
@@ -283,7 +284,7 @@ function Feed() {
   );
 }
 
-export function Community() {
+export function Community({ onOpen }: { onOpen: (sheet: string) => void }) {
   const { S } = useApp();
   const [tab, setTab] = useState<'groups' | 'feed'>('groups');
   return (
@@ -291,6 +292,7 @@ export function Community() {
       <H1>{t('tab.community')}</H1>
       {S.example ? <Card><Muted>{t('com.example')}</Muted></Card> : (
         <>
+          <EarnTeaser onOpen={() => onOpen('earn')} />
           <Chips>
             <Chip label={t('com.groups')} on={tab === 'groups'} onPress={() => setTab('groups')} />
             <Chip label={t('com.feed')} on={tab === 'feed'} onPress={() => setTab('feed')} />

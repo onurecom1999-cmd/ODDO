@@ -6,12 +6,12 @@ import { colors, fonts } from '../theme';
 import { Icon, IconName } from '../ui/icons';
 import { Body, Button, H2, LinkButton, Muted, Row, Sheet, Stack, useToast } from '../ui/kit';
 import { RoleCards } from '../ui/RoleCards';
-import { anyCodeError, joinAnyCode } from './Studio';
+import { anyCodeError, joinAnyCode, joinedText } from './Studio';
 
 const STEPS: IconName[] = ['today', 'move', 'community', 'me'];
 
 // Right after the plan: first how the person uses ODDO (with a code, as trainer or studio), then the four tabs.
-export function TourSheet({ onClose, onBusiness, onJoined }: { onClose: () => void; onBusiness: (k: 'coach' | 'studio') => void; onJoined: (k: 'coach' | 'studio') => void }) {
+export function TourSheet({ onClose, onBusiness, onJoined }: { onClose: () => void; onBusiness: (k: 'coach' | 'studio') => void; onJoined: (k: 'coach' | 'studio' | 'friend') => void }) {
   const { S, update } = useApp();
   const toast = useToast();
   const [i, setI] = useState(S.asked ? 0 : -1);
@@ -28,7 +28,7 @@ export function TourSheet({ onClose, onBusiness, onJoined }: { onClose: () => vo
           }}
           onCode={async code => {
             setBusy(true);
-            try { const r = await joinAnyCode(code); toast(t(r.kind === 'studio' ? 'studio.joined' : 'coach.joined', { name: r.name })); onJoined(r.kind); setI(0); }
+            try { const r = await joinAnyCode(code); toast(joinedText(r)); onJoined(r.kind); setI(0); }
             catch (e) { toast(anyCodeError(e)); }
             setBusy(false);
           }} />

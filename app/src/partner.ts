@@ -33,3 +33,25 @@ export const earnings = () => rpc<Earnings | null>('partner_earnings');
 export const setPayout = (text: string) => rpc<void>('set_payout', { p_text: text.trim().slice(0, 200) });
 export const payouts = () => rpc<PayoutRow[]>('admin_payouts');
 export const markPaid = (id: string) => rpc<number>('admin_mark_paid', { p_partner: id });
+
+// Everyone's own invite code: a friend gets a free Pro month, the person earns the same share as a trainer.
+export const INVITE_RE = /^[A-Z2-9]{7}$/;
+export const inviteUrl = (code: string) => `https://oddo-app.netlify.app/app/?r=${code}`;
+export const myInvite = () => rpc<{ code: string }>('my_invite').then(r => r.code);
+export const redeemInvite = (code: string) => rpc<{ name: string }>('redeem_invite', { p_code: code });
+
+// Clips paid per 1,000 views. Kept in step with admin_rate_clip() in supabase/coach.sql (US cents).
+export const CLIP = { rate: 110, rateTr: 45, appUse: 1.5, minViews: 5000, maxClip: 33000, maxMonth: 110000 };
+export type Clip = { id: number; url: string; status: 'submitted' | 'approved' | 'rejected'; views: number | null; cents: number; note: string; at: string };
+export type OpenClip = { id: number; url: string; name: string; at: string; month_cents: number };
+export const CLIP_URL = /^https:\/\/([a-z0-9-]+\.)*(tiktok\.com|instagram\.com|youtube\.com|youtu\.be)\//i;
+export const submitClip = (url: string) => rpc<Clip>('submit_clip', { p_url: url.trim() });
+export const myClips = () => rpc<Clip[]>('my_clips');
+export const openClips = () => rpc<OpenClip[]>('admin_clips');
+export const rateClip = (id: number, views: number, turkish: boolean, appUse: boolean, ok: boolean, note = '') =>
+  rpc<number>('admin_rate_clip', { p_id: id, p_views: views, p_turkish: turkish, p_app_use: appUse, p_ok: ok, p_note: note.slice(0, 200) });
+export const voidClip = (id: number) => rpc<void>('admin_void_clip', { p_id: id });
+export function clipCents(views: number, turkish: boolean, appUse: boolean) {
+  if (views < CLIP.minViews) return 0;
+  return Math.min(CLIP.maxClip, Math.floor((views / 1000) * (turkish ? CLIP.rateTr : CLIP.rate) * (appUse ? CLIP.appUse : 1)));
+}

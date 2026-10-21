@@ -19,6 +19,7 @@ import { SettingsPage, SettingsSheet } from './src/sheets/Settings';
 import { ChatSheet, CoachSheet, useCoachSync } from './src/sheets/Coach';
 import { BusinessSheet, useStartCode, useStudioSync } from './src/sheets/Studio';
 import { TourSheet } from './src/sheets/Tour';
+import { EarnSheet } from './src/sheets/Earn';
 import { BizHome } from './src/screens/BizHome';
 import { CardioSheet } from './src/sheets/Cardio';
 import { CreatorSheet } from './src/sheets/Creator';
@@ -128,7 +129,7 @@ function Main() {
             </Pressable>
           </Row>
         ) : null}
-        {tab === 'today' ? <Today onOpen={open} studioTick={studioTick} /> : tab === 'move' ? <Activity onOpen={open} /> : tab === 'community' ? <Community /> : <Me onOpen={open} />}
+        {tab === 'today' ? <Today onOpen={open} studioTick={studioTick} /> : tab === 'move' ? <Activity onOpen={open} /> : tab === 'community' ? <Community onOpen={open} /> : <Me onOpen={open} />}
       </Screen>
       <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.line, paddingBottom: insets.bottom }}>
         <View style={{ flexDirection: 'row', maxWidth: 480, width: '100%', alignSelf: 'center' }}>
@@ -146,13 +147,14 @@ function Main() {
       {sheet === 'reward' ? <RewardSheet onClose={close} /> : null}
       {sheet?.startsWith('settings') ? <SettingsSheet initial={sheet.split(':')[1] as SettingsPage | undefined} onClose={close} onOpen={open} /> : null}
       {sheet === 'pro' ? <ProSheet onClose={close} /> : null}
+      {sheet === 'earn' ? <EarnSheet onClose={close} /> : null}
       {sheet === 'coach' ? <CoachSheet onClose={close} /> : null}
       {sheet === 'tour' ? <TourSheet onClose={() => { close(); update(d => { d.tour = TOUR; }); }}
         onBusiness={() => { update(d => { d.tour = TOUR; }); setSheet('business'); }}
-        onJoined={k => { if (k === 'studio') setStudioTick(n => n + 1); else coachSync(); }} /> : null}
+        onJoined={k => { if (k === 'studio') setStudioTick(n => n + 1); else if (k === 'coach') coachSync(); }} /> : null}
       {sheet?.startsWith('business') ? <BusinessSheet initial={sheet === 'business' ? S.biz : undefined} onClose={() => { close(); setStudioTick(n => n + 1); }} /> : null}
       {sheet === 'coachchat' && S.coach ? <ChatSheet other={S.coach.id} title={S.coach.name} asCoach={false} onClose={close} /> : null}
-      {sheet === 'creator' ? <CreatorSheet onClose={close} onPro={() => setSheet('pro')} /> : null}
+      {sheet === 'creator' ? <CreatorSheet onClose={close} onPro={() => setSheet('pro')} onEarn={() => setSheet('earn')} /> : null}
       {sheet === 'account' ? <AccountSheet mode="save" onClose={close} /> : null}
       {sheet === 'food' ? <FoodPick onClose={close} onPick={m => setSheet(`food:${m}`)} /> : null}
       {sheet?.startsWith('food:') ? <FoodSheet mode={(sheet.split(':')[1] || 'photo') as FoodMode} onClose={close} onPro={() => setSheet('pro')} /> : null}

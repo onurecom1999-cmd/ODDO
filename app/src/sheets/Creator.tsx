@@ -9,6 +9,7 @@ import { exName, sessionTitle } from '../logic/names';
 import { useApp } from '../state';
 import { colors, fonts } from '../theme';
 import { Badge, Body, Bold, Button, Card, Chip, Chips, Eyebrow, LinkButton, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
+import { useInvite } from './Earn';
 
 type Shot = { time: string; shot: string; broll: string; text: string };
 export type VideoPlan = { title: string; hook: string; shots: Shot[]; caption: string; hashtags: string[]; music: string; tips: string[]; template?: string };
@@ -27,8 +28,9 @@ function fallback(workout: string[], seconds: number): VideoPlan {
   };
 }
 
-export function CreatorSheet({ onClose, onPro }: { onClose: () => void; onPro: () => void }) {
+export function CreatorSheet({ onClose, onPro, onEarn }: { onClose: () => void; onPro: () => void; onEarn: () => void }) {
   const { S, update } = useApp();
+  const code = useInvite();
   const toast = useToast();
   const [style, setStyle] = useState<(typeof STYLES)[number]>('motivation');
   const [seconds, setSeconds] = useState(30);
@@ -103,7 +105,7 @@ export function CreatorSheet({ onClose, onPro }: { onClose: () => void; onPro: (
     setPick(lib.length ? 'auto' : 'none');
   };
 
-  const shareCaption = () => plan && Share.share({ message: `${plan.caption}\n\n${plan.hashtags.map(h => `#${h.replace(/^#/, '')}`).join(' ')}` }).catch(() => {});
+  const shareCaption = () => plan && Share.share({ message: `${plan.caption}${code ? `\n\n${t('creator.codeLine', { code })}` : ''}\n\n${plan.hashtags.map(h => `#${h.replace(/^#/, '')}`).join(' ')}` }).catch(() => {});
 
   return (
     <Sheet visible title={t('creator.title')} onClose={onClose}>
@@ -158,10 +160,19 @@ export function CreatorSheet({ onClose, onPro }: { onClose: () => void; onPro: (
                 </Stack>
               </Card>
             ))}
+            {code ? (
+              <Card style={{ gap: 8, borderColor: colors.accent }}>
+                <Eyebrow>{t('creator.endCard')}</Eyebrow>
+                <Text style={{ fontFamily: fonts.display, fontSize: 28, color: colors.accent }}>ODDO · {t('creator.endCode', { code })}</Text>
+                <Small>{t('creator.endSub')}</Small>
+                <LinkButton label={t('creator.earn')} onPress={onEarn} />
+              </Card>
+            ) : null}
             <Card>
               <Stack gap={8}>
                 <Eyebrow>{t('creator.caption')}</Eyebrow>
                 <Body>{plan.caption}</Body>
+                {code ? <Bold>{t('creator.codeLine', { code })}</Bold> : null}
                 <Muted>{plan.hashtags.map(h => `#${h.replace(/^#/, '')}`).join(' ')}</Muted>
                 <Button small variant="ghost" label={t('creator.shareCaption')} onPress={shareCaption} />
               </Stack>

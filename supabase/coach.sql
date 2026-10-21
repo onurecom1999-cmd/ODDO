@@ -753,10 +753,11 @@ grant execute on function public.is_studio_staff(uuid), public.is_studio_member(
   public.studio_add_class(uuid, text, text, timestamptz, int, int), public.studio_delete_class(uuid), public.studio_class_list(uuid),
   public.book_class(uuid), public.unbook_class(uuid) to authenticated;
 
--- ---------- partner program: trainers and studios earn a share of what their people pay ----------
--- Whoever brings a person in first (trainer code or studio code) is that person's partner for good.
--- The person gets Pro free for 30 days; after that, the partner earns a share of every payment.
--- Shares: the first 20 partners 50 % for their first 6 months, then by paying clients 30 % (1-9), 35 % (10-49), 40 % (50+).
+-- ---------- partner program: everyone earns a share of what the people they bring in pay ----------
+-- Whoever brings a person in first (trainer code, studio code or a friend's invite code) is that person's partner for good.
+-- The person gets Pro free for 30 days; after that, the partner earns a share of every payment, for as long as they pay.
+-- Shares: the first 20 trainers and studios 50 % for their first 6 months, then by paying clients 30 % (1-9), 35 % (10-49), 40 % (50+).
+-- Clips: people who post about ODDO are also paid per 1,000 views once Onur has checked the clip (see clips below).
 -- Amounts are in US cents: Lemon Squeezy and RevenueCat both report USD. Only the payment webhooks write commissions.
 create table if not exists public.partners (
   user_id uuid primary key references auth.users on delete cascade,
@@ -764,15 +765,26 @@ create table if not exists public.partners (
   payout text not null default '' check (char_length(payout) <= 200),
   created_at timestamptz not null default now()
 );
+-- A free Pro month for the person who invited a friend, added when that friend pays for the first time.
+alter table public.partners add column if not exists bonus_until timestamptz;
 create table if not exists public.referrals (
   user_id uuid primary key references auth.users on delete cascade,
   partner_id uuid not null references auth.users on delete cascade,
-  kind text not null check (kind in ('coach', 'studio')),
+  kind text not null,
   free_until timestamptz not null default now() + interval '30 days',
   created_at timestamptz not null default now(),
   check (user_id <> partner_id)
 );
 create index if not exists referrals_partner on public.referrals (partner_id);
+alter table public.referrals drop constraint if exists referrals_kind_check;
+alter table public.referrals add constraint referrals_kind_check check (kind in ('coach', 'studio', 'friend'));
+-- Every person's own invite code (7 letters and digits, so it never looks like a 6-digit trainer or studio code).
+create table if not exists public.invite_codes (
+  user_id uuid primary key references auth.users on delete cascade,
+  code text not null unique check (code ~ '^[A-Z2-9]{7}$'),
+  created_at timestamptz not null default now()
+);
+alter table public.invite_codes enable row level security;
 -- When the reminder email before the end of the free month went out.
 alter table public.referrals add column if not exists reminded_at timestamptz;
 create table if not exists public.commissions (
@@ -849,6 +861,7 @@ $$;
 create or replace function public.partner_active(p uuid) returns boolean
 language sql stable security definer set search_path = public as $$
   select exists (select 1 from coaches where user_id = p and active) or exists (select 1 from studios where owner = p and active)
+      or exists (select 1 from invite_codes where user_id = p)
 $$;
 create or replace function public.partner_paying(p uuid) returns int
 language sql stable security definer set search_path = public as $$
@@ -873,6 +886,11 @@ begin
   insert into commissions (partner_id, user_id, event_key, source, net_cents, rate, amount_cents, currency)
     values (r.partner_id, p_user, p_key, p_source, p_net_cents, rate, floor(p_net_cents * rate), upper(coalesce(p_currency, 'USD')))
     on conflict (event_key) do nothing returning amount_cents into amt;
+  -- A friend's first payment also gives the person who invited them a free Pro month.
+  if amt is not null and r.kind = 'friend'
+     and (select count(*) from commissions where user_id = p_user and source <> 'clip') = 1 then
+    update partners set bonus_until = greatest(coalesce(bonus_until, now()), now()) + interval '30 days' where user_id = r.partner_id;
+  end if;
   return coalesce(amt, 0);
 end $$;
 -- A refunded payment takes its commission back, unless it was already paid out.
@@ -887,10 +905,13 @@ language sql stable security definer set search_path = public as $$
   select jsonb_build_object(
     'partner', exists (select 1 from coaches where user_id = auth.uid() and active)
                or exists (select 1 from studio_staff t join studios s on s.id = t.studio_id and s.active where t.user_id = auth.uid()),
-    'free_until', (select free_until from referrals where user_id = auth.uid() and free_until > now()),
+    'free_until', (select max(u) from (select free_until u from referrals where user_id = auth.uid()
+                   union all select bonus_until from partners where user_id = auth.uid()) x where u > now()),
     'via', (select coalesce((select name from coaches where user_id = r.partner_id and r.kind = 'coach'),
-                            (select name from studios where owner = r.partner_id order by created_at limit 1))
-            from referrals r where r.user_id = auth.uid()))
+                            (select name from studios where owner = r.partner_id and r.kind = 'studio' order by created_at limit 1),
+                            (select name from profiles where id = r.partner_id and r.kind = 'friend'))
+            from referrals r where r.user_id = auth.uid() and r.free_until > now()),
+    'bonus', exists (select 1 from partners where user_id = auth.uid() and bonus_until > now()))
 $$;
 
 -- The partner's earnings page.
@@ -911,7 +932,8 @@ language sql stable security definer set search_path = public as $$
     'paid_cents', (select coalesce(sum(amount_cents), 0) from commissions c where c.partner_id = pa.user_id and c.status = 'paid'),
     'payout', pa.payout,
     'recent', (select coalesce(jsonb_agg(x order by x.at desc), '[]'::jsonb) from (
-                 select coalesce(nullif(p.name, ''), '?') as name, c.amount_cents as cents, c.currency, c.status, c.created_at as at,
+                 select case when c.source = 'clip' then 'clip' else coalesce(nullif(p.name, ''), '?') end as name, c.source = 'clip' as clip,
+                        c.amount_cents as cents, c.currency, c.status, c.created_at as at,
                         c.available_at <= now() as ready
                  from commissions c left join profiles p on p.id = c.user_id
                  where c.partner_id = pa.user_id order by c.created_at desc limit 20) x))
@@ -928,7 +950,8 @@ create or replace function public.admin_payouts()
 returns table (partner_id uuid, name text, payout text, available_cents int, pending_cents int, paid_cents int)
 language sql stable security definer set search_path = public as $$
   select pa.user_id,
-         coalesce((select name from coaches where user_id = pa.user_id), (select name from studios where owner = pa.user_id order by created_at limit 1), ''),
+         coalesce((select name from coaches where user_id = pa.user_id), (select name from studios where owner = pa.user_id order by created_at limit 1),
+                  (select name from profiles where id = pa.user_id), ''),
          pa.payout,
          coalesce(sum(c.amount_cents) filter (where c.status = 'pending' and c.available_at <= now()), 0)::int,
          coalesce(sum(c.amount_cents) filter (where c.status = 'pending' and c.available_at > now()), 0)::int,
@@ -948,6 +971,137 @@ begin
   get diagnostics n = row_count;
   return n;
 end $$;
+
+-- ---------- invite codes: every person can bring friends in and earn the same share ----------
+-- The person's own code, made on first use. Becoming a partner this way never counts toward the 20 founding places.
+create or replace function public.my_invite() returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare c text; tries int := 0;
+begin
+  if auth.uid() is null then raise exception 'not signed in'; end if;
+  select code into c from invite_codes where user_id = auth.uid();
+  while c is null loop
+    tries := tries + 1;
+    if tries > 20 then raise exception 'no code'; end if;
+    c := (select string_agg(substr('ABCDEFGHJKLMNPQRSTUVWXYZ23456789', 1 + floor(random() * 32)::int, 1), '') from generate_series(1, 7));
+    begin
+      insert into invite_codes (user_id, code) values (auth.uid(), c);
+    exception when unique_violation then
+      -- Someone else has this code (try again), or a parallel call already made this person's code.
+      select code into c from invite_codes where user_id = auth.uid();
+    end;
+  end loop;
+  insert into partners (user_id, founding) values (auth.uid(), false) on conflict do nothing;
+  return jsonb_build_object('code', c);
+end $$;
+
+-- A friend's code: one free Pro month, and the friend earns a share of what this person pays later.
+-- Only for people without a partner yet and without a paid plan, so nobody switches codes to game it.
+create or replace function public.redeem_invite(p_code text) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare o uuid; n text;
+begin
+  if auth.uid() is null then raise exception 'not signed in'; end if;
+  select user_id into o from invite_codes where code = upper(trim(p_code));
+  if o is null then raise exception 'code not found'; end if;
+  if o = auth.uid() then raise exception 'own code'; end if;
+  if exists (select 1 from referrals where user_id = auth.uid()) then raise exception 'already referred'; end if;
+  if exists (select 1 from subscriptions s where s.user_id = auth.uid() and public.sub_live(s)) then raise exception 'already paying'; end if;
+  insert into referrals (user_id, partner_id, kind) values (auth.uid(), o, 'friend');
+  select name into n from profiles where id = o;
+  return jsonb_build_object('name', coalesce(n, ''));
+end $$;
+
+-- ---------- clips: paid per 1,000 views ----------
+-- People submit the link; Onur checks it about 7 days after posting and enters the views. The payout then waits 30 days
+-- like any commission (a clip deleted before then is taken back). Rates in US cents per 1,000 views, like all payouts:
+-- 110 (about 1 euro), 45 for Turkish audiences; +50 % when the app is shown in use; from 5,000 views; at most 33,000 per clip.
+create table if not exists public.clips (
+  id bigint generated always as identity primary key,
+  user_id uuid not null references auth.users on delete cascade,
+  url text not null unique check (url ~* '^https://([a-z0-9-]+\.)*(tiktok\.com|instagram\.com|youtube\.com|youtu\.be)/'),
+  status text not null default 'submitted' check (status in ('submitted', 'approved', 'rejected')),
+  views int,
+  turkish boolean not null default false,
+  app_use boolean not null default false,
+  amount_cents int not null default 0,
+  note text not null default '' check (char_length(note) <= 200),
+  created_at timestamptz not null default now(),
+  decided_at timestamptz
+);
+create index if not exists clips_user on public.clips (user_id, created_at desc);
+create index if not exists clips_open on public.clips (status, created_at) where status = 'submitted';
+alter table public.clips enable row level security;
+
+create or replace function public.submit_clip(p_url text) returns public.clips
+language plpgsql security definer set search_path = public as $$
+declare r public.clips; u text := trim(p_url);
+begin
+  if auth.uid() is null then raise exception 'not signed in'; end if;
+  if (select count(*) from clips where user_id = auth.uid() and created_at > now() - interval '1 day') >= 10 then raise exception 'too many'; end if;
+  if exists (select 1 from clips where url = u) then raise exception 'already submitted'; end if;
+  perform public.my_invite();
+  insert into clips (user_id, url) values (auth.uid(), u) returning * into r;
+  return r;
+end $$;
+
+create or replace function public.my_clips() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select coalesce(jsonb_agg(jsonb_build_object('id', id, 'url', url, 'status', status, 'views', views, 'cents', amount_cents,
+                                                'note', note, 'at', created_at) order by created_at desc), '[]'::jsonb)
+  from (select * from clips where user_id = auth.uid() order by created_at desc limit 30) c
+$$;
+
+create or replace function public.admin_clips() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select coalesce(jsonb_agg(jsonb_build_object('id', c.id, 'url', c.url, 'name', coalesce(p.name, ''), 'at', c.created_at,
+           'month_cents', (select coalesce(sum(amount_cents), 0) from clips x where x.user_id = c.user_id and x.status = 'approved'
+                           and x.decided_at >= date_trunc('month', now())))
+         order by c.created_at), '[]'::jsonb)
+  from clips c left join profiles p on p.id = c.user_id
+  where public.is_admin() and c.status = 'submitted'
+$$;
+
+-- Onur enters the views after checking the clip. Returns the amount credited in cents (0 when rejected or under 5,000 views).
+create or replace function public.admin_rate_clip(p_id bigint, p_views int, p_turkish boolean, p_app_use boolean, p_ok boolean, p_note text default '')
+returns int
+language plpgsql security definer set search_path = public as $$
+declare c public.clips; amt int := 0; month int;
+begin
+  if not public.is_admin() then raise exception 'not admin'; end if;
+  select * into c from clips where id = p_id for update;
+  if c.id is null or c.status <> 'submitted' then raise exception 'not open'; end if;
+  if p_ok and coalesce(p_views, 0) >= 5000 then
+    amt := floor(p_views / 1000.0 * (case when p_turkish then 45 else 110 end) * (case when p_app_use then 1.5 else 1 end));
+    amt := least(amt, 33000);
+    -- At most 110,000 cents (about 1,000 euros) per person and month; more needs a separate deal.
+    select coalesce(sum(amount_cents), 0) into month from clips where user_id = c.user_id and status = 'approved' and decided_at >= date_trunc('month', now());
+    amt := greatest(0, least(amt, 110000 - month));
+  end if;
+  update clips set status = case when p_ok and amt > 0 then 'approved' else 'rejected' end, views = p_views, turkish = coalesce(p_turkish, false),
+         app_use = coalesce(p_app_use, false), amount_cents = amt, note = left(coalesce(p_note, ''), 200), decided_at = now()
+   where id = p_id;
+  if amt > 0 then
+    insert into partners (user_id, founding) values (c.user_id, false) on conflict do nothing;
+    insert into commissions (partner_id, user_id, event_key, source, net_cents, rate, amount_cents, currency)
+      values (c.user_id, null, 'clip:' || c.id, 'clip', 0, 0, amt, 'USD');
+  end if;
+  return amt;
+end $$;
+
+-- Taking back a clip deleted within 30 days (before its money was paid out).
+create or replace function public.admin_void_clip(p_id bigint) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not public.is_admin() then raise exception 'not admin'; end if;
+  update commissions set status = 'void' where event_key = 'clip:' || p_id and status = 'pending';
+  update clips set status = 'rejected', note = 'deleted' where id = p_id;
+end $$;
+
+revoke execute on function public.my_invite(), public.redeem_invite(text), public.submit_clip(text), public.my_clips(), public.admin_clips(),
+  public.admin_rate_clip(bigint, int, boolean, boolean, boolean, text), public.admin_void_clip(bigint) from public, anon;
+grant execute on function public.my_invite(), public.redeem_invite(text), public.submit_clip(text), public.my_clips(), public.admin_clips(),
+  public.admin_rate_clip(bigint, int, boolean, boolean, boolean, text), public.admin_void_clip(bigint) to authenticated;
 
 revoke execute on function public.add_partner(uuid), public.credit_commission(uuid, text, text, int, text), public.void_commission(text),
   public.partner_paying(uuid), public.partner_rate(uuid), public.partner_active(uuid) from public, anon, authenticated;

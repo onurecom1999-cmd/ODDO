@@ -32,9 +32,9 @@ export function RoleCards({ onPick, onCode, codeHint, meSub, busy }: { onPick: (
           </Pressable>
           {k === 'code' && open ? (
             <Card style={{ gap: 12, borderColor: colors.accent }}>
-              <Field label={t('start.codeLabel')} value={code} onChangeText={v => setCode(v.toUpperCase().replace(/[^A-Z0-9]/g, ''))} autoCapitalize="characters" maxLength={6} autoFocus placeholder="······" />
+              <Field label={t('start.codeLabel')} value={code} onChangeText={v => setCode(v.toUpperCase().replace(/[^A-Z0-9]/g, ''))} autoCapitalize="characters" maxLength={7} autoFocus placeholder="······" />
               <Small>{codeHint}</Small>
-              <Button label={busy ? '…' : t('start.codeGo')} disabled={busy || code.length !== 6} onPress={() => onCode(code)} />
+              <Button label={busy ? '…' : t('start.codeGo')} disabled={busy || code.length < 6} onPress={() => onCode(code)} />
             </Card>
           ) : null}
         </View>

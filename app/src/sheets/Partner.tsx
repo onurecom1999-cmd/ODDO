@@ -8,7 +8,8 @@ import { Bar, Body, Bold, Button, Card, Eyebrow, Field, H2, LinkButton, Muted, R
 const SITE = 'https://oddo-app.netlify.app';
 export const money = (cents: number, currency = 'USD') =>
   (cents / 100).toLocaleString(LOCALE[getLang()], { style: 'currency', currency, minimumFractionDigits: 2 });
-const pct = (r: number) => `${Math.round(r * 100)} %`;
+// 30 % in German, 30% in English, %30 in Turkish.
+export const pct = (r: number) => { const n = Math.round(r * 100); return getLang() === 'tr' ? `%${n}` : getLang() === 'en' ? `${n}%` : `${n} %`; };
 const date = (iso: string) => new Date(iso).toLocaleDateString(LOCALE[getLang()], { day: 'numeric', month: 'short' });
 
 function useEarnings() {
@@ -61,7 +62,7 @@ export function EarningsCard() {
   );
 }
 
-function EarningsSheet({ e, onClose }: { e: Earnings | null; onClose: () => void }) {
+export function EarningsSheet({ e, onClose }: { e: Earnings | null; onClose: () => void }) {
   const toast = useToast();
   const [payout, setPay] = useState(e?.payout ?? '');
   const [busy, setBusy] = useState(false);

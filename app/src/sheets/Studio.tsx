@@ -13,6 +13,7 @@ import { EarningsCard } from './Partner';
 import { QR } from '../ui/QR';
 import { Scanner } from '../ui/Scanner';
 import { CoachError, joinCoach } from '../coach';
+import { INVITE_RE, redeemInvite } from '../partner';
 import { CoachSheet } from './Coach';
 
 const errText = (e: unknown) => t(`studio.err.${e instanceof StudioError ? e.code : 'failed'}` as Key);
@@ -37,17 +38,32 @@ export function useStudioSync(onJoined: () => void) {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 }
 
-// A code typed on the start screen: it can be a studio's or a trainer's, so try the studio first.
+// A code typed on the start screen: a studio's, a trainer's (6 characters) or a friend's invite (7), so try them in turn.
 const ANY = 'oddo.anyCode';
 export function setStartCode(code: string) { try { globalThis.localStorage?.setItem(ANY, code.trim().toUpperCase()); } catch {} }
-// Joins the studio or the trainer behind a code. Throws 'unknown' when neither has it.
-export async function joinAnyCode(code: string): Promise<{ kind: 'studio' | 'coach'; name: string }> {
+// An invite link (?r=ABC2345) is kept the same way, so the friend joins once set up.
+try {
+  const r = new URLSearchParams((globalThis as { location?: { search?: string } }).location?.search || '').get('r')?.toUpperCase();
+  if (r && INVITE_RE.test(r)) setStartCode(r);
+} catch {}
+export type Joined = { kind: 'studio' | 'coach' | 'friend'; name: string };
+// Joins the studio, trainer or friend behind a code. Throws 'unknown' when nobody has it.
+export async function joinAnyCode(code: string): Promise<Joined> {
+  if (INVITE_RE.test(code)) {
+    try { const f = await redeemInvite(code); return { kind: 'friend', name: f.name }; }
+    catch (e) { throw e instanceof Error && e.message === 'code not found' ? new Error('unknown') : e; }
+  }
   try { const s = await joinStudio(code); return { kind: 'studio', name: s.name }; }
   catch (e) { if (!(e instanceof StudioError) || e.code !== 'not_found') throw e; }
   try { const c = await joinCoach(code); return { kind: 'coach', name: c.name }; }
   catch (e) { throw e instanceof CoachError && e.code === 'not_found' ? new Error('unknown') : e; }
 }
-export const anyCodeError = (e: unknown) => (e instanceof Error && e.message === 'unknown' ? t('start.codeUnknown') : e instanceof CoachError ? t(`coach.err.${e.code}` as Key) : errText(e));
+const FRIEND_ERR: Record<string, Key> = { 'own code': 'friend.err.own', 'already referred': 'friend.err.referred', 'already paying': 'friend.err.paying' };
+// A friend's code that can never work for this person (own code, already invited, already paying).
+const friendFinal = (e: unknown) => e instanceof Error && e.message in FRIEND_ERR;
+export const anyCodeError = (e: unknown) => (e instanceof Error && e.message === 'unknown' ? t('start.codeUnknown')
+  : friendFinal(e) ? t(FRIEND_ERR[(e as Error).message]) : e instanceof CoachError ? t(`coach.err.${e.code}` as Key) : errText(e));
+export const joinedText = (r: Joined) => t(r.kind === 'studio' ? 'studio.joined' : r.kind === 'coach' ? 'coach.joined' : 'friend.joined', { name: r.name || t('friend.someone') });
 
 export function useStartCode(onStudio: () => void, onCoach: () => Promise<unknown>) {
   const { S } = useApp();
@@ -58,12 +74,12 @@ export function useStartCode(onStudio: () => void, onCoach: () => Promise<unknow
     try { code = globalThis.localStorage?.getItem(ANY) ?? null; } catch {}
     if (!code) return;
     joinAnyCode(code).then(async r => {
-      toast(t(r.kind === 'studio' ? 'studio.joined' : 'coach.joined', { name: r.name }));
-      if (r.kind === 'studio') onStudio(); else await onCoach();
+      toast(joinedText(r));
+      if (r.kind === 'studio') onStudio(); else if (r.kind === 'coach') await onCoach();
       try { globalThis.localStorage?.removeItem(ANY); } catch {}
     }, e => {
       toast(anyCodeError(e));
-      if (e instanceof Error && e.message === 'unknown') try { globalThis.localStorage?.removeItem(ANY); } catch {}
+      if ((e instanceof Error && e.message === 'unknown') || friendFinal(e)) try { globalThis.localStorage?.removeItem(ANY); } catch {}
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 }

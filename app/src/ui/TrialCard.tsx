@@ -27,7 +27,7 @@ export function TrialCard({ onPro }: { onPro: () => void }) {
         <Small style={{ fontSize: 11 }}>{days === 1 ? t('trial.day') : t('trial.days')}</Small>
       </View>
       <View style={{ flex: 1, gap: 2 }}>
-        <Text style={{ fontFamily: fonts.bold, fontSize: 15, color: colors.text }}>{t('trial.title', { via: perks?.via || 'ODDO' })}</Text>
+        <Text style={{ fontFamily: fonts.bold, fontSize: 15, color: colors.text }}>{perks?.via ? t('trial.title', { via: perks.via }) : perks?.bonus ? t('trial.bonus') : t('trial.title', { via: 'ODDO' })}</Text>
         <Small>{t(soon ? 'trial.soon' : 'trial.sub', { date })}</Small>
       </View>
       <Text style={{ color: colors.dim, fontSize: 22 }}>›</Text>
