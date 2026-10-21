@@ -993,7 +993,7 @@ export const de = {
   'food.bc.scan': 'Kamera starten',
   'food.bc.digits': 'Oder die Zahlen unter dem Barcode eintippen',
   'food.bc.find': 'Suchen',
-  'food.bc.notFound': 'Dieses Produkt kennen wir noch nicht. Trag es über „Schnell eintragen“ selbst ein.',
+  'food.bc.notFound': 'Dieses Produkt kennen wir noch nicht.',
   'food.bc.offline': 'Keine Verbindung zur Produktdatenbank. Versuch es gleich nochmal.',
   'food.bc.product': 'Produkt',
   'food.bc.per100': '{kcal} kcal und {protein} g Eiweiß pro 100 g',
@@ -1037,6 +1037,19 @@ export const de = {
   'help.text': 'Hallo ODDO-Team, ich habe eine Frage:',
   'food.bc.hint': 'Barcode quer in den Rahmen halten, etwa 10 bis 15 cm Abstand.',
   'food.bc.denied': 'Kein Kamerazugriff. Erlaube die Kamera in den Browser-Einstellungen oder tippe die Zahlen unten ein.',
+  'food.bc.addTitle': 'Produkt hinzufügen',
+  'food.bc.addSub': 'Fotografier die Nährwerttabelle auf der Packung, wir lesen die Werte aus. Danach findet jeder ODDO-Nutzer dieses Produkt per Barcode.',
+  'food.bc.photoLabel': 'Nährwerttabelle fotografieren',
+  'food.bc.reading': 'Werte werden gelesen…',
+  'food.bc.name': 'Produktname',
+  'food.bc.brand': 'Marke (optional)',
+  'food.bc.kcal100': 'kcal pro 100 g',
+  'food.bc.protein100': 'Eiweiß g pro 100 g',
+  'food.bc.serving': 'Packungs- oder Portionsgröße in g (optional)',
+  'food.bc.save': 'Speichern und weiter',
+  'food.bc.saved': 'Danke! Ab jetzt findet jeder dieses Produkt.',
+  'food.bc.labelMiss': 'Keine Nährwerttabelle erkannt. Versuch es näher und gerade, oder trag die Werte selbst ein.',
+  'food.bc.sourceOddo': 'Von der ODDO-Community eingetragen.',
 };
 
 export type Key = keyof typeof de;

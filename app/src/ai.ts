@@ -48,3 +48,13 @@ export async function estimateText(text: string, lang: string): Promise<FoodEsti
   return r;
 }
 export async function aiJson<T>(task: 'plan' | 'tips' | 'creator' | 'template', payload: Record<string, unknown>): Promise<T> { return call<T>(task, payload); }
+
+// Nutrition table of a packaged product, read from a photo (values per 100 g or 100 ml).
+export type Label = { name: string; brand: string; kcal100: number; protein100: number; serving: number | null };
+export async function readLabel(image: string, lang: string): Promise<Label> {
+  const r = await call<any>('label', { image, lang });
+  const n = (v: unknown, max: number) => Math.min(max, Math.max(0, Number(v) || 0));
+  if (!r?.name || !(Number(r.kcal100) >= 0)) throw new AiError('no_food');
+  const serving = Math.round(n(r.serving, 2000));
+  return { name: String(r.name).slice(0, 80), brand: String(r.brand || '').slice(0, 60), kcal100: Math.round(n(r.kcal100, 950)), protein100: Math.round(n(r.protein100, 100) * 10) / 10, serving: serving || null };
+}

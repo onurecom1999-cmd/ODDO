@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
-import { AiError, estimatePhoto, estimateText, FoodEstimate } from '../ai';
+import { AiError, estimatePhoto, estimateText, FoodEstimate, readLabel } from '../ai';
 import { fmt, getLang, l3, LOCALE, t } from '../i18n';
 import { dayKey, dayStatus } from '../logic/day';
 import { QUICK, recentMeals } from '../logic/foods';
-import { lookupBarcode, Product } from '../foodfacts';
+import { lookupBarcode, Product, saveProduct } from '../foodfacts';
 import { Scanner } from '../ui/Scanner';
 import type { Meal } from '../logic/types';
 import { pickPhoto, shrink } from '../media';
@@ -133,22 +133,48 @@ export function FoodSheet({ mode, onClose, onPro }: { mode: FoodMode; onClose: (
   );
 }
 
-// Packaged food: scan the barcode (or type its digits), pick the amount, add.
+// Packaged food: scan the barcode (or type its digits), pick the amount, add. A product nobody knows yet is added
+// once from a photo of its nutrition table and saved, so the next person scanning it finds it straight away.
 function BarcodeSheet({ onClose, add }: { onClose: () => void; add: (m: Meal) => void }) {
+  const toast = useToast();
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [p, setP] = useState<Product | null>(null);
   const [miss, setMiss] = useState('');
+  const [unknown, setUnknown] = useState(false);
   const [grams, setGrams] = useState('100');
+  const [nw, setNw] = useState({ name: '', brand: '', kcal: '', protein: '', serving: '' });
+  const [reading, setReading] = useState(false);
   const look = async (c: string) => {
     const d = c.replace(/\D/g, '');
     if (d.length < 8) return;
-    setCode(d); setBusy(true); setMiss(''); setP(null);
+    setCode(d); setBusy(true); setMiss(''); setP(null); setUnknown(false);
     try {
       const r = await lookupBarcode(d);
-      if (r) { setP(r); setGrams(String(r.serving ?? 100)); } else setMiss(t('food.bc.notFound'));
+      if (r) { setP(r); setGrams(String(r.serving ?? 100)); } else { setMiss(t('food.bc.notFound')); setUnknown(true); setNw({ name: '', brand: '', kcal: '', protein: '', serving: '' }); }
     } catch { setMiss(t('food.bc.offline')); }
     setBusy(false);
+  };
+  const photoLabel = async () => {
+    const picked = await pickPhoto('camera');
+    if (!picked) return;
+    setReading(true);
+    try {
+      const l = await readLabel(await shrink(picked, 1400, 0.85), getLang());
+      setNw({ name: l.name, brand: l.brand, kcal: String(l.kcal100), protein: String(l.protein100).replace('.', getLang() === 'en' ? '.' : ','), serving: l.serving ? String(l.serving) : '' });
+    } catch (e) { toast(e instanceof AiError && e.code === 'no_food' ? t('food.bc.labelMiss') : errorText(e)); }
+    setReading(false);
+  };
+  const num = (v: string) => Number(v.replace(',', '.'));
+  const canSave = nw.name.trim().length > 0 && nw.kcal !== '' && num(nw.kcal) >= 0 && num(nw.kcal) <= 950;
+  const saveNew = async () => {
+    if (!canSave) return;
+    setBusy(true);
+    const serving = Math.round(num(nw.serving)) || null;
+    const saved = await saveProduct({ code, name: nw.name.trim(), brand: nw.brand.trim(), kcal100: Math.round(num(nw.kcal)), protein100: Math.min(100, Math.max(0, num(nw.protein) || 0)), serving: serving && serving <= 2000 ? serving : null });
+    setBusy(false); setUnknown(false); setMiss('');
+    setP(saved); setGrams(String(saved.serving ?? 100));
+    toast(t('food.bc.saved'));
   };
   const g = Math.max(0, Number(grams.replace(',', '.')) || 0);
   const amounts = p ? [...new Set([p.serving, 50, 100, 150, 200].filter((x): x is number => !!x))].sort((a, b) => a - b) : [];
@@ -162,6 +188,22 @@ function BarcodeSheet({ onClose, add }: { onClose: () => void; add: (m: Meal) =>
             <Button small variant="ghost" label={busy ? '…' : t('food.bc.find')} disabled={busy || code.length < 8} onPress={() => look(code)} />
             {busy ? <ActivityIndicator color={colors.accent} /> : null}
             {miss ? <Muted>{miss}</Muted> : null}
+            {unknown ? (
+              <Card style={{ gap: 12 }}>
+                <Bold style={{ fontSize: 17 }}>{t('food.bc.addTitle')}</Bold>
+                <Small>{t('food.bc.addSub')}</Small>
+                <Button label={reading ? t('food.bc.reading') : t('food.bc.photoLabel')} disabled={reading} onPress={photoLabel} />
+                {reading ? <ActivityIndicator color={colors.accent} /> : null}
+                <Field label={t('food.bc.name')} value={nw.name} onChangeText={v => setNw(x => ({ ...x, name: v }))} maxLength={80} />
+                <Field label={t('food.bc.brand')} value={nw.brand} onChangeText={v => setNw(x => ({ ...x, brand: v }))} maxLength={60} />
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <View style={{ flex: 1 }}><Field label={t('food.bc.kcal100')} value={nw.kcal} onChangeText={v => setNw(x => ({ ...x, kcal: v.replace(/[^\d]/g, '') }))} keyboardType="number-pad" maxLength={3} /></View>
+                  <View style={{ flex: 1 }}><Field label={t('food.bc.protein100')} value={nw.protein} onChangeText={v => setNw(x => ({ ...x, protein: v.replace(/[^\d.,]/g, '') }))} keyboardType="decimal-pad" maxLength={5} /></View>
+                </View>
+                <Field label={t('food.bc.serving')} value={nw.serving} onChangeText={v => setNw(x => ({ ...x, serving: v.replace(/\D/g, '') }))} keyboardType="number-pad" maxLength={4} />
+                <Button variant="accent" label={busy ? '…' : t('food.bc.save')} disabled={busy || !canSave} onPress={saveNew} />
+              </Card>
+            ) : null}
           </>
         ) : (
           <>
@@ -184,8 +226,8 @@ function BarcodeSheet({ onClose, add }: { onClose: () => void; add: (m: Meal) =>
               ))}
             </View>
             <Button label={t('add')} disabled={g <= 0} onPress={() => add({ name: p.brand ? `${p.name} (${p.brand})` : p.name, kcal: Math.round(p.kcal100 * g / 100), protein: Math.round(p.protein100 * g / 100) })} />
-            <Button small variant="ghost" label={t('food.bc.again')} onPress={() => { setP(null); setCode(''); }} />
-            <Small>{t('food.bc.source')}</Small>
+            <Button small variant="ghost" label={t('food.bc.again')} onPress={() => { setP(null); setCode(''); setUnknown(false); setMiss(''); }} />
+            <Small>{t(p.source === 'oddo' ? 'food.bc.sourceOddo' : 'food.bc.source')}</Small>
           </>
         )}
       </Stack>

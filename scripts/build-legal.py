@@ -85,6 +85,7 @@ ODDO ist ein Fitness-Coach. Wir verarbeiten nur, was die App dafür braucht, ver
 - Anthropic (USA): KI-Schätzungen und Wochentipps; Daten über die API werden laut Anbieter nicht zum Training verwendet
 - CARTO (Spanien/USA): Kartenbilder beim Laufen und Radfahren; dabei werden nur deine IP-Adresse und der Kartenausschnitt übertragen, nicht deine Strecke
 - Open Food Facts (Frankreich): Produktdaten, wenn du einen Barcode scannst; übertragen werden nur der Barcode und deine IP-Adresse
+- Produkte, die du selbst einträgst (Barcode, Name, Marke, Nährwerte), sind für alle ODDO-Nutzer sichtbar. Dein Konto wird dazu gespeichert, aber niemandem angezeigt, damit nur du deinen Eintrag ändern kannst. Das Foto der Nährwerttabelle wird nur zum Auslesen an Anthropic geschickt und nicht gespeichert
 - Resend (USA): E-Mail-Versand, etwa die Erinnerung vor dem Ende eines Gratis-Monats, wenn du eine E-Mail-Adresse hinterlegt hast
 - Lemon Squeezy (USA): Bezahlung und Abos
 - Apple und Google: wenn du die App aus ihren Stores lädst
@@ -133,6 +134,7 @@ ODDO is a fitness coach. We only process what the app needs for that, never sell
 - Anthropic (USA): AI estimates and weekly tips; per the provider, API data is not used for training
 - CARTO (Spain/USA): map images for runs and rides; only your IP address and the map area are sent, not your route
 - Open Food Facts (France): product data when you scan a barcode; only the barcode and your IP address are sent
+- Products you add yourself (barcode, name, brand, nutrition values) are visible to everyone on ODDO. Your account is stored with them but never shown, so only you can change your entry. The photo of the nutrition table is sent to Anthropic only to read the values and is not stored
 - Resend (USA): sending emails, such as the reminder before a free month ends, if you saved an email address
 - Lemon Squeezy (USA): payments and subscriptions
 - Apple and Google: if you install the app from their stores
@@ -181,6 +183,7 @@ ODDO bir fitness koçudur. Sadece uygulamanın bunun için ihtiyaç duyduğu ver
 - Anthropic (ABD): YZ tahminleri ve haftalık ipuçları; sağlayıcıya göre API verileri eğitim için kullanılmaz
 - CARTO (İspanya/ABD): koşu ve bisiklette harita görüntüleri; yalnızca IP adresin ve harita bölgesi iletilir, rotan değil
 - Open Food Facts (Fransa): barkod taradığında ürün bilgileri; yalnızca barkod ve IP adresin iletilir
+- Kendin eklediğin ürünler (barkod, ad, marka, besin değerleri) tüm ODDO kullanıcılarına görünür. Hesabın bu kayıtla saklanır ama kimseye gösterilmez, böylece kaydını yalnızca sen değiştirebilirsin. Besin tablosunun fotoğrafı yalnızca değerleri okumak için Anthropic'e gönderilir ve saklanmaz
 - Resend (ABD): e-posta gönderimi, örneğin e-posta adresi kaydettiysen ücretsiz ay bitmeden hatırlatma
 - Lemon Squeezy (ABD): ödemeler ve abonelikler
 - Apple ve Google: uygulamayı mağazalarından indirirsen

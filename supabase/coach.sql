@@ -954,3 +954,43 @@ revoke execute on function public.add_partner(uuid), public.credit_commission(uu
 grant execute on function public.credit_commission(uuid, text, text, int, text), public.void_commission(text) to service_role;
 grant execute on function public.partner_perks(), public.partner_earnings(), public.set_payout(text), public.admin_payouts(),
   public.admin_mark_paid(uuid) to authenticated;
+
+-- ODDO's own product list: packaged food people added because Open Food Facts did not know its barcode.
+-- Everyone can read it; the next person scanning the same barcode finds it straight away.
+create table if not exists public.products (
+  code text primary key check (code ~ '^[0-9]{8,14}$'),
+  name text not null check (length(name) between 1 and 80),
+  brand text not null default '' check (length(brand) <= 60),
+  kcal100 numeric not null check (kcal100 between 0 and 950),
+  protein100 numeric not null default 0 check (protein100 between 0 and 100),
+  serving int check (serving between 1 and 2000),
+  added_by uuid references auth.users on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+alter table public.products enable row level security;
+drop policy if exists products_read on public.products;
+create policy products_read on public.products for select using (true);
+-- Who added a product stays private: only the product columns are readable.
+revoke select on public.products from anon, authenticated;
+grant select (code, name, brand, kcal100, protein100, serving, created_at, updated_at) on public.products to anon, authenticated;
+
+-- Adds a product, or corrects one the same person added before. Someone else's entry stays as it is.
+create or replace function public.add_product(p_code text, p_name text, p_brand text, p_kcal numeric, p_protein numeric, p_serving int)
+returns public.products
+language plpgsql security definer set search_path = public as $$
+declare r public.products;
+begin
+  if auth.uid() is null then raise exception 'not signed in'; end if;
+  insert into products(code, name, brand, kcal100, protein100, serving, added_by)
+  values (p_code, left(trim(p_name), 80), left(trim(coalesce(p_brand, '')), 60), round(p_kcal), round(coalesce(p_protein, 0), 1),
+          nullif(p_serving, 0), auth.uid())
+  on conflict (code) do update set name = excluded.name, brand = excluded.brand, kcal100 = excluded.kcal100,
+    protein100 = excluded.protein100, serving = excluded.serving, updated_at = now()
+    where products.added_by = auth.uid()
+  returning * into r;
+  if r.code is null then select * into r from products where code = p_code; end if;
+  return r;
+end $$;
+revoke execute on function public.add_product(text, text, text, numeric, numeric, int) from public, anon;
+grant execute on function public.add_product(text, text, text, numeric, numeric, int) to authenticated;

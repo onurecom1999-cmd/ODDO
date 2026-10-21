@@ -7,9 +7,9 @@ import { tierOf, userFrom } from '../lib/supabase.mjs';
 const MODEL = process.env.AI_MODEL || 'claude-sonnet-5-5';
 // Per account (or IP) and day. Free gets a taste; Pro is generous but still capped against abuse.
 const LIMITS = {
-  free: { food_photo: 3, food_text: 5, tips: 1, plan: 1, creator: 1, template: 1 },
-  pro: { food_photo: 25, food_text: 40, tips: 5, plan: 5, creator: 1, template: 1 },
-  ultimate: { food_photo: 40, food_text: 60, tips: 10, plan: 10, creator: 15, template: 10 },
+  free: { food_photo: 3, food_text: 5, label: 5, tips: 1, plan: 1, creator: 1, template: 1 },
+  pro: { food_photo: 25, food_text: 40, label: 20, tips: 5, plan: 5, creator: 1, template: 1 },
+  ultimate: { food_photo: 40, food_text: 60, label: 30, tips: 10, plan: 10, creator: 15, template: 10 },
 };
 const LANG = { de: 'German', en: 'English', tr: 'Turkish' };
 
@@ -32,6 +32,13 @@ function prompt(task, b) {
   if (task === 'food_photo') return [
     { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: String(b.image || '').replace(/^data:image\/\w+;base64,/, '') } },
     { type: 'text', text: `Estimate the nutrition of the meal in this photo. Write name, item names and hint in ${lang}.\n${FOOD_FORMAT}` },
+  ];
+  // A packaged product the barcode lookup did not know: read its nutrition table so it can be saved for everyone.
+  if (task === 'label') return [
+    { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: String(b.image || '').replace(/^data:image\/\w+;base64,/, '') } },
+    { type: 'text', text: `This photo shows the nutrition table of a packaged food or drink, maybe with the front of the pack. Read the values per 100 g (or per 100 ml for drinks). If only kJ is given, convert to kcal (divide by 4.184). Read the serving or package size in grams or ml if printed. Name and brand as printed on the pack; if not visible, give a short plain name of the product type in ${lang} and an empty brand.
+Answer only with JSON: {"name":"…","brand":"…","kcal100":0,"protein100":0,"serving":0}
+If no nutrition table can be read, answer {"name":""}.` },
   ];
   if (task === 'food_text') return `Estimate the nutrition of this meal: "${String(b.text || '').slice(0, 500)}". Write name, item names and hint in ${lang}.\n${FOOD_FORMAT}`;
   if (task === 'tips') return `You are an experienced coach and lifelong athlete who has trained hundreds of people in the gym, at home and on the road. Review this person's last week and give 3 concrete tips for next week, the way a good personal coach talks to their athlete: direct, warm, specific, from experience. Never mention AI or that you are a model.
@@ -84,7 +91,7 @@ export default async (req, context) => {
   try { b = await req.json(); } catch { return json(400, { error: 'bad_json' }); }
   const task = b?.task;
   if (!(task in LIMITS.free)) return json(400, { error: 'task' });
-  if (task === 'food_photo' && String(b.image || '').length > 2_500_000) return json(413, { error: 'too_large' });
+  if ((task === 'food_photo' || task === 'label') && String(b.image || '').length > 2_500_000) return json(413, { error: 'too_large' });
   if (task === 'template' && JSON.stringify(b.frames || []).length > 4_500_000) return json(413, { error: 'too_large' });
   const content = prompt(task, b);
   if (!content) return json(400, { error: 'task' });
