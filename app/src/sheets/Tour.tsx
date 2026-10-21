@@ -12,9 +12,9 @@ const STEPS: IconName[] = ['today', 'move', 'community', 'me'];
 
 // Right after the plan: first how the person uses ODDO (with a code, as trainer or studio), then the four tabs.
 export function TourSheet({ onClose, onBusiness, onJoined }: { onClose: () => void; onBusiness: (k: 'coach' | 'studio') => void; onJoined: (k: 'coach' | 'studio') => void }) {
-  const { update } = useApp();
+  const { S, update } = useApp();
   const toast = useToast();
-  const [i, setI] = useState(-1);
+  const [i, setI] = useState(S.asked ? 0 : -1);
   const [busy, setBusy] = useState(false);
   if (i < 0) return (
     <Sheet visible title={t('tour.title')} onClose={onClose}>
@@ -51,7 +51,7 @@ export function TourSheet({ onClose, onBusiness, onJoined }: { onClose: () => vo
         </Row>
         <Button label={last ? t('tour.go') : t('next')} onPress={() => (last ? onClose() : setI(i + 1))} />
         <Row style={{ justifyContent: 'space-between' }}>
-          <LinkButton label={t('back')} onPress={() => setI(i - 1)} />
+          {i > 0 || !S.asked ? <LinkButton label={t('back')} onPress={() => setI(i - 1)} /> : <View />}
           {!last ? <LinkButton label={t('tour.skip')} onPress={onClose} /> : null}
         </Row>
       </Stack>

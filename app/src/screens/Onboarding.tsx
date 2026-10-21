@@ -83,8 +83,8 @@ export function Onboarding({ onExample, onLogin, start }: { onExample: () => voi
           <Muted style={{ fontSize: 14 }}>{t('intro.lead')}</Muted>
           <Eyebrow style={{ marginTop: 10 }}>{t('start.ask')}</Eyebrow>
           <RoleCards codeHint={t('start.codeHow')}
-            onPick={k => { if (k === 'me') { setPhase('intake'); setStep(0); } else update(d => { d.biz = k; }); }}
-            onCode={c => { setStartCode(c); setPhase('intake'); setStep(0); }} />
+            onPick={k => { if (k === 'me') { update(d => { d.asked = true; }); setPhase('intake'); setStep(0); } else update(d => { d.biz = k; }); }}
+            onCode={c => { setStartCode(c); update(d => { d.asked = true; }); setPhase('intake'); setStep(0); }} />
           <Button variant="ghost" label={t('example.cta')} onPress={onExample} />
           <LinkButton label={t('acc.have')} onPress={onLogin} style={{ textAlign: 'center' }} />
           <Small style={{ textAlign: 'center' }}>{t('intro.duration')}</Small>

@@ -31,7 +31,7 @@ export function LinkButton({ label, onPress, style }: { label: string; onPress: 
 
 export function Chip({ label, sub, on, block, onPress, style }: { label: string; sub?: string; on?: boolean; block?: boolean; onPress: () => void; style?: StyleProp<ViewStyle> }) {
   return (
-    <Pressable accessibilityRole="button" accessibilityState={{ selected: !!on }} onPress={onPress}
+    <Pressable accessibilityRole="button" accessibilityState={{ selected: !!on }} aria-pressed={!!on} onPress={onPress}
       style={[s.chip, block && { alignSelf: 'stretch' }, on && s.chipOn, style]}>
       <Text style={[s.chipText, on && { color: colors.ink }]}>{label}</Text>
       {sub ? <Text style={[s.chipSub, on && { color: colors.ink }]}>{sub}</Text> : null}
@@ -58,7 +58,7 @@ export function Stat({ label, value, first }: { label: string; value: ReactNode;
 
 export function CheckRow({ done, title, sub, go, onPress, first }: { done: boolean; title: string; sub?: string; go?: string; onPress: () => void; first?: boolean }) {
   return (
-    <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: done }} onPress={onPress} style={[s.check, first && { borderTopWidth: 0 }]}>
+    <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: done }} aria-checked={done} onPress={onPress} style={[s.check, first && { borderTopWidth: 0 }]}>
       <View style={[s.box, done && s.boxOn]}>{done ? <Text style={{ color: colors.ink, fontFamily: fonts.heavy }}>✓</Text> : null}</View>
       <View style={{ flex: 1 }}>
         <Text style={[s.checkTitle, done && { color: colors.muted }]}>{title}</Text>

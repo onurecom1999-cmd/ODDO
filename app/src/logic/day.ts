@@ -1,6 +1,7 @@
 import type { AppState, Cardio, CardioType, DayLog } from './types';
 import { emptyDay } from './types';
 import type { Routine } from './routines';
+import { fmt1 } from '../i18n';
 
 export function dayKey(d: Date = new Date()) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -37,7 +38,7 @@ export function cardioBonus(l: DayLog) { return Math.round(l.cardio.reduce((a, c
 export function pace(c: Pick<Cardio, 'type' | 'km' | 'min'>) {
   if (!c.km || !c.min) return null;
   if (CARDIO[c.type].pace) { const p = c.min / c.km; let m = Math.floor(p), s = Math.round((p - m) * 60); if (s === 60) { m++; s = 0; } return { value: `${m}:${String(s).padStart(2, '0')}`, unit: 'min/km' }; }
-  return { value: (c.km / (c.min / 60)).toFixed(1), unit: 'km/h' };
+  return { value: fmt1(c.km / (c.min / 60)), unit: 'km/h' };
 }
 
 export function routineState(l: DayLog, r: Routine) { return { done: !!l.routines[r.id], steps: l.rsteps[r.id] || [] }; }

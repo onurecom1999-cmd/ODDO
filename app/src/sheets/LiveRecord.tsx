@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GpsStatus, Point, thin, track, Tracker } from '../gps';
-import { fmt, Key, t } from '../i18n';
+import { fmt, getLang, Key, LOCALE, t } from '../i18n';
 import { CARDIO, cardioKcal } from '../logic/day';
 import { bodyWeight } from '../logic/strength';
 import type { CardioType } from '../logic/types';
@@ -12,7 +12,7 @@ import { colors, fonts } from '../theme';
 import { RouteMap } from '../ui/RouteMap';
 import { Button, LinkButton, Row, ToastHost, useToast } from '../ui/kit';
 
-const comma = (n: number, d = 2) => n.toFixed(d).replace('.', ',');
+const comma = (n: number, d = 2) => n.toLocaleString(LOCALE[getLang()], { minimumFractionDigits: d, maximumFractionDigits: d });
 const clock = (s: number) => {
   const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
   return h ? `${h}:${String(m).padStart(2, '0')}:${String(x).padStart(2, '0')}` : `${m}:${String(x).padStart(2, '0')}`;

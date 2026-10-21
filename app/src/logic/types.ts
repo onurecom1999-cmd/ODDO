@@ -52,6 +52,8 @@ export type AppState = {
   biz?: 'studio' | 'coach';
   // Version of the short tour after onboarding that the person has seen.
   tour?: number;
+  // Set when the person already chose how they use ODDO on the start screen, so the tour does not ask again.
+  asked?: boolean;
 };
 
 export const emptyState: AppState = { profile: null, plan: null, log: {}, progress: [], routines: [], strength: [], startedAt: null };

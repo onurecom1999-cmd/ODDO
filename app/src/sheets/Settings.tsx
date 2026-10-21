@@ -104,7 +104,7 @@ export function SettingsSheet({ onClose, onOpen, initial }: { onClose: () => voi
               {WD_ORDER.map(d => {
                 const on = P.schedule.includes(d);
                 return (
-                  <Pressable key={d} accessibilityRole="checkbox" accessibilityState={{ checked: on }} onPress={() => toggleDay(d)} style={{ flex: 1, paddingVertical: 12, borderRadius: 10, alignItems: 'center', backgroundColor: on ? colors.accent : colors.surface2, borderWidth: 1, borderColor: on ? colors.accent : colors.line }}>
+                  <Pressable key={d} accessibilityRole="checkbox" accessibilityState={{ checked: on }} aria-checked={on} onPress={() => toggleDay(d)} style={{ flex: 1, paddingVertical: 12, borderRadius: 10, alignItems: 'center', backgroundColor: on ? colors.accent : colors.surface2, borderWidth: 1, borderColor: on ? colors.accent : colors.line }}>
                     <Text style={{ fontFamily: fonts.heavy, fontSize: 12, color: on ? colors.ink : colors.muted }}>{weekday(d)}</Text>
                   </Pressable>
                 );
