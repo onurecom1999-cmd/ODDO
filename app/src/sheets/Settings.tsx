@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Linking, Pressable, Text, View } from 'react-native';
 import { account, AccountInfo, deleteAccount } from '../account';
-import { partnerPerks, Perks, useTier } from '../pro';
+import { liveSub, mySubscription, partnerPerks, Perks, Subscription, useTier } from '../pro';
 import { isAdmin } from '../templates';
 import { studioHome } from '../studio';
 import { Icon, IconName } from '../ui/icons';
@@ -15,12 +15,15 @@ import { colors, fonts } from '../theme';
 import { Body, Bold, Button, Card, Chip, Chips, Eyebrow, Field, LinkButton, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
 import { MyCoachSection } from './Coach';
 import { AdminPayouts } from './Partner';
+import { ManageSubscription } from './Pro';
 import { MyStudioSection } from './Studio';
 import { RoutinesEditSheet } from './Routines';
 
 const SITE = 'https://oddo-app.netlify.app';
+// WhatsApp number for help, digits with country code (e.g. 905331234567). Without it the help row stays hidden.
+const HELP = (process.env.EXPO_PUBLIC_SUPPORT_WHATSAPP || '').replace(/\D/g, '');
 const WD_ORDER = [1, 2, 3, 4, 5, 6, 0];
-export type SettingsPage = 'routines' | 'days' | 'targets' | 'remind' | 'lang' | 'coach' | 'studio' | 'account' | 'payouts';
+export type SettingsPage = 'routines' | 'days' | 'targets' | 'remind' | 'lang' | 'coach' | 'studio' | 'account' | 'payouts' | 'subscription';
 
 // Settings as a short menu; each row opens its own page.
 export function SettingsSheet({ onClose, onOpen, initial }: { onClose: () => void; onOpen: (sheet: string) => void; initial?: SettingsPage }) {
@@ -37,11 +40,13 @@ export function SettingsSheet({ onClose, onOpen, initial }: { onClose: () => voi
   const [studio, setStudio] = useState<string | null>(null);
   const [perks, setPerks] = useState<Perks | null>(null);
   const [admin, setAdmin] = useState(false);
+  const [sub, setSub] = useState<Subscription | null>(null);
   useEffect(() => {
     if (S.example) return;
     account().then(setAcc, () => {});
     partnerPerks().then(setPerks, () => {});
     isAdmin().then(setAdmin, () => {});
+    mySubscription().then(setSub, () => {});
     studioHome().then(l => setStudio(l[0]?.name ?? null), () => {});
   }, [S.example]);
 
@@ -60,7 +65,7 @@ export function SettingsSheet({ onClose, onOpen, initial }: { onClose: () => voi
   const back = () => setPage(null);
   const pageTitle: Record<SettingsPage, string> = {
     routines: t('set.routines'), days: t('set.days'), targets: t('set.targets'), remind: t('remind.title'), lang: t('plan.language'),
-    coach: t('coach.mine'), studio: t('studio.mineSet'), account: t('set.account'), payouts: t('payouts.title'),
+    coach: t('coach.mine'), studio: t('studio.mineSet'), account: t('set.account'), payouts: t('payouts.title'), subscription: t('manage.title'),
   };
   const days = WD_ORDER.filter(d => P.schedule.includes(d)).map(d => weekday(d)).join(', ');
 
@@ -139,6 +144,8 @@ export function SettingsSheet({ onClose, onOpen, initial }: { onClose: () => voi
           </Section>
         ) : page === 'payouts' ? (
           <AdminPayouts />
+        ) : page === 'subscription' ? (
+          <ManageSubscription />
         ) : (
           <Stack gap={14}>
             {confirm === 'reset' ? (
@@ -209,6 +216,8 @@ export function SettingsSheet({ onClose, onOpen, initial }: { onClose: () => voi
 
         <Group title={t('set.g.account')}>
           <MenuRow icon="star" label="ODDO Pro" value={tier === 'free' ? t('set.proSee') : t('set.proActive')} onPress={() => go('pro')} accent={tier === 'free'} />
+          {liveSub(sub) || sub?.status === 'paused' ? <MenuRow icon="calendar" label={t('manage.title')} value={t('manage.row')} onPress={() => setPage('subscription')} /> : null}
+          {HELP ? <MenuRow icon="coach" label={t('help.row')} value={t('help.value')} onPress={() => Linking.openURL(`https://wa.me/${HELP}?text=${encodeURIComponent(t('help.text'))}`)} /> : null}
           {S.example ? null : <MenuRow icon="shield" label={t('acc.cta')} value={acc?.email ? '✓' : t('set.notSaved')} onPress={() => go('account')} />}
           {admin ? <MenuRow icon="briefcase" label={t('payouts.title')} value="" onPress={() => setPage('payouts')} /> : null}
           <MenuRow icon="settings" label={t('set.more')} value="" onPress={() => setPage('account')} />

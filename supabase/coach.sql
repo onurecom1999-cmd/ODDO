@@ -773,6 +773,8 @@ create table if not exists public.referrals (
   check (user_id <> partner_id)
 );
 create index if not exists referrals_partner on public.referrals (partner_id);
+-- When the reminder email before the end of the free month went out.
+alter table public.referrals add column if not exists reminded_at timestamptz;
 create table if not exists public.commissions (
   id bigint generated always as identity primary key,
   partner_id uuid not null references auth.users on delete cascade,

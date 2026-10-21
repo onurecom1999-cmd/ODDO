@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { AiError, estimatePhoto, estimateText, FoodEstimate } from '../ai';
 import { fmt, getLang, l3, LOCALE, t } from '../i18n';
 import { dayKey, dayStatus } from '../logic/day';
-import { QUICK } from '../logic/foods';
+import { QUICK, recentMeals } from '../logic/foods';
+import { lookupBarcode, Product } from '../foodfacts';
+import { Scanner } from '../ui/Scanner';
 import type { Meal } from '../logic/types';
 import { pickPhoto, shrink } from '../media';
 import { dayLog, useApp } from '../state';
@@ -11,7 +13,7 @@ import { colors, fonts } from '../theme';
 import { Icon, IconName } from '../ui/icons';
 import { Bold, Button, Card, Chip, Chips, Eyebrow, Field, H2, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
 
-export type FoodMode = 'photo' | 'describe' | 'quick';
+export type FoodMode = 'photo' | 'barcode' | 'describe' | 'quick';
 const PORTIONS = [0.5, 0.75, 1, 1.25, 1.5];
 
 function errorText(e: unknown) {
@@ -19,8 +21,22 @@ function errorText(e: unknown) {
   return t(`food.err.${c}` as any);
 }
 
-export function FoodSheet({ mode, onClose, onPro }: { mode: FoodMode; onClose: () => void; onPro?: () => void }) {
+// Adds a meal to today and says how much of the day's budget is left.
+function useAddMeal(after: () => void) {
   const { S, update } = useApp();
+  const toast = useToast();
+  return (meal: Meal) => {
+    const time = new Date().toLocaleTimeString(LOCALE[getLang()], { hour: '2-digit', minute: '2-digit' });
+    update(d => { dayLog(d).meals.push({ ...meal, time }); });
+    // Remaining budget after this meal, from the state before the update plus the meal.
+    const st = dayStatus(S, dayKey());
+    const left = st.allowed - st.t.kcal - meal.kcal;
+    after();
+    toast(left >= 0 ? t('food.addedLeft', { n: fmt(left) }) : t('food.addedOver', { n: fmt(-left) }));
+  };
+}
+
+export function FoodSheet({ mode, onClose, onPro }: { mode: FoodMode; onClose: () => void; onPro?: () => void }) {
   const toast = useToast();
   const [photo, setPhoto] = useState('');
   const [thumb, setThumb] = useState('');
@@ -43,15 +59,7 @@ export function FoodSheet({ mode, onClose, onPro }: { mode: FoodMode; onClose: (
     })();
   }, []);
 
-  const add = (meal: Meal) => {
-    const time = new Date().toLocaleTimeString(LOCALE[getLang()], { hour: '2-digit', minute: '2-digit' });
-    update(d => { dayLog(d).meals.push({ ...meal, time }); });
-    // Remaining budget after this meal, from the state before the update plus the meal.
-    const st = dayStatus(S, dayKey());
-    const left = st.allowed - st.t.kcal - meal.kcal;
-    onClose();
-    toast(left >= 0 ? t('food.addedLeft', { n: fmt(left) }) : t('food.addedOver', { n: fmt(-left) }));
-  };
+  const add = useAddMeal(onClose);
 
   const addManual = () => {
     const kcal = Math.round(Number(m.kcal) || 0), protein = Math.round(Number(m.protein) || 0);
@@ -78,6 +86,7 @@ export function FoodSheet({ mode, onClose, onPro }: { mode: FoodMode; onClose: (
     </Card>
   );
 
+  if (mode === 'barcode') return <BarcodeSheet onClose={onClose} add={add} />;
   const title = mode === 'photo' ? t('food.titlePhoto') : mode === 'describe' ? t('food.titleDescribe') : t('food.titleQuick');
   return (
     <Sheet visible title={title} onClose={onClose}>
@@ -114,7 +123,9 @@ export function FoodSheet({ mode, onClose, onPro }: { mode: FoodMode; onClose: (
           </View>
           <Stack gap={8}><Bold>{t('food.portion')}</Bold><Chips>{PORTIONS.map(p => <Chip key={p} label={p === 1 ? t('food.asShown') : `×${String(p).replace('.', getLang() === 'en' ? '.' : ',')}`} on={portion === p} onPress={() => setPortion(p)} />)}</Chips></Stack>
           {result.hint ? <Small>{result.hint}</Small> : null}
+          <Small>{t('food.range', { lo: fmt(result.kcal * portion * 0.8), hi: fmt(result.kcal * portion * 1.2) })}</Small>
           <Button label={t('add')} onPress={() => add({ name: result.name, kcal: Math.round(result.kcal * portion), protein: Math.round(result.protein * portion), img: thumb || undefined, est: true })} />
+          <Button variant="ghost" small label={t('food.correct')} onPress={() => { setM({ name: result.name, kcal: String(Math.round(result.kcal * portion)), protein: String(Math.round(result.protein * portion)) }); setResult(null); }} />
         </Stack>
       ) : null}
       {!loading && !result && (mode !== 'photo' || photo) ? manual : null}
@@ -122,16 +133,91 @@ export function FoodSheet({ mode, onClose, onPro }: { mode: FoodMode; onClose: (
   );
 }
 
-// One way in for food: pick how to log the meal.
+// Packaged food: scan the barcode (or type its digits), pick the amount, add.
+function BarcodeSheet({ onClose, add }: { onClose: () => void; add: (m: Meal) => void }) {
+  const [code, setCode] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [p, setP] = useState<Product | null>(null);
+  const [miss, setMiss] = useState('');
+  const [grams, setGrams] = useState('100');
+  const look = async (c: string) => {
+    const d = c.replace(/\D/g, '');
+    if (d.length < 8) return;
+    setCode(d); setBusy(true); setMiss(''); setP(null);
+    try {
+      const r = await lookupBarcode(d);
+      if (r) { setP(r); setGrams(String(r.serving ?? 100)); } else setMiss(t('food.bc.notFound'));
+    } catch { setMiss(t('food.bc.offline')); }
+    setBusy(false);
+  };
+  const g = Math.max(0, Number(grams.replace(',', '.')) || 0);
+  const amounts = p ? [...new Set([p.serving, 50, 100, 150, 200].filter((x): x is number => !!x))].sort((a, b) => a - b) : [];
+  return (
+    <Sheet visible title={t('food.titleBarcode')} onClose={onClose}>
+      <Stack gap={14}>
+        {!p ? (
+          <>
+            <Scanner kind="barcode" start label={t('food.bc.scan')} onCode={look} />
+            <Field label={t('food.bc.digits')} value={code} onChangeText={v => setCode(v.replace(/\D/g, ''))} keyboardType="number-pad" maxLength={13} />
+            <Button small variant="ghost" label={busy ? '…' : t('food.bc.find')} disabled={busy || code.length < 8} onPress={() => look(code)} />
+            {busy ? <ActivityIndicator color={colors.accent} /> : null}
+            {miss ? <Muted>{miss}</Muted> : null}
+          </>
+        ) : (
+          <>
+            <View style={{ gap: 4 }}>
+              <Eyebrow>{p.brand || t('food.bc.product')}</Eyebrow>
+              <H2>{p.name}</H2>
+              <Small>{t('food.bc.per100', { kcal: fmt(p.kcal100), protein: fmt(p.protein100, 1) })}</Small>
+            </View>
+            <Stack gap={8}>
+              <Bold>{t('food.bc.amount')}</Bold>
+              <Chips>{amounts.map(a => <Chip key={a} label={`${a} g`} on={g === a} onPress={() => setGrams(String(a))} />)}</Chips>
+              <Field label={t('food.bc.grams')} value={grams} onChangeText={setGrams} keyboardType="number-pad" maxLength={5} />
+            </Stack>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              {[[p.kcal100 * g / 100, t('kcal')], [p.protein100 * g / 100, t('today.protein')]].map(([v, l], i) => (
+                <View key={i} style={{ flex: 1, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line, borderRadius: 14, paddingVertical: 12, alignItems: 'center' }}>
+                  <Text style={{ fontFamily: fonts.display, fontSize: 26, color: colors.text }}>{fmt(Number(v))}</Text>
+                  <Small>{l as string}</Small>
+                </View>
+              ))}
+            </View>
+            <Button label={t('add')} disabled={g <= 0} onPress={() => add({ name: p.brand ? `${p.name} (${p.brand})` : p.name, kcal: Math.round(p.kcal100 * g / 100), protein: Math.round(p.protein100 * g / 100) })} />
+            <Button small variant="ghost" label={t('food.bc.again')} onPress={() => { setP(null); setCode(''); }} />
+            <Small>{t('food.bc.source')}</Small>
+          </>
+        )}
+      </Stack>
+    </Sheet>
+  );
+}
+
+// One way in for food: pick how to log the meal, or log one of your own meals again with one tap.
 export function FoodPick({ onClose, onPick }: { onClose: () => void; onPick: (m: FoodMode) => void }) {
+  const { S } = useApp();
+  const add = useAddMeal(onClose);
+  const recent = recentMeals(S.log);
   const opts: { m: FoodMode; icon: IconName; sub: string }[] = [
     { m: 'photo', icon: 'food', sub: t('food.pick.photo') },
+    { m: 'barcode', icon: 'code', sub: t('food.pick.barcode') },
     { m: 'describe', icon: 'list', sub: t('food.pick.describe') },
     { m: 'quick', icon: 'flame', sub: t('food.pick.quick') },
   ];
+  const title = (m: FoodMode) => t(m === 'photo' ? 'food.titlePhoto' : m === 'barcode' ? 'food.titleBarcode' : m === 'describe' ? 'food.titleDescribe' : 'food.titleQuick');
   return (
     <Sheet visible title={t('today.addMeal')} onClose={onClose}>
       <Stack gap={12}>
+        {recent.length ? (
+          <View style={{ gap: 8 }}>
+            <Eyebrow>{t('food.again')}</Eyebrow>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+              {recent.map((r, i) => (
+                <Chip key={i} label={`+ ${r.name}`} sub={`${fmt(r.kcal)} ${t('kcal')}`} onPress={() => add({ ...r, img: undefined })} />
+              ))}
+            </ScrollView>
+          </View>
+        ) : null}
         {opts.map(o => (
           <Pressable key={o.m} accessibilityRole="button" testID={`food-${o.m}`} onPress={() => onPick(o.m)}>
             {({ pressed }) => (
@@ -140,7 +226,7 @@ export function FoodPick({ onClose, onPick }: { onClose: () => void; onPick: (m:
                   <Icon name={o.icon} size={26} color={o.m === 'photo' ? colors.ink : colors.text} />
                 </View>
                 <View style={{ flex: 1, gap: 3 }}>
-                  <Bold style={{ fontSize: 17 }}>{t(o.m === 'photo' ? 'food.titlePhoto' : o.m === 'describe' ? 'food.titleDescribe' : 'food.titleQuick')}</Bold>
+                  <Bold style={{ fontSize: 17 }}>{title(o.m)}</Bold>
                   <Small>{o.sub}</Small>
                 </View>
                 <Text style={{ color: colors.dim, fontSize: 24 }}>›</Text>

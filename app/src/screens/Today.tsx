@@ -12,6 +12,7 @@ import { Bar, Body, Card, CheckRow, Emblem, Eyebrow, H1, H2, LinkButton, Muted, 
 import { Icon, IconName } from '../ui/icons';
 import { CoachBanner } from '../sheets/Coach';
 import { StudioCard } from '../sheets/Studio';
+import { TrialCard } from '../ui/TrialCard';
 
 export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => void; studioTick?: number }) {
   const { S, update } = useApp();
@@ -109,6 +110,7 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
       ) : null}
 
       <CoachBanner onChat={() => onOpen('coachchat')} />
+      {S.example ? null : <TrialCard onPro={() => onOpen('pro')} />}
 
       <Row style={{ gap: 10 }}>
         {quick.map(q => (

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Linking } from 'react-native';
+import { Linking, Platform } from 'react-native';
 import { userId } from './cloud';
 import { storeBilling, storeTier } from './store';
 import { supabase } from './supabase';
@@ -60,4 +60,40 @@ export async function checkout(t: 'pro' | 'ultimate', founder = false): Promise<
   if (founder && FOUNDER_CODE) { q.set('checkout[discount_code]', FOUNDER_CODE); q.set('checkout[custom][founder]', '1'); }
   await Linking.openURL(`${CHECKOUT[t]}${CHECKOUT[t].includes('?') ? '&' : '?'}${q}`);
   return true;
+}
+
+// The person's free Pro as a partner or in the free month after joining one; refreshed on every open.
+export function usePerks() {
+  const [perks, setPerks] = useState<Perks | null>(null);
+  useEffect(() => { partnerPerks().then(setPerks, () => {}); }, []);
+  return perks;
+}
+
+export type Subscription = { tier: Tier; status: string; source: string; renews_at: string | null; ends_at: string | null };
+export const liveSub = (s: Subscription | null) =>
+  !!s && (['on_trial', 'active', 'past_due'].includes(s.status) || (s.status === 'cancelled' && !!s.ends_at && new Date(s.ends_at) > new Date()));
+
+export async function mySubscription(): Promise<Subscription | null> {
+  const id = await userId();
+  if (!id || !supabase) return null;
+  const { data } = await supabase.from('subscriptions').select('tier,status,source,renews_at,ends_at').eq('user_id', id).maybeSingle();
+  return (data as Subscription | null) ?? null;
+}
+
+// Web subscriptions are changed through our server (Lemon Squeezy); store ones in the store's own settings.
+export const STORE_MANAGE: Record<string, string> = {
+  apple: 'https://apps.apple.com/account/subscriptions',
+  google: 'https://play.google.com/store/account/subscriptions?package=app.oddo.coach',
+};
+export async function changeSubscription(action: 'cancel' | 'pause' | 'resume'): Promise<Subscription> {
+  if (!supabase) throw new Error('offline');
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  if (!token) throw new Error('signin');
+  const base = Platform.OS === 'web' ? '' : 'https://oddo-app.netlify.app';
+  const res = await fetch(`${base}/.netlify/functions/subscription`, {
+    method: 'POST', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: JSON.stringify({ action }),
+  });
+  if (!res.ok) throw new Error(`subscription ${res.status}`);
+  return res.json();
 }

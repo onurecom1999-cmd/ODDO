@@ -1,4 +1,5 @@
 import type { L3 } from '../i18n/lang';
+import type { Meal } from './types';
 
 // Common meals for one-tap logging, with typical portions.
 export const QUICK: { name: L3; kcal: number; protein: number }[] = [
@@ -13,3 +14,19 @@ export const QUICK: { name: L3; kcal: number; protein: number }[] = [
   { name: { de: 'Omelett mit Gemüse (3 Eier)', en: 'Vegetable omelette (3 eggs)', tr: 'Sebzeli omlet (3 yumurta)' }, kcal: 380, protein: 26 },
   { name: { de: 'Protein-Shake mit Wasser', en: 'Protein shake with water', tr: 'Su ile protein shake' }, kcal: 130, protein: 25 },
 ];
+
+// The person's own meals, most recent first and each name once, to log again with one tap.
+export function recentMeals(log: Record<string, { meals: Meal[] }>, max = 6): Meal[] {
+  const seen = new Set<string>();
+  const out: Meal[] = [];
+  for (const k of Object.keys(log).sort().reverse()) {
+    for (const m of [...(log[k].meals || [])].reverse()) {
+      const id = m.name.trim().toLowerCase();
+      if (!id || seen.has(id) || !(m.kcal > 0)) continue;
+      seen.add(id);
+      out.push({ name: m.name, kcal: m.kcal, protein: m.protein, img: m.img, est: m.est });
+      if (out.length >= max) return out;
+    }
+  }
+  return out;
+}

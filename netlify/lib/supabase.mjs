@@ -97,3 +97,35 @@ export async function deleteUser(id) {
   });
   if (!res.ok && res.status !== 404) throw new Error(`delete ${res.status}`);
 }
+
+export async function mySubscriptionRow(userId) {
+  if (!SERVICE()) return null;
+  const [row] = await rest(`subscriptions?user_id=eq.${encodeURIComponent(userId)}&select=*`);
+  return row || null;
+}
+
+// Free months that end in two to three days and got no reminder yet, with each person's email and language.
+export async function trialsEndingSoon() {
+  if (!SERVICE()) return [];
+  const day = 86400000, now = Date.now();
+  const a = new Date(now + 2 * day).toISOString(), b = new Date(now + 3 * day).toISOString();
+  const rows = await rest(`referrals?free_until=gt.${a}&free_until=lte.${b}&reminded_at=is.null&select=user_id,free_until`);
+  const out = [];
+  for (const r of rows) {
+    const id = encodeURIComponent(r.user_id);
+    const [subs, prof, user] = await Promise.all([
+      rest(`subscriptions?user_id=eq.${id}&status=in.(on_trial,active,past_due)&select=user_id`),
+      rest(`profiles?id=eq.${id}&select=name,lang`),
+      fetch(`${SB_URL}/auth/v1/admin/users/${id}`, { headers: headers() }).then(x => (x.ok ? x.json() : null), () => null),
+    ]);
+    if (subs.length) continue;
+    out.push({ user_id: r.user_id, free_until: r.free_until, email: user?.email || null, name: prof[0]?.name || '', lang: prof[0]?.lang || 'de' });
+  }
+  return out;
+}
+
+export async function markReminded(userId) {
+  await fetch(`${SB_URL}/rest/v1/referrals?user_id=eq.${encodeURIComponent(userId)}`, {
+    method: 'PATCH', headers: headers(), body: JSON.stringify({ reminded_at: new Date().toISOString() }),
+  });
+}
