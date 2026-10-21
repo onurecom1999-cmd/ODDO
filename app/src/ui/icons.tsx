@@ -1,7 +1,7 @@
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { colors } from '../theme';
 
-export type IconName = 'today' | 'move' | 'community' | 'me' | 'food' | 'train' | 'run' | 'video' | 'settings';
+export type IconName = 'today' | 'move' | 'community' | 'me' | 'food' | 'train' | 'run' | 'video' | 'settings' | 'studio' | 'coach' | 'code';
 
 // Simple line icons drawn in the app's own style, so no icon font is needed.
 export function Icon({ name, size = 24, color = colors.text, width = 2 }: { name: IconName; size?: number; color?: string; width?: number }) {
@@ -16,6 +16,9 @@ export function Icon({ name, size = 24, color = colors.text, width = 2 }: { name
       {name === 'train' ? <Path d="M6.5 7v10M3.5 9.5v5M17.5 7v10M20.5 9.5v5M6.5 12h11" {...p} /> : null}
       {name === 'run' ? <><Circle cx={14.5} cy={4.5} r={2} {...p} /><Path d="M7 21l3.5-6 3 2.5V22M10.5 15l1.5-6.5 4 2.5 3 .5M12 8.5L8 9.5l-2 3" {...p} /></> : null}
       {name === 'video' ? <><Rect x={3} y={6} width={13} height={12} rx={2.5} {...p} /><Path d="M16 10.5l5-3v9l-5-3" {...p} /></> : null}
+      {name === 'studio' ? <><Path d="M3 21h18M5 21V8l7-4 7 4v13" {...p} /><Path d="M9 21v-5h6v5M8.5 11h7" {...p} /></> : null}
+      {name === 'coach' ? <><Rect x={5} y={4} width={14} height={17} rx={2.5} {...p} /><Path d="M9 4V3h6v1M8.5 10l2 2 4-4M8.5 16h7" {...p} /></> : null}
+      {name === 'code' ? <><Path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v8a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2z" {...p} /><Path d="M8 12h8" {...p} /></> : null}
       {name === 'settings' ? <><Circle cx={12} cy={12} r={3} {...p} /><Path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" {...p} /></> : null}
     </Svg>
   );

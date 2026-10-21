@@ -35,7 +35,7 @@ let timer: ReturnType<typeof setTimeout> | null = null;
 let lastProfile = '';
 // Called after every change; writes at most every few seconds.
 export function backup(S: AppState) {
-  if (!supabase || S.example || !S.profile || !S.onboarded) return;
+  if (!supabase || S.example || !((S.profile && S.onboarded) || S.biz)) return;
   if (timer) clearTimeout(timer);
   timer = setTimeout(() => { timer = null; push(S).catch(() => {}); }, 4000);
 }
@@ -44,6 +44,7 @@ async function push(S: AppState) {
   const id = await userId();
   if (!id || !supabase) return;
   await supabase.from('app_state').upsert({ user_id: id, data: withoutImages(S), updated_at: new Date().toISOString() });
+  if (!S.profile) return;
   const sc = dayScore(S, dayKey());
   const row = { id, name: S.profile!.name.slice(0, 30), lang: S.lang || 'de', streak: streak(S), today_done: sc.done, today_all: sc.all, today_date: dayKey() };
   const sig = JSON.stringify(row);

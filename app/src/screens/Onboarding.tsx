@@ -6,6 +6,8 @@ import type { Fail, Goal, Profile, Style, TestKey, Weak } from '../logic/plan';
 import { defaultRoutines, ROUTINES, WHEN } from '../logic/routines';
 import { l3 } from '../i18n';
 import { useApp } from '../state';
+import { Icon, IconName } from '../ui/icons';
+import { setStartCode } from '../sheets/Studio';
 import { colors, fonts } from '../theme';
 import { Body, Bold, Button, Card, Chip, Chips, Eyebrow, Field, H1, H2, LinkButton, Muted, Row, Screen, Small, Stack, Stat, Badge, CheckRow } from '../ui/kit';
 
@@ -34,9 +36,14 @@ const STEPS: Step[] = [
 const toggle = <T,>(list: T[] | undefined, v: T) => (list || []).includes(v) ? (list || []).filter(x => x !== v) : [...(list || []), v];
 const num = (s: string) => Number(s.replace(',', '.'));
 
-export function Onboarding({ onExample, onLogin }: { onExample: () => void; onLogin: () => void }) {
+type Role = 'me' | 'coach' | 'studio' | 'code';
+const ROLES: { k: Role; icon: IconName }[] = [{ k: 'me', icon: 'train' }, { k: 'code', icon: 'code' }, { k: 'coach', icon: 'coach' }, { k: 'studio', icon: 'studio' }];
+
+export function Onboarding({ onExample, onLogin, start }: { onExample: () => void; onLogin: () => void; start?: 'intake' }) {
   const { update, S } = useApp();
-  const [phase, setPhase] = useState<'intro' | 'intake' | 'building' | 'reveal'>(S.profile ? 'reveal' : 'intro');
+  const [phase, setPhase] = useState<'intro' | 'intake' | 'building' | 'reveal'>(S.profile ? 'reveal' : start ?? 'intro');
+  const [role, setRole] = useState<Role | null>(null);
+  const [code, setCode] = useState('');
   const [step, setStep] = useState(0);
   const [p, setP] = useState<Draft>({});
   const [buildStep, setBuildStep] = useState(0);
@@ -79,15 +86,32 @@ export function Onboarding({ onExample, onLogin }: { onExample: () => void; onLo
           </Text>
           <Text style={{ fontFamily: fonts.bold, fontSize: 22, lineHeight: 28, color: colors.text }}>{t('intro.punch')}</Text>
           <Muted style={{ fontSize: 14 }}>{t('intro.lead')}</Muted>
-          <Card style={{ gap: 14 }}>
-            {(['intro.how1', 'intro.how2', 'intro.how3'] as Key[]).map((k, i) => (
-              <Row key={k} style={{ alignItems: 'flex-start', gap: 14 }}>
-                <Text style={{ fontFamily: fonts.display, fontSize: 26, color: colors.accent, lineHeight: 28 }}>{i + 1}</Text>
-                <Body style={{ flex: 1 }}>{t(k)}</Body>
-              </Row>
-            ))}
-          </Card>
-          <Button label={t('intro.cta')} onPress={() => { setPhase('intake'); setStep(0); }} />
+          <Eyebrow style={{ marginTop: 10 }}>{t('start.ask')}</Eyebrow>
+          {ROLES.map(({ k, icon }) => (
+            <Pressable key={k} accessibilityRole="button" testID={`role-${k}`} onPress={() => {
+              if (k === 'me') { setPhase('intake'); setStep(0); }
+              else if (k === 'code') setRole(role === 'code' ? null : 'code');
+              else update(d => { d.biz = k; });
+            }}>
+              <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 14, borderColor: k === 'me' ? colors.accent : colors.line }}>
+                <View style={{ width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: k === 'me' ? colors.accent : colors.surface2 }}>
+                  <Icon name={icon} size={24} color={k === 'me' ? colors.ink : colors.text} />
+                </View>
+                <View style={{ flex: 1, gap: 3 }}>
+                  <Bold style={{ fontSize: 17 }}>{t(`start.${k}` as Key)}</Bold>
+                  <Small>{t(`start.${k}.s` as Key)}</Small>
+                </View>
+                <Text style={{ color: colors.dim, fontSize: 22 }}>›</Text>
+              </Card>
+            </Pressable>
+          ))}
+          {role === 'code' ? (
+            <Card style={{ gap: 12, borderColor: colors.accent }}>
+              <Field label={t('start.codeLabel')} value={code} onChangeText={v => setCode(v.toUpperCase())} autoCapitalize="characters" maxLength={6} autoFocus />
+              <Small>{t('start.codeHow')}</Small>
+              <Button label={t('next')} disabled={!/^[A-Z0-9]{6}$/.test(code.trim())} onPress={() => { setStartCode(code); setPhase('intake'); setStep(0); }} />
+            </Card>
+          ) : null}
           <Button variant="ghost" label={t('example.cta')} onPress={onExample} />
           <LinkButton label={t('acc.have')} onPress={onLogin} style={{ textAlign: 'center' }} />
           <Small style={{ textAlign: 'center' }}>{t('intro.duration')}</Small>

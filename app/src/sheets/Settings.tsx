@@ -111,7 +111,7 @@ export function SettingsSheet({ onClose, onOpen }: { onClose: () => void; onOpen
         </Section>
 
         <Section title={t('biz.forBiz')} sub={t('biz.forBizSub')}>
-          <Button small variant="ghost" label={t('biz.open')} onPress={() => { onClose(); onOpen('business'); }} />
+          <Button small variant="ghost" label={t('biz.open')} onPress={() => { onClose(); onOpen('business:pick'); }} />
         </Section>
 
         <Section title={t('set.account')}>

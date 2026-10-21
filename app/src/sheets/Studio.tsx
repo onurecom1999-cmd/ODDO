@@ -11,6 +11,7 @@ import { colors, fonts } from '../theme';
 import { Body, Bold, Button, Card, Chip, Chips, Eyebrow, Field, H2, LinkButton, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
 import { QR } from '../ui/QR';
 import { Scanner } from '../ui/Scanner';
+import { CoachError, joinCoach } from '../coach';
 import { CoachSheet } from './Coach';
 
 const errText = (e: unknown) => t(`studio.err.${e instanceof StudioError ? e.code : 'failed'}` as Key);
@@ -32,6 +33,29 @@ export function useStudioSync(onJoined: () => void) {
     const code = pendingStudioCode();
     if (!code) return;
     joinStudio(code).then(s => { toast(t('studio.joined', { name: s.name })); onJoined(); }, e => toast(errText(e))).finally(clearPendingStudioCode);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+}
+
+// A code typed on the start screen: it can be a studio's or a trainer's, so try the studio first.
+const ANY = 'oddo.anyCode';
+export function setStartCode(code: string) { try { globalThis.localStorage?.setItem(ANY, code.trim().toUpperCase()); } catch {} }
+export function useStartCode(onStudio: () => void, onCoach: () => Promise<unknown>) {
+  const { S } = useApp();
+  const toast = useToast();
+  useEffect(() => {
+    if (S.example) return;
+    let code: string | null = null;
+    try { code = globalThis.localStorage?.getItem(ANY) ?? null; } catch {}
+    if (!code) return;
+    (async () => {
+      try { const s = await joinStudio(code); toast(t('studio.joined', { name: s.name })); onStudio(); }
+      catch (e) {
+        if (!(e instanceof StudioError) || e.code !== 'not_found') { toast(errText(e)); return; }
+        try { const c = await joinCoach(code); toast(t('coach.joined', { name: c.name })); await onCoach(); }
+        catch (e2) { toast(e2 instanceof CoachError && e2.code === 'not_found' ? t('start.codeUnknown') : errText(e2)); }
+      }
+      try { globalThis.localStorage?.removeItem(ANY); } catch {}
+    })();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 }
 
@@ -174,10 +198,11 @@ export function MyStudioSection({ onChange }: { onChange: () => void }) {
 // ---------- the business side ----------
 
 // One entry for trainers and studios.
-export function BusinessSheet({ onClose }: { onClose: () => void }) {
-  const [area, setArea] = useState<'pick' | 'coach' | 'studio'>('pick');
-  if (area === 'coach') return <CoachSheet onClose={() => setArea('pick')} />;
-  if (area === 'studio') return <StudioAdminSheet onClose={() => setArea('pick')} />;
+export function BusinessSheet({ onClose, initial }: { onClose: () => void; initial?: 'coach' | 'studio' }) {
+  const [area, setArea] = useState<'pick' | 'coach' | 'studio'>(initial ?? 'pick');
+  const back = () => (initial ? onClose() : setArea('pick'));
+  if (area === 'coach') return <CoachSheet onClose={back} />;
+  if (area === 'studio') return <StudioAdminSheet onClose={back} />;
   return (
     <Sheet visible title={t('biz.title')} onClose={onClose}>
       <H2>{t('biz.headline')}</H2>
@@ -203,7 +228,7 @@ export function BusinessSheet({ onClose }: { onClose: () => void }) {
 type Tab = 'overview' | 'checkin' | 'members' | 'classes';
 
 export function StudioAdminSheet({ onClose }: { onClose: () => void }) {
-  const { S } = useApp();
+  const { S, update } = useApp();
   const toast = useToast();
   const [list, setList] = useState<RunStudio[] | null | undefined>(undefined);
   const [cur, setCur] = useState<RunStudio | null>(null);
@@ -219,7 +244,7 @@ export function StudioAdminSheet({ onClose }: { onClose: () => void }) {
   const create = async () => {
     if (!name.trim()) { toast(t('studio.nameNeeded')); return; }
     setBusy(true);
-    try { await createStudio(name, city, Math.max(1, Math.min(5000, Number(cap) || 100))); await load(); } catch (e) { toast(errText(e)); }
+    try { await createStudio(name, city, Math.max(1, Math.min(5000, Number(cap) || 100))); update(d => { d.biz = d.biz || 'studio'; }); await load(); } catch (e) { toast(errText(e)); }
     setBusy(false);
   };
 

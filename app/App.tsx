@@ -17,7 +17,9 @@ import { LiveRecord } from './src/sheets/LiveRecord';
 import { Icon } from './src/ui/icons';
 import { SettingsSheet } from './src/sheets/Settings';
 import { ChatSheet, CoachSheet, useCoachSync } from './src/sheets/Coach';
-import { BusinessSheet, useStudioSync } from './src/sheets/Studio';
+import { BusinessSheet, useStartCode, useStudioSync } from './src/sheets/Studio';
+import { TourSheet } from './src/sheets/Tour';
+import { BizHome } from './src/screens/BizHome';
 import { CardioSheet } from './src/sheets/Cardio';
 import { CreatorSheet } from './src/sheets/Creator';
 import { AccountSheet } from './src/sheets/Account';
@@ -61,9 +63,17 @@ export default function App() {
 function Root() {
   const { S, replace } = useApp();
   const [login, setLogin] = useState(false);
-  if (!S.profile || !S.plan || !S.onboarded) return (
+  const [ownPlan, setOwnPlan] = useState(false);
+  const ready = S.profile && S.plan && S.onboarded;
+  if (!ready && S.biz && !ownPlan) return (
     <View style={{ flex: 1 }}>
-      <Onboarding onExample={() => replace(exampleState())} onLogin={() => setLogin(true)} />
+      <BizHome onOwnPlan={() => setOwnPlan(true)} />
+      <ToastHost />
+    </View>
+  );
+  if (!ready) return (
+    <View style={{ flex: 1 }}>
+      <Onboarding onExample={() => replace(exampleState())} onLogin={() => setLogin(true)} start={ownPlan ? 'intake' : undefined} />
       {login ? <AccountSheet mode="login" onClose={() => setLogin(false)} onRestored={s => { setLang(s.lang ?? detectLang()); replace({ ...emptyState, ...s }); }} /> : null}
       <ToastHost />
     </View>
@@ -72,7 +82,7 @@ function Root() {
 }
 
 function Main() {
-  const { S, replace } = useApp();
+  const { S, replace, update } = useApp();
   const toast = useToast();
   const insets = useSafeAreaInsets();
   const [tab, setTab] = useState<Tab>('today');
@@ -82,19 +92,31 @@ function Main() {
   // 'studio-changed' is not a sheet: it tells Today to reload the studio card after joining or leaving.
   const open = (name: string) => (name === 'studio-changed' ? setStudioTick(n => n + 1) : setSheet(name));
   const close = () => setSheet(null);
-  useCoachSync();
+  const coachSync = useCoachSync();
   useStudioSync(() => setStudioTick(n => n + 1));
+  useStartCode(() => setStudioTick(n => n + 1), coachSync);
+  // The short tour runs once, right after the plan.
+  useEffect(() => { if (!S.example && !S.toured) setSheet('tour'); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const go = (next: Tab) => { setTab(next); scroll.current?.scrollTo({ y: 0, animated: false }); };
   return (
     <View style={{ flex: 1 }}>
       <Screen scrollRef={scroll}>
         <Row style={{ justifyContent: 'space-between', paddingVertical: 10 }}>
           <Logo />
+          <Row style={{ gap: 8 }}>
+          {S.biz ? (
+            <Pressable accessibilityRole="button" testID="biz-open" onPress={() => open('business')} hitSlop={8}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, backgroundColor: colors.accent }}>
+              <Icon name={S.biz} size={16} color={colors.ink} />
+              <Text style={{ fontFamily: fonts.bold, fontSize: 13, color: colors.ink }}>{t('biz.short')}</Text>
+            </Pressable>
+          ) : null}
           <Pressable accessibilityRole="button" accessibilityLabel={t('set.title')} onPress={() => open('settings')} hitSlop={8}
             style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: colors.line }}>
             <Icon name="settings" size={18} color={colors.text} />
             <Text style={{ fontFamily: fonts.bold, fontSize: 13, color: colors.text }}>{t('set.short')}</Text>
           </Pressable>
+          </Row>
         </Row>
         {S.example ? (
           <Row style={{ backgroundColor: colors.warn, borderRadius: 12, padding: 10, paddingHorizontal: 14, justifyContent: 'space-between', marginBottom: 8 }}>
@@ -123,7 +145,8 @@ function Main() {
       {sheet === 'settings' ? <SettingsSheet onClose={close} onOpen={open} /> : null}
       {sheet === 'pro' ? <ProSheet onClose={close} /> : null}
       {sheet === 'coach' ? <CoachSheet onClose={close} /> : null}
-      {sheet === 'business' ? <BusinessSheet onClose={() => { close(); setStudioTick(n => n + 1); }} /> : null}
+      {sheet === 'tour' ? <TourSheet onClose={() => { close(); update(d => { d.toured = true; }); }} /> : null}
+      {sheet?.startsWith('business') ? <BusinessSheet initial={sheet === 'business' ? S.biz : undefined} onClose={() => { close(); setStudioTick(n => n + 1); }} /> : null}
       {sheet === 'coachchat' && S.coach ? <ChatSheet other={S.coach.id} title={S.coach.name} asCoach={false} onClose={close} /> : null}
       {sheet === 'creator' ? <CreatorSheet onClose={close} onPro={() => setSheet('pro')} /> : null}
       {sheet === 'account' ? <AccountSheet mode="save" onClose={close} /> : null}

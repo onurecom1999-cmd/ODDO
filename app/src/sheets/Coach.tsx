@@ -169,7 +169,7 @@ const light = (q: number | null) => q == null ? colors.dim : q === 0 ? colors.ac
 
 export function CoachSheet({ onClose }: { onClose: () => void }) {
   const toast = useToast();
-  const { S } = useApp();
+  const { S, update } = useApp();
   const [me, setMe] = useState<CoachProfile | null | undefined>(undefined);
   const [list, setList] = useState<ClientRow[] | null>(null);
   const [name, setName] = useState(S.profile?.name || '');
@@ -188,7 +188,7 @@ export function CoachSheet({ onClose }: { onClose: () => void }) {
   const start = async () => {
     if (!name.trim()) { toast(t('coach.nameNeeded')); return; }
     setBusy(true);
-    try { setMe(await becomeCoach(name)); setList(await clients().catch(() => [])); } catch (e) { toast(errText(e)); }
+    try { setMe(await becomeCoach(name)); setList(await clients().catch(() => [])); update(d => { d.biz = d.biz || 'coach'; }); } catch (e) { toast(errText(e)); }
     setBusy(false);
   };
   const invite = (code: string) => Linking.openURL(`https://wa.me/?text=${encodeURIComponent(t('coach.inviteText', { name: me?.name || '', code, url: inviteLink(code) }))}`);
