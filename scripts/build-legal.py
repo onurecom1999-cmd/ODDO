@@ -73,6 +73,7 @@ ODDO ist ein Fitness-Coach. Wir verarbeiten nur, was die App dafür braucht, ver
 - **Standort:** nur während du eine Strecke live aufzeichnest. Die Strecke bleibt auf deinem Gerät.
 - **Community:** Wenn du Gruppen nutzt oder postest, sehen andere deinen Vornamen, deine Tagesserie, deinen heutigen Stand, deine Nachrichten, Beiträge und Kommentare: Gruppenmitglieder bei „Nur Gruppen“, alle angemeldeten Nutzer bei „Öffentlich“. Meldungen und Blockierungen speichern wir, um Missbrauch zu verhindern.
 - **Trainer:** Wenn du dich mit dem Code eines Trainers verbindest, sieht dieser Trainer deinen Vornamen, deine Tagesserie und deine gesicherten App-Daten (Trainings, Mahlzeiten, Kalorien, Eiweiß, Gewicht, Aktivitäten). Er kann dir einen Trainingsplan schicken und mit dir schreiben. Du kannst die Verbindung jederzeit unter Einstellungen → Dein Trainer trennen; danach sieht er nichts mehr.
+- **Studios:** Wenn du einem Studio mit dessen Code beitrittst, sieht das Studio deinen Vornamen, deine Tagesserie, deine Check-ins, deine Kursbuchungen und bis wann deine Mitgliedschaft gilt. Deine Trainings-, Ernährungs- und Gewichtsdaten sieht das Studio nicht. Du kannst das Studio jederzeit unter Einstellungen → Dein Studio verlassen.
 - **Zahlungen:** laufen über Lemon Squeezy als Verkäufer (Merchant of Record). Wir erhalten nur, welches Paket aktiv ist, nie deine Kartendaten.
 - **Missbrauchsschutz:** Für die Tageslimits der KI speichern wir pro Tag einen nicht rückrechenbaren Hashwert deiner Konto-ID oder IP-Adresse.
 - **Warteliste auf der Website:** Name und E-Mail, wenn du dich einträgst, um dich zum Start zu informieren.
@@ -117,6 +118,7 @@ ODDO is a fitness coach. We only process what the app needs for that, never sell
 - **Location:** only while you record a route live. The route stays on your device.
 - **Community:** if you use groups or post, others see your first name, streak, today's progress, messages, posts and comments: group members for "Groups only", all signed-in users for "Public". We keep reports and blocks to prevent abuse.
 - **Trainers:** if you connect with a trainer's code, that trainer sees your first name, streak and backed-up app data (workouts, meals, calories, protein, weight, activities). They can send you a training plan and message you. You can disconnect any time under Settings → Your trainer; after that they see nothing.
+- **Studios:** if you join a studio with its code, the studio sees your first name, streak, check-ins, class bookings and until when your membership is valid. It does not see your workout, food or weight data. You can leave the studio any time under Settings → Your studio.
 - **Payments:** handled by Lemon Squeezy as merchant of record. We only learn which plan is active, never your card details.
 - **Abuse protection:** for the daily AI limits we keep a one-way hash of your account ID or IP address per day.
 - **Website waitlist:** name and email if you sign up, to tell you about the launch.
@@ -161,6 +163,7 @@ ODDO bir fitness koçudur. Sadece uygulamanın bunun için ihtiyaç duyduğu ver
 - **Konum:** sadece bir rotayı canlı kaydederken. Rota cihazında kalır.
 - **Topluluk:** grupları kullanır veya paylaşım yaparsan, başkaları adını, serini, bugünkü durumunu, mesajlarını, paylaşımlarını ve yorumlarını görür: "Sadece gruplar" seçeneğinde grup üyeleri, "Herkese açık" seçeneğinde tüm giriş yapmış kullanıcılar. Kötüye kullanımı önlemek için bildirimleri ve engellemeleri saklarız.
 - **Antrenör:** bir antrenörün koduyla bağlanırsan, o antrenör adını, serini ve yedeklenen uygulama verilerini (antrenmanlar, öğünler, kalori, protein, kilo, aktiviteler) görür. Sana antrenman planı gönderebilir ve seninle yazışabilir. Bağlantıyı istediğin zaman Ayarlar → Antrenörün bölümünden kesebilirsin; sonrasında hiçbir şey göremez.
+- **Salonlar:** bir salona koduyla katılırsan, salon adını, serini, girişlerini, ders rezervasyonlarını ve üyeliğinin ne zamana kadar geçerli olduğunu görür. Antrenman, beslenme ve kilo verilerini göremez. Salondan istediğin zaman Ayarlar → Salonun bölümünden ayrılabilirsin.
 - **Ödemeler:** satıcı olarak Lemon Squeezy üzerinden yapılır. Sadece hangi paketin aktif olduğunu öğreniriz, kart bilgilerini asla.
 - **Kötüye kullanım koruması:** günlük YZ limitleri için hesap kimliğinin veya IP adresinin geri döndürülemez bir özetini gün bazında saklarız.
 - **Web sitesi bekleme listesi:** kaydolursan, lansmanı haber vermek için ad ve e-posta.
