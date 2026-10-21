@@ -1036,4 +1036,6 @@ export const en: Record<Key, string> = {
   'help.row': 'Help on WhatsApp',
   'help.value': 'Reply in 24 h',
   'help.text': 'Hi ODDO team, I have a question:',
+  'food.bc.hint': 'Hold the barcode sideways inside the frame, about 10 to 15 cm away.',
+  'food.bc.denied': 'No camera access. Allow the camera in your browser settings or type the digits below.',
 };

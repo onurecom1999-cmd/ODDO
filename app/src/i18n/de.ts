@@ -1035,6 +1035,8 @@ export const de = {
   'help.row': 'Hilfe per WhatsApp',
   'help.value': 'Antwort in 24 h',
   'help.text': 'Hallo ODDO-Team, ich habe eine Frage:',
+  'food.bc.hint': 'Barcode quer in den Rahmen halten, etwa 10 bis 15 cm Abstand.',
+  'food.bc.denied': 'Kein Kamerazugriff. Erlaube die Kamera in den Browser-Einstellungen oder tippe die Zahlen unten ein.',
 };
 
 export type Key = keyof typeof de;

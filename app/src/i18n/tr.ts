@@ -1036,4 +1036,6 @@ export const tr: Record<Key, string> = {
   'help.row': 'WhatsApp ile yardım',
   'help.value': '24 saatte yanıt',
   'help.text': 'Merhaba ODDO ekibi, bir sorum var:',
+  'food.bc.hint': 'Barkodu yatay olarak çerçeveye tut, yaklaşık 10-15 cm uzaklıkta.',
+  'food.bc.denied': 'Kamera erişimi yok. Tarayıcı ayarlarından kameraya izin ver ya da rakamları aşağıya yaz.',
 };

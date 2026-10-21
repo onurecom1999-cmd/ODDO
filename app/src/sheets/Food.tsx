@@ -157,7 +157,7 @@ function BarcodeSheet({ onClose, add }: { onClose: () => void; add: (m: Meal) =>
       <Stack gap={14}>
         {!p ? (
           <>
-            <Scanner kind="barcode" start label={t('food.bc.scan')} onCode={look} />
+            <Scanner kind="barcode" start label={t('food.bc.scan')} onCode={look} hint={t('food.bc.hint')} deniedText={t('food.bc.denied')} />
             <Field label={t('food.bc.digits')} value={code} onChangeText={v => setCode(v.replace(/\D/g, ''))} keyboardType="number-pad" maxLength={13} />
             <Button small variant="ghost" label={busy ? '…' : t('food.bc.find')} disabled={busy || code.length < 8} onPress={() => look(code)} />
             {busy ? <ActivityIndicator color={colors.accent} /> : null}
