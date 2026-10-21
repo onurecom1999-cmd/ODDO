@@ -227,7 +227,7 @@ export const tr: Record<Key, string> = {
   'plan.resetSub': 'Bu cihazdaki planın, yemek kayıtların ve antrenmanların silinecek.',
   'plan.resetYes': 'Evet, baştan başla',
   'plan.cancel': 'Vazgeç',
-  'plan.badgeAI': 'Yapay zekâ planı',
+  'plan.badgeAI': 'Kişisel plan',
   'plan.badge': 'Plan',
   // training
   'train.lead': 'Her sette başardığını gir ve işaretle. Gelecek haftanı buna göre hesaplıyoruz.',

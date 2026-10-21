@@ -227,7 +227,7 @@ export const en: Record<Key, string> = {
   'plan.resetSub': 'Your plan, food and workouts on this device will be deleted.',
   'plan.resetYes': 'Yes, start over',
   'plan.cancel': 'Cancel',
-  'plan.badgeAI': 'AI plan',
+  'plan.badgeAI': 'Personal plan',
   'plan.badge': 'Plan',
   // training
   'train.lead': 'Log what you managed in each set and tick it off. We use it to shape your next week.',

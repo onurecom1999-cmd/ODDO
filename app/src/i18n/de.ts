@@ -226,7 +226,7 @@ export const de = {
   'plan.resetSub': 'Plan, Essen und Trainings auf diesem Gerät werden gelöscht.',
   'plan.resetYes': 'Ja, neu starten',
   'plan.cancel': 'Abbrechen',
-  'plan.badgeAI': 'KI-Plan',
+  'plan.badgeAI': 'Persönlicher Plan',
   'plan.badge': 'Plan',
   // training
   'train.lead': 'Trag pro Satz ein, was du geschafft hast, und hak ihn ab. Daraus berechnen wir deine nächste Woche.',
