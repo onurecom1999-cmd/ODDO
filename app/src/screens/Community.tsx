@@ -5,7 +5,7 @@ import { getLang, Key, LOCALE, t } from '../i18n';
 import { dayKey } from '../logic/day';
 import { useApp } from '../state';
 import { colors, fonts } from '../theme';
-import { Bold, Button, Card, Chip, Chips, Field, H1, H2, LinkButton, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
+import { Body, Bold, Button, Card, Chip, Chips, Field, H1, H2, LinkButton, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
 
 const APP_URL = 'https://oddo-app.netlify.app';
 type Scope = 'foryou' | 'friends' | 'near';
@@ -41,6 +41,7 @@ function Groups() {
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
   const [open, setOpen] = useState<C.Group | null>(null);
+  const [mode, setMode] = useState<'new' | 'join' | null>(null);
   const load = useCallback(() => { setErr(''); C.myGroups().then(setList, e => setErr(errText(e))); }, []);
   useEffect(load, [load]);
 
@@ -61,20 +62,36 @@ function Groups() {
         <Pressable key={g.id} onPress={() => setOpen(g)}>
           <Card><Row style={{ justifyContent: 'space-between' }}><H2 style={{ fontSize: 24 }}>{g.name}</H2><Text style={{ color: colors.accent, fontFamily: fonts.bold }}>{t('open')}</Text></Row></Card>
         </Pressable>
-      )) : <Muted>{t('com.groupsLead')}</Muted>}
-      <Card>
-        <Stack gap={12}>
-          <Bold>{t('com.newGroup')}</Bold>
-          <Field label={t('com.groupName')} value={name} onChangeText={setName} placeholder={t('com.groupNamePh')} maxLength={30} />
-          <Button small label={t('com.create')} onPress={create} disabled={!name.trim()} />
-        </Stack>
-      </Card>
-      <Card>
-        <Stack gap={12}>
-          <Field label={t('com.joinCode')} value={code} onChangeText={v => setCode(v.toUpperCase())} placeholder="ABC234" autoCapitalize="characters" maxLength={6} />
-          <Button small variant="ghost" label={t('com.join')} onPress={join} disabled={code.trim().length < 4} />
-        </Stack>
-      </Card>
+      )) : (
+        <Card style={{ gap: 14, borderColor: colors.accent }}>
+          <H2 style={{ fontSize: 26 }}>{t('com.heroT')}</H2>
+          {(['com.hero1', 'com.hero2', 'com.hero3'] as Key[]).map(k => (
+            <Row key={k} style={{ gap: 10, alignItems: 'flex-start' }}>
+              <Text style={{ color: colors.accent, fontFamily: fonts.heavy, fontSize: 16 }}>✓</Text>
+              <Body style={{ flex: 1 }}>{t(k)}</Body>
+            </Row>
+          ))}
+        </Card>
+      )}
+      <Row style={{ gap: 10 }}>
+        <Button small style={{ flex: 1 }} variant={mode === 'new' ? 'accent' : 'ghost'} label={t('com.newGroup')} onPress={() => setMode(mode === 'new' ? null : 'new')} />
+        <Button small style={{ flex: 1 }} variant={mode === 'join' ? 'accent' : 'ghost'} label={t('com.joinWithCode')} onPress={() => setMode(mode === 'join' ? null : 'join')} />
+      </Row>
+      {mode === 'new' ? (
+        <Card>
+          <Stack gap={12}>
+            <Field autoFocus label={t('com.groupName')} value={name} onChangeText={setName} placeholder={t('com.groupNamePh')} maxLength={30} />
+            <Button small label={t('com.create')} onPress={create} disabled={!name.trim()} />
+          </Stack>
+        </Card>
+      ) : mode === 'join' ? (
+        <Card>
+          <Stack gap={12}>
+            <Field autoFocus label={t('com.joinCode')} value={code} onChangeText={v => setCode(v.toUpperCase())} autoCapitalize="characters" maxLength={6} />
+            <Button small label={t('com.join')} onPress={join} disabled={code.trim().length < 4} />
+          </Stack>
+        </Card>
+      ) : null}
       {open ? <GroupSheet group={open} onClose={() => setOpen(null)} onLeft={() => { setOpen(null); load(); }} /> : null}
     </Stack>
   );

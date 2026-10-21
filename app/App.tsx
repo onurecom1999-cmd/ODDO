@@ -15,7 +15,7 @@ import { Me } from './src/screens/Me';
 import { Today } from './src/screens/Today';
 import { LiveRecord } from './src/sheets/LiveRecord';
 import { Icon } from './src/ui/icons';
-import { SettingsSheet } from './src/sheets/Settings';
+import { SettingsPage, SettingsSheet } from './src/sheets/Settings';
 import { ChatSheet, CoachSheet, useCoachSync } from './src/sheets/Coach';
 import { BusinessSheet, useStartCode, useStudioSync } from './src/sheets/Studio';
 import { TourSheet } from './src/sheets/Tour';
@@ -25,7 +25,7 @@ import { CreatorSheet } from './src/sheets/Creator';
 import { AccountSheet } from './src/sheets/Account';
 import { ProSheet } from './src/sheets/Pro';
 import { RewardSheet } from './src/sheets/Reward';
-import { FoodMode, FoodSheet } from './src/sheets/Food';
+import { FoodMode, FoodPick, FoodSheet } from './src/sheets/Food';
 import { TrainSheet } from './src/sheets/Train';
 import { loadState, StateProvider, useApp } from './src/state';
 import { colors, fonts } from './src/theme';
@@ -144,7 +144,7 @@ function Main() {
       {sheet?.startsWith('cardio') && !sheet.endsWith(':live') ? <CardioSheet onClose={close} initialType={(sheet.split(':')[1] || 'run') as CardioType} onLive={type => setSheet(`cardio:${type}:live`)} /> : null}
       {sheet?.startsWith('cardio') && sheet.endsWith(':live') ? <LiveRecord onClose={close} type={(sheet.split(':')[1] || 'run') as CardioType} /> : null}
       {sheet === 'reward' ? <RewardSheet onClose={close} /> : null}
-      {sheet === 'settings' ? <SettingsSheet onClose={close} onOpen={open} /> : null}
+      {sheet?.startsWith('settings') ? <SettingsSheet initial={sheet.split(':')[1] as SettingsPage | undefined} onClose={close} onOpen={open} /> : null}
       {sheet === 'pro' ? <ProSheet onClose={close} /> : null}
       {sheet === 'coach' ? <CoachSheet onClose={close} /> : null}
       {sheet === 'tour' ? <TourSheet onClose={() => { close(); update(d => { d.tour = TOUR; }); }}
@@ -154,7 +154,8 @@ function Main() {
       {sheet === 'coachchat' && S.coach ? <ChatSheet other={S.coach.id} title={S.coach.name} asCoach={false} onClose={close} /> : null}
       {sheet === 'creator' ? <CreatorSheet onClose={close} onPro={() => setSheet('pro')} /> : null}
       {sheet === 'account' ? <AccountSheet mode="save" onClose={close} /> : null}
-      {sheet?.startsWith('food') ? <FoodSheet mode={(sheet.split(':')[1] || 'photo') as FoodMode} onClose={close} onPro={() => setSheet('pro')} /> : null}
+      {sheet === 'food' ? <FoodPick onClose={close} onPick={m => setSheet(`food:${m}`)} /> : null}
+      {sheet?.startsWith('food:') ? <FoodSheet mode={(sheet.split(':')[1] || 'photo') as FoodMode} onClose={close} onPro={() => setSheet('pro')} /> : null}
       <ToastHost />
     </View>
   );

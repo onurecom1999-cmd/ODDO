@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, Text, View } from 'react-native';
 import { AiError, estimatePhoto, estimateText, FoodEstimate } from '../ai';
 import { fmt, getLang, l3, LOCALE, t } from '../i18n';
 import { dayKey, dayStatus } from '../logic/day';
@@ -8,6 +8,7 @@ import type { Meal } from '../logic/types';
 import { pickPhoto, shrink } from '../media';
 import { dayLog, useApp } from '../state';
 import { colors, fonts } from '../theme';
+import { Icon, IconName } from '../ui/icons';
 import { Bold, Button, Card, Chip, Chips, Eyebrow, Field, H2, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
 
 export type FoodMode = 'photo' | 'describe' | 'quick';
@@ -117,6 +118,37 @@ export function FoodSheet({ mode, onClose, onPro }: { mode: FoodMode; onClose: (
         </Stack>
       ) : null}
       {!loading && !result && (mode !== 'photo' || photo) ? manual : null}
+    </Sheet>
+  );
+}
+
+// One way in for food: pick how to log the meal.
+export function FoodPick({ onClose, onPick }: { onClose: () => void; onPick: (m: FoodMode) => void }) {
+  const opts: { m: FoodMode; icon: IconName; sub: string }[] = [
+    { m: 'photo', icon: 'food', sub: t('food.pick.photo') },
+    { m: 'describe', icon: 'list', sub: t('food.pick.describe') },
+    { m: 'quick', icon: 'flame', sub: t('food.pick.quick') },
+  ];
+  return (
+    <Sheet visible title={t('today.addMeal')} onClose={onClose}>
+      <Stack gap={12}>
+        {opts.map(o => (
+          <Pressable key={o.m} accessibilityRole="button" testID={`food-${o.m}`} onPress={() => onPick(o.m)}>
+            {({ pressed }) => (
+              <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 14, opacity: pressed ? 0.7 : 1, borderColor: o.m === 'photo' ? colors.accent : colors.line }}>
+                <View style={{ width: 48, height: 48, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: o.m === 'photo' ? colors.accent : colors.surface2 }}>
+                  <Icon name={o.icon} size={26} color={o.m === 'photo' ? colors.ink : colors.text} />
+                </View>
+                <View style={{ flex: 1, gap: 3 }}>
+                  <Bold style={{ fontSize: 17 }}>{t(o.m === 'photo' ? 'food.titlePhoto' : o.m === 'describe' ? 'food.titleDescribe' : 'food.titleQuick')}</Bold>
+                  <Small>{o.sub}</Small>
+                </View>
+                <Text style={{ color: colors.dim, fontSize: 24 }}>›</Text>
+              </Card>
+            )}
+          </Pressable>
+        ))}
+      </Stack>
     </Sheet>
   );
 }

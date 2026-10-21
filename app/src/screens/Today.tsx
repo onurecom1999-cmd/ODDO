@@ -65,7 +65,7 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
 
   const routinesSorted = [...S.routines].sort((a, b) => WHEN.indexOf(a.when) - WHEN.indexOf(b.when));
   const quick: { icon: IconName; label: string; go: () => void }[] = [
-    { icon: 'food', label: t('today.qFood'), go: () => onOpen('food:photo') },
+    { icon: 'food', label: t('today.qFood'), go: () => onOpen('food') },
     { icon: 'train', label: t('today.qTrain'), go: () => onOpen('train') },
     { icon: 'run', label: t('today.qMove'), go: () => onOpen('cardio:run:live') },
     { icon: 'video', label: t('today.qVideo'), go: () => onOpen('creator') },
@@ -135,6 +135,21 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
         </Small>
         <Row style={{ justifyContent: 'space-between', marginTop: 6 }}><Small>{t('today.protein')}</Small><Small><Text style={{ color: colors.text, fontFamily: fonts.bold }}>{fmt(st.t.protein)}</Text> / {P.protein} g</Small></Row>
         <Bar thin pct={(st.t.protein / P.protein) * 100} />
+        <View style={{ borderTopWidth: 1, borderTopColor: colors.line, marginTop: 8, paddingTop: 12, gap: 10 }}>
+          {st.l.meals.length ? st.l.meals.map((m, i) => (
+            <Row key={i} style={{ gap: 10 }}>
+              {m.img ? <Image source={{ uri: m.img }} style={{ width: 40, height: 40, borderRadius: 10 }} /> : null}
+              <View style={{ flex: 1 }}>
+                <Body numberOfLines={1}>{m.name}</Body>
+                <Small>{fmt(m.kcal)} {t('kcal')} · {fmt(m.protein)} g{m.est ? ` · ${t('food.estimated')}` : ''}</Small>
+              </View>
+              <Pressable accessibilityRole="button" accessibilityLabel={t('food.delete')} hitSlop={10} onPress={() => update(d => { dayLog(d).meals.splice(i, 1); })}>
+                <Text style={{ color: colors.dim, fontSize: 20, paddingHorizontal: 6 }}>×</Text>
+              </Pressable>
+            </Row>
+          )) : <Small>{t('today.foodEmpty')}</Small>}
+          <Button small variant="ghost" label={t('today.addMeal')} onPress={() => onOpen('food')} />
+        </View>
       </Card>
 
       <Stack gap={10}>
@@ -151,28 +166,7 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
           })}
           {items.slice(1).map(i => <CheckRow key={i.k} done={i.done} title={i.t} sub={`${i.s} · ${t('today.auto')}`} go={i.go} onPress={() => check(i.k)} />)}
         </Card>
-        <LinkButton label={S.routines.length ? t('today.editRoutines') : t('today.addRoutines')} onPress={() => onOpen('settings')} />
-      </Stack>
-
-      <Stack gap={10}>
-        <Row style={{ justifyContent: 'space-between' }}><H2 style={{ fontSize: 24 }}>{t('today.food')}</H2><Muted>{fmt(st.t.kcal)} {t('kcal')}</Muted></Row>
-        {st.l.meals.length ? st.l.meals.map((m, i) => (
-          <Row key={i} style={{ gap: 10 }}>
-            {m.img ? <Image source={{ uri: m.img }} style={{ width: 40, height: 40, borderRadius: 10 }} /> : null}
-            <View style={{ flex: 1 }}>
-              <Body numberOfLines={1}>{m.name}</Body>
-              <Muted>{fmt(m.kcal)} {t('kcal')} · {fmt(m.protein)} g{m.est ? ` · ${t('food.estimated')}` : ''}</Muted>
-            </View>
-            <Pressable accessibilityRole="button" accessibilityLabel={t('food.delete')} hitSlop={10} onPress={() => update(d => { dayLog(d).meals.splice(i, 1); })}>
-              <Text style={{ color: colors.dim, fontSize: 20, paddingHorizontal: 6 }}>×</Text>
-            </Pressable>
-          </Row>
-        )) : <Muted>{t('today.foodEmpty')}</Muted>}
-        <Row style={{ gap: 10 }}>
-          <Button variant="ghost" small style={{ flex: 1 }} label={t('food.photoShort')} onPress={() => onOpen('food:photo')} />
-          <Button variant="ghost" small style={{ flex: 1 }} label={t('food.describeShort')} onPress={() => onOpen('food:describe')} />
-          <Button variant="ghost" small style={{ flex: 1 }} label={t('food.quickShort')} onPress={() => onOpen('food:quick')} />
-        </Row>
+        <LinkButton label={S.routines.length ? t('today.editRoutines') : t('today.addRoutines')} onPress={() => onOpen('settings:routines')} />
       </Stack>
 
       {st.l.cardio.length ? (
