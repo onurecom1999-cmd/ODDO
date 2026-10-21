@@ -754,6 +754,7 @@ export const de = {
   'coach.sendPlan': 'Plan schicken',
   'coach.searchEx': 'Übung suchen',
   'coach.ownEx': 'Eigene Übung: {name}',
+  'coach.quiet1': 'Seit gestern still',
 };
 
 export type Key = keyof typeof de;

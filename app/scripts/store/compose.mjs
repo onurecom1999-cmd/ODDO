@@ -13,15 +13,16 @@ const SHOTS = [
   ['4-run', { de: ['Laufen und', 'Radeln mit GPS.', 'Strecke, Tempo und Kalorien live'], en: ['Run and ride', 'with GPS.', 'Route, pace and calories live'], tr: ['GPS ile koş,', 'pedal çevir.', 'Rota, tempo ve kalori canlı'] }],
   ['5-group', { de: ['Mit deiner Crew', 'dranbleiben.', 'Gruppen, Rangliste, Anstupsen und Chat'], en: ['Stick with', 'your crew.', 'Groups, rankings, nudges and chat'], tr: ['Ekibinle', 'devam et.', 'Gruplar, sıralama, dürtme ve sohbet'] }],
   ['6-card', { de: ['Jeder Tag', 'ein Sieg.', 'Teile deine Tageskarte'], en: ['Every day', 'a win.', 'Share your day card'], tr: ['Her gün', 'bir zafer.', 'Gün kartını paylaş'] }],
+  ['8-coach', { de: ['Mit deinem', 'Trainer.', 'Dein Trainer schickt den Plan und sieht deine Woche'], en: ['With your', 'trainer.', 'Your trainer sends your plan and sees your week'], tr: ['Antrenörünle', 'birlikte.', 'Antrenörün planını gönderir ve haftanı görür'] }],
   ['7-progress', { de: ['Sieh dich', 'stärker werden.', 'Gewicht, Maße, Fotos und Kraft'], en: ['Watch yourself', 'get stronger.', 'Weight, measurements, photos and strength'], tr: ['Güçlendiğini', 'gör.', 'Kilo, ölçüler, fotoğraflar ve güç'] }],
 ];
 const SIZES = { ios: [1290, 2796], android: [1080, 1920] };
 
-const page = (W, H, img, [a, b, sub]) => {
+const page = (W, H, img, [a, b, sub], lang = 'de') => {
   const s = W / 1290, tall = H / W > 2;
   const headH = Math.round((tall ? 640 : 520) * s);
   const phoneH = H - headH - Math.round(70 * s), phoneW = Math.round(phoneH * 1170 / 2532);
-  return `<!doctype html><html><head><meta charset="utf-8"><style>
+  return `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><style>
 @font-face{font-family:A;src:url(${ANTON})}@font-face{font-family:I;src:url(${INTER})}
 *{margin:0;box-sizing:border-box}body{width:${W}px;height:${H}px;background:#0b0b0a;overflow:hidden;position:relative;font-family:I;color:#f2f2ee}
 .glow{position:absolute;left:50%;top:${headH + phoneH * .35}px;width:${W * 1.1}px;height:${W * 1.1}px;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(212,255,58,.22),rgba(212,255,58,0) 62%)}
@@ -41,7 +42,7 @@ for (const [os, [W, H]] of Object.entries(SIZES)) {
     fs.mkdirSync(`${OUT}/${os}/${lang}`, { recursive: true });
     for (const [i, [n, txt]] of SHOTS.entries()) {
       const img = 'data:image/png;base64,' + fs.readFileSync(`${SP}/raw-${lang}/${n}.png`).toString('base64');
-      await pg.setContent(page(W, H, img, txt[lang])); await pg.waitForTimeout(150);
+      await pg.setContent(page(W, H, img, txt[lang], lang)); await pg.waitForTimeout(150);
       await pg.screenshot({ path: `${OUT}/${os}/${lang}/${i + 1}-${n.slice(2)}.png` });
     }
   }

@@ -240,7 +240,7 @@ export function CoachSheet({ onClose }: { onClose: () => void }) {
                     <View style={{ flex: 1, gap: 2 }}>
                       <Bold>{c.name || t('coach.noName')}</Bold>
                       <Small>
-                        {today ? t('coach.todayScore', { done: c.today_done, all: c.today_all }) : q == null ? t('coach.never') : t('coach.quiet', { n: q })}
+                        {today ? t('coach.todayScore', { done: c.today_done, all: c.today_all }) : q == null ? t('coach.never') : (q === 1 ? t('coach.quiet1') : t('coach.quiet', { n: q }))}
                         {c.streak ? ` · ${t('coach.streak', { n: c.streak })}` : ''}
                       </Small>
                     </View>
@@ -303,7 +303,7 @@ function ClientSheet({ row, onClose }: { row: ClientRow; onClose: () => void }) 
     <Sheet visible title={name} onClose={onClose}>
       <Row style={{ gap: 10 }}>
         <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: light(q) }} />
-        <Body>{q == null ? t('coach.never') : q === 0 ? t('coach.activeToday') : t('coach.quiet', { n: q })}{row.streak ? ` · ${t('coach.streak', { n: row.streak })}` : ''}</Body>
+        <Body>{q == null ? t('coach.never') : q === 0 ? t('coach.activeToday') : (q === 1 ? t('coach.quiet1') : t('coach.quiet', { n: q }))}{row.streak ? ` · ${t('coach.streak', { n: row.streak })}` : ''}</Body>
       </Row>
       <Row style={{ gap: 10 }}>
         <Button small label={t('coach.message')} onPress={() => setMode('chat')} style={{ flex: 1 }} />

@@ -2,6 +2,8 @@
 // Raw app screens for store screenshots: node store-raw.mjs <lang> <outdir>
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 import fs from 'fs';
+import { execFileSync } from 'child_process';
+import os from 'os';
 const [lang, OUT] = process.argv.slice(2);
 fs.mkdirSync(OUT, { recursive: true });
 const src = fs.readFileSync(new URL(`../../src/i18n/${lang}.ts`, import.meta.url), 'utf8');
@@ -44,7 +46,25 @@ await ctx.route('**/*.supabase.co/**', async r => {
   if (p === '/rest/v1/group_messages') return ok(m === 'POST' ? null : [...msgs].reverse(), m === 'POST' ? 201 : 200);
   if (p === '/rest/v1/profiles') return ok(m === 'GET' ? [{ id: 'u2', name: NAMES[1] }, { id: 'u3', name: NAMES[2] }] : null, m === 'GET' ? 200 : 201);
   if (p === '/rest/v1/subscriptions') return ok([]);
+  if (p === '/rest/v1/rpc/coach_me') return ok({ coach: { name: 'Deniz', code: 'M8RURW', max: 20, active: true }, mine: null, plan: null });
+  if (p === '/rest/v1/rpc/coach_overview') {
+    const ago = n => new Date(Date.now() - n * 864e5).toISOString().slice(0, 10);
+    return ok([
+      { client_id: 'c1', name: NAMES[1], streak: 12, today_done: 5, today_all: 6, today_date: today, synced_at: now, last_msg: now, last_from_coach: false },
+      { client_id: 'c2', name: NAMES[2], streak: 4, today_done: 3, today_all: 6, today_date: today, synced_at: now, last_msg: null, last_from_coach: null },
+      { client_id: 'c3', name: NAMES[3], streak: 0, today_done: 0, today_all: 0, today_date: ago(1), synced_at: null, last_msg: null, last_from_coach: null },
+      { client_id: 'c4', name: NAMES[4], streak: 0, today_done: 0, today_all: 0, today_date: ago(4), synced_at: null, last_msg: null, last_from_coach: null },
+    ]);
+  }
   return ok(m === 'GET' ? [] : null, m === 'GET' ? 200 : 201);
+});
+// Map tiles: the screenshot machine may not reach CARTO, so draw look-alike dark tiles offline.
+const TILES = fs.mkdtempSync(os.tmpdir() + '/tiles-');
+await ctx.route('**/*.basemaps.cartocdn.com/**', r => {
+  const [z, x, y] = new URL(r.request().url()).pathname.match(/(\d+)\/(\d+)\/(\d+)/).slice(1);
+  const f = `${TILES}/${z}-${x}-${y}.png`;
+  if (!fs.existsSync(f)) execFileSync('python3', [new URL('./tilegen.py', import.meta.url).pathname, z, x, y, f]);
+  return r.fulfill({ status: 200, contentType: 'image/png', body: fs.readFileSync(f) });
 });
 await ctx.route('**/.netlify/functions/ai', r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ name: FOOD.name, items: FOOD.items.map(([name, grams]) => ({ name, grams })), kcal: 760, protein: 42, carbs: 70, fat: 32, confidence: { de: 'mittel', en: 'medium', tr: 'orta' }[lang], hint: FOOD.hint }) }));
 
@@ -67,13 +87,13 @@ const shot = async n => { await pg.waitForTimeout(400); await pg.screenshot({ pa
 await shot('1-today');
 
 // Training sheet with a couple of logged sets
-await pg.getByText(new RegExp('^' + T('today.train').split('{')[0])).first().click(); await pg.waitForTimeout(600);
+await pg.getByText(new RegExp('^' + T('today.nextTrain'))).first().click(); await pg.waitForTimeout(600);
 await shot('2-train');
 await pg.keyboard.press('Escape').catch(() => {});
 await pg.reload(); await pg.waitForTimeout(2000);
 
 // Food by description (AI mocked)
-await click(T('food.describe'));
+await click(T('food.describeShort'));
 await pg.locator('textarea').fill(FOOD.q);
 await click(T('food.estimate')); await pg.waitForTimeout(1200);
 await shot('3-food');
@@ -85,7 +105,7 @@ await pg.evaluate(() => {
   navigator.geolocation.watchPosition = (ok) => { window.__geo = ok; ok({ coords: { latitude: 35.34, longitude: 33.319, accuracy: 5 }, timestamp: Date.now() }); return 1; };
   navigator.geolocation.clearWatch = () => {};
 });
-await click('+ ' + T('cardio.title')); await click(T('cardio.gpsStart')); await pg.waitForTimeout(1200);
+await click(T('today.qMove')); await pg.waitForTimeout(1200);
 for (let i = 1; i <= 38; i++) {
   await pg.clock.fastForward(25000);
   const a = i / 38 * Math.PI * 1.75;
@@ -102,12 +122,18 @@ await shot('5-group');
 await pg.reload(); await pg.waitForTimeout(2000);
 
 // Day card
-await click(T('reward.preview')); await pg.waitForTimeout(900);
+await pg.getByText(/^\d+\/\d+$/).first().click(); await pg.waitForTimeout(900);
 await shot('6-card');
 await pg.reload(); await pg.waitForTimeout(2000);
 
 // Progress
-await click(T('tab.progress')); await pg.waitForTimeout(900);
+await click(T('tab.me')); await pg.waitForTimeout(900);
 await shot('7-progress');
+await pg.reload(); await pg.waitForTimeout(2000);
+
+// Trainer area
+await pg.getByRole('button', { name: T('set.title') }).first().click(); await pg.waitForTimeout(700);
+await click(T('coach.openArea')); await pg.waitForTimeout(1500);
+await shot('8-coach');
 console.log(lang, 'errors:', errs.slice(0, 5));
 await b.close();

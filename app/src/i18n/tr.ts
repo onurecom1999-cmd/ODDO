@@ -755,4 +755,5 @@ export const tr: Record<Key, string> = {
   'coach.sendPlan': 'Planı gönder',
   'coach.searchEx': 'Egzersiz ara',
   'coach.ownEx': 'Kendi egzersizin: {name}',
+  'coach.quiet1': 'Dünden beri sessiz',
 };
