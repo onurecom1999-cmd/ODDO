@@ -10,12 +10,13 @@ export type Member = { user_id: string; name: string; member_until: string | nul
 export type CheckinResult = { status: 'ok' | 'already' | 'expired' | 'not_member' | 'invalid'; name?: string; member_until?: string | null; user_id?: string };
 
 export class StudioError extends Error {
-  constructor(public code: 'offline' | 'not_found' | 'full' | 'too_many' | 'too_late' | 'failed') { super(code); }
+  constructor(public code: 'offline' | 'signin' | 'not_found' | 'full' | 'too_many' | 'too_late' | 'failed') { super(code); }
 }
 
 async function rpc<T>(fn: string, args?: Record<string, unknown>): Promise<T> {
   const id = await userId();
-  if (!id || !supabase) throw new StudioError('offline');
+  if (!supabase) throw new StudioError('offline');
+  if (!id) throw new StudioError('signin');
   const { data, error } = await supabase.rpc(fn, args);
   if (error) {
     const m = error.message || '';

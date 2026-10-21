@@ -17,12 +17,13 @@ export type ClientRow = {
 export type ChatMessage = { id: number; from_coach: boolean; body: string; created_at: string };
 
 export class CoachError extends Error {
-  constructor(public code: 'offline' | 'not_found' | 'full' | 'own' | 'failed') { super(code); }
+  constructor(public code: 'offline' | 'signin' | 'not_found' | 'full' | 'own' | 'failed') { super(code); }
 }
 
 async function db() {
   const id = await userId();
-  if (!id || !supabase) throw new CoachError('offline');
+  if (!supabase) throw new CoachError('offline');
+  if (!id) throw new CoachError('signin');
   return supabase;
 }
 async function rpc<T>(fn: string, args?: Record<string, unknown>): Promise<T> {

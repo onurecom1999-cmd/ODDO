@@ -864,4 +864,6 @@ export const en: Record<Key, string> = {
   'studio.noClasses': 'No classes in the next 14 days yet.',
   'studio.bookedOf': '{n} of {max} booked',
   'studio.people1': '1 person here',
+  'coach.err.signin': 'Couldn\'t sign in to the server. Reload the page and try again.',
+  'studio.err.signin': 'Couldn\'t sign in to the server. Reload the page and try again.',
 };

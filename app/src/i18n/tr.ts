@@ -864,4 +864,6 @@ export const tr: Record<Key, string> = {
   'studio.noClasses': 'Önümüzdeki 14 günde henüz ders yok.',
   'studio.bookedOf': '{max} yerden {n} dolu',
   'studio.people1': 'içeride 1 kişi',
+  'coach.err.signin': 'Sunucuya giriş yapılamadı. Sayfayı yenileyip tekrar dene.',
+  'studio.err.signin': 'Sunucuya giriş yapılamadı. Sayfayı yenileyip tekrar dene.',
 };

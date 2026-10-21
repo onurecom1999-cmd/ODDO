@@ -863,6 +863,8 @@ export const de = {
   'studio.noClasses': 'Noch keine Kurse in den nächsten 14 Tagen.',
   'studio.bookedOf': '{n} von {max} gebucht',
   'studio.people1': '1 Person da',
+  'coach.err.signin': 'Anmeldung beim Server fehlgeschlagen. Lade die Seite neu und versuch es nochmal.',
+  'studio.err.signin': 'Anmeldung beim Server fehlgeschlagen. Lade die Seite neu und versuch es nochmal.',
 };
 
 export type Key = keyof typeof de;
