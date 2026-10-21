@@ -5,27 +5,46 @@ import { Button } from './kit';
 
 type Detector = { detect: (v: HTMLVideoElement) => Promise<{ rawValue: string }[]> };
 
-// Scans a member's QR with the phone camera where the browser can read QR codes (Chrome on Android, desktop).
+type Read = (v: HTMLVideoElement) => Promise<string>;
+
+// The browser's own QR reader where there is one (Chrome); otherwise jsQR on a video frame (Safari, iPhone, Firefox).
+async function reader(): Promise<Read> {
+  if ('BarcodeDetector' in window) {
+    const D = (window as unknown as { BarcodeDetector: new (o: { formats: string[] }) => Detector }).BarcodeDetector;
+    const det = new D({ formats: ['qr_code'] });
+    return async v => (await det.detect(v))[0]?.rawValue ?? '';
+  }
+  const jsQR = (await import('jsqr')).default;
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  return async v => {
+    const scale = Math.min(1, 640 / Math.max(v.videoWidth, v.videoHeight));
+    canvas.width = Math.round(v.videoWidth * scale); canvas.height = Math.round(v.videoHeight * scale);
+    if (!ctx || !canvas.width) return '';
+    ctx.drawImage(v, 0, 0, canvas.width, canvas.height);
+    const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    return jsQR(img.data, img.width, img.height, { inversionAttempts: 'dontInvert' })?.data ?? '';
+  };
+}
+
+// Scans a member's QR with the camera, in every browser that allows camera access.
 export function Scanner({ onCode, label }: { onCode: (code: string) => void; label: string }) {
-  const supported = typeof window !== 'undefined' && 'BarcodeDetector' in window && !!navigator.mediaDevices?.getUserMedia;
+  const supported = typeof window !== 'undefined' && !!navigator.mediaDevices?.getUserMedia;
   const [on, setOn] = useState(false);
   const video = useRef<HTMLVideoElement | null>(null);
   const last = useRef('');
   useEffect(() => {
     if (!on) return;
     let stream: MediaStream | null = null, timer: ReturnType<typeof setInterval> | null = null, dead = false;
-    const D = (window as unknown as { BarcodeDetector: new (o: { formats: string[] }) => Detector }).BarcodeDetector;
-    const det = new D({ formats: ['qr_code'] });
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(s => {
+    Promise.all([reader(), navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })]).then(([read, s]) => {
       if (dead) { s.getTracks().forEach(t => t.stop()); return; }
       stream = s;
       if (video.current) { video.current.srcObject = s; video.current.play().catch(() => {}); }
       timer = setInterval(async () => {
         if (!video.current || video.current.readyState < 2) return;
         try {
-          const [hit] = await det.detect(video.current);
-          const code = hit?.rawValue.replace(/\D/g, '') ?? '';
-          if (code.length === 6 && code !== last.current) { last.current = code; onCode(code); setTimeout(() => { last.current = ''; }, 4000); }
+          const code = (await read(video.current)).replace(/\D/g, '');
+          if (code.length === 6 && code !== last.current) { last.current = code; onCode(code); setTimeout(() => { last.current = ''; }, 30000); }
         } catch {}
       }, 300);
     }, () => setOn(false));

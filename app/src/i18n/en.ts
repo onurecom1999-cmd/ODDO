@@ -863,4 +863,5 @@ export const en: Record<Key, string> = {
   'studio.classAdd': '+ Add class',
   'studio.noClasses': 'No classes in the next 14 days yet.',
   'studio.bookedOf': '{n} of {max} booked',
+  'studio.people1': '1 person here',
 };

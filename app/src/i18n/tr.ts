@@ -863,4 +863,5 @@ export const tr: Record<Key, string> = {
   'studio.classAdd': '+ Ders ekle',
   'studio.noClasses': 'Önümüzdeki 14 günde henüz ders yok.',
   'studio.bookedOf': '{max} yerden {n} dolu',
+  'studio.people1': 'içeride 1 kişi',
 };

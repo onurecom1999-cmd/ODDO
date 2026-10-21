@@ -862,6 +862,7 @@ export const de = {
   'studio.classAdd': '+ Kurs anlegen',
   'studio.noClasses': 'Noch keine Kurse in den nächsten 14 Tagen.',
   'studio.bookedOf': '{n} von {max} gebucht',
+  'studio.people1': '1 Person da',
 };
 
 export type Key = keyof typeof de;

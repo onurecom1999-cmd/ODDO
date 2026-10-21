@@ -72,7 +72,7 @@ export function StudioCard({ refresh }: { refresh: number }) {
             <View style={{ gap: 6 }}>
               <Row style={{ justifyContent: 'space-between' }}>
                 <Small>{t('studio.crowdNow')}</Small>
-                <Small><Text style={{ color: crowdColor[lvl], fontFamily: fonts.bold }}>{t(`studio.crowd.${lvl}` as Key)}</Text> · {t('studio.people', { n: s.crowd })}</Small>
+                <Small><Text style={{ color: crowdColor[lvl], fontFamily: fonts.bold }}>{t(`studio.crowd.${lvl}` as Key)}</Text> · {s.crowd === 1 ? t('studio.people1') : t('studio.people', { n: s.crowd })}</Small>
               </Row>
               <View style={{ height: 8, borderRadius: 4, backgroundColor: colors.surface2, overflow: 'hidden' }}>
                 <View style={{ width: `${pct}%`, height: 8, backgroundColor: crowdColor[lvl] }} />
@@ -423,7 +423,8 @@ function ClassesTab({ s }: { s: RunStudio }) {
   const [adding, setAdding] = useState(false);
   const [title, setTitle] = useState('');
   const [trainer, setTrainer] = useState('');
-  const [day, setDay] = useState(0);
+  // 18:00 today is often already over when a studio sets up a class in the evening, so start on tomorrow then.
+  const [day, setDay] = useState(() => (new Date().getHours() >= 17 ? 1 : 0));
   const [time, setTime] = useState('18:00');
   const [minutes, setMinutes] = useState('60');
   const [cap, setCap] = useState('15');
