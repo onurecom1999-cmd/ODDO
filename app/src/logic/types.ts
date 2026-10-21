@@ -50,8 +50,8 @@ export type AppState = {
   coach?: { id: string; name: string; planAt?: string; note?: string; own?: Session[] };
   // Set when the person runs a studio or works as a trainer: the app then shows the business area up front.
   biz?: 'studio' | 'coach';
-  // Set once the short tour after onboarding was shown.
-  toured?: boolean;
+  // Version of the short tour after onboarding that the person has seen.
+  tour?: number;
 };
 
 export const emptyState: AppState = { profile: null, plan: null, log: {}, progress: [], routines: [], strength: [], startedAt: null };

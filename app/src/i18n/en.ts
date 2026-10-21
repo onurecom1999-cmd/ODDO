@@ -911,4 +911,9 @@ export const en: Record<Key, string> = {
   'tour.studio.s': 'Did your gym or trainer give you a code? Enter it in Settings. If you\'re a trainer or run a gym yourself, the business area is there too.',
   'tour.go': 'Let\'s go',
   'tour.skip': 'Skip',
+  'start.codeGo': 'Join',
+  'tour.ask': 'How do you use ODDO?',
+  'tour.askSub': 'Tap what fits. You can change it later in Settings.',
+  'tour.meSub': 'Show me how the app works in 4 steps.',
+  'tour.codeHint': 'You get the code from your gym or trainer. 6 characters, for example at the front desk.',
 };

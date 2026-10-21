@@ -910,6 +910,11 @@ export const de = {
   'tour.studio.s': 'Hat dir dein Studio oder Trainer einen Code gegeben? Gib ihn unter Einstellungen ein. Bist du selbst Trainer oder hast ein Studio, findest du dort den Business-Bereich.',
   'tour.go': 'Los geht\'s',
   'tour.skip': 'Überspringen',
+  'start.codeGo': 'Beitreten',
+  'tour.ask': 'Wie nutzt du ODDO?',
+  'tour.askSub': 'Tipp an, was passt. Du kannst es später in den Einstellungen ändern.',
+  'tour.meSub': 'Zeig mir in 4 Schritten, wie die App funktioniert.',
+  'tour.codeHint': 'Den Code bekommst du von deinem Studio oder Trainer. 6 Zeichen, zum Beispiel an der Theke.',
 };
 
 export type Key = keyof typeof de;

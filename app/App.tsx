@@ -33,6 +33,8 @@ import { Row, Screen, ToastHost, ToastProvider, useToast } from './src/ui/kit';
 
 type Tab = 'today' | 'move' | 'community' | 'me';
 const TABS: Tab[] = ['today', 'move', 'community', 'me'];
+// Raise to show the tour again to everyone after it changes.
+const TOUR = 2;
 
 export default function App() {
   const [fontsLoaded, fontError] = useFonts({ Anton_400Regular, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold, Caveat_600SemiBold });
@@ -96,7 +98,7 @@ function Main() {
   useStudioSync(() => setStudioTick(n => n + 1));
   useStartCode(() => setStudioTick(n => n + 1), coachSync);
   // The short tour runs once, right after the plan.
-  useEffect(() => { if (!S.example && !S.toured) setSheet('tour'); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!S.example && (S.tour ?? 0) < TOUR) setSheet('tour'); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const go = (next: Tab) => { setTab(next); scroll.current?.scrollTo({ y: 0, animated: false }); };
   return (
     <View style={{ flex: 1 }}>
@@ -145,7 +147,9 @@ function Main() {
       {sheet === 'settings' ? <SettingsSheet onClose={close} onOpen={open} /> : null}
       {sheet === 'pro' ? <ProSheet onClose={close} /> : null}
       {sheet === 'coach' ? <CoachSheet onClose={close} /> : null}
-      {sheet === 'tour' ? <TourSheet onClose={() => { close(); update(d => { d.toured = true; }); }} /> : null}
+      {sheet === 'tour' ? <TourSheet onClose={() => { close(); update(d => { d.tour = TOUR; }); }}
+        onBusiness={() => { update(d => { d.tour = TOUR; }); setSheet('business'); }}
+        onJoined={k => { if (k === 'studio') setStudioTick(n => n + 1); else coachSync(); }} /> : null}
       {sheet?.startsWith('business') ? <BusinessSheet initial={sheet === 'business' ? S.biz : undefined} onClose={() => { close(); setStudioTick(n => n + 1); }} /> : null}
       {sheet === 'coachchat' && S.coach ? <ChatSheet other={S.coach.id} title={S.coach.name} asCoach={false} onClose={close} /> : null}
       {sheet === 'creator' ? <CreatorSheet onClose={close} onPro={() => setSheet('pro')} /> : null}

@@ -39,6 +39,15 @@ export function useStudioSync(onJoined: () => void) {
 // A code typed on the start screen: it can be a studio's or a trainer's, so try the studio first.
 const ANY = 'oddo.anyCode';
 export function setStartCode(code: string) { try { globalThis.localStorage?.setItem(ANY, code.trim().toUpperCase()); } catch {} }
+// Joins the studio or the trainer behind a code. Throws 'unknown' when neither has it.
+export async function joinAnyCode(code: string): Promise<{ kind: 'studio' | 'coach'; name: string }> {
+  try { const s = await joinStudio(code); return { kind: 'studio', name: s.name }; }
+  catch (e) { if (!(e instanceof StudioError) || e.code !== 'not_found') throw e; }
+  try { const c = await joinCoach(code); return { kind: 'coach', name: c.name }; }
+  catch (e) { throw e instanceof CoachError && e.code === 'not_found' ? new Error('unknown') : e; }
+}
+export const anyCodeError = (e: unknown) => (e instanceof Error && e.message === 'unknown' ? t('start.codeUnknown') : e instanceof CoachError ? t(`coach.err.${e.code}` as Key) : errText(e));
+
 export function useStartCode(onStudio: () => void, onCoach: () => Promise<unknown>) {
   const { S } = useApp();
   const toast = useToast();
@@ -47,15 +56,14 @@ export function useStartCode(onStudio: () => void, onCoach: () => Promise<unknow
     let code: string | null = null;
     try { code = globalThis.localStorage?.getItem(ANY) ?? null; } catch {}
     if (!code) return;
-    (async () => {
-      try { const s = await joinStudio(code); toast(t('studio.joined', { name: s.name })); onStudio(); }
-      catch (e) {
-        if (!(e instanceof StudioError) || e.code !== 'not_found') { toast(errText(e)); return; }
-        try { const c = await joinCoach(code); toast(t('coach.joined', { name: c.name })); await onCoach(); }
-        catch (e2) { toast(e2 instanceof CoachError && e2.code === 'not_found' ? t('start.codeUnknown') : errText(e2)); }
-      }
+    joinAnyCode(code).then(async r => {
+      toast(t(r.kind === 'studio' ? 'studio.joined' : 'coach.joined', { name: r.name }));
+      if (r.kind === 'studio') onStudio(); else await onCoach();
       try { globalThis.localStorage?.removeItem(ANY); } catch {}
-    })();
+    }, e => {
+      toast(anyCodeError(e));
+      if (e instanceof Error && e.message === 'unknown') try { globalThis.localStorage?.removeItem(ANY); } catch {}
+    });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 }
 

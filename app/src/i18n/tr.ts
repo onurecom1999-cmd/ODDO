@@ -911,4 +911,9 @@ export const tr: Record<Key, string> = {
   'tour.studio.s': 'Salonun ya da antrenörün sana kod mu verdi? Ayarlar\'a gir. Kendin antrenörsen ya da salonun varsa, işletme bölümü de orada.',
   'tour.go': 'Başlayalım',
   'tour.skip': 'Geç',
+  'start.codeGo': 'Katıl',
+  'tour.ask': 'ODDO\'yu nasıl kullanıyorsun?',
+  'tour.askSub': 'Sana uyana dokun. Sonra Ayarlar\'dan değiştirebilirsin.',
+  'tour.meSub': 'Uygulamanın nasıl çalıştığını 4 adımda göster.',
+  'tour.codeHint': 'Kodu salonundan ya da antrenöründen alırsın. 6 karakter, örneğin resepsiyonda.',
 };
