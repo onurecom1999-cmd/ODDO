@@ -16,6 +16,7 @@ import { Today } from './src/screens/Today';
 import { LiveRecord } from './src/sheets/LiveRecord';
 import { Icon } from './src/ui/icons';
 import { SettingsSheet } from './src/sheets/Settings';
+import { ChatSheet, CoachSheet, useCoachSync } from './src/sheets/Coach';
 import { CardioSheet } from './src/sheets/Cardio';
 import { CreatorSheet } from './src/sheets/Creator';
 import { AccountSheet } from './src/sheets/Account';
@@ -78,6 +79,7 @@ function Main() {
   const [sheet, setSheet] = useState<string | null>(null);
   const open = (name: string) => setSheet(name);
   const close = () => setSheet(null);
+  useCoachSync();
   const go = (next: Tab) => { setTab(next); scroll.current?.scrollTo({ y: 0, animated: false }); };
   return (
     <View style={{ flex: 1 }}>
@@ -116,6 +118,8 @@ function Main() {
       {sheet === 'reward' ? <RewardSheet onClose={close} /> : null}
       {sheet === 'settings' ? <SettingsSheet onClose={close} onOpen={open} /> : null}
       {sheet === 'pro' ? <ProSheet onClose={close} /> : null}
+      {sheet === 'coach' ? <CoachSheet onClose={close} /> : null}
+      {sheet === 'coachchat' && S.coach ? <ChatSheet other={S.coach.id} title={S.coach.name} asCoach={false} onClose={close} /> : null}
       {sheet === 'creator' ? <CreatorSheet onClose={close} onPro={() => setSheet('pro')} /> : null}
       {sheet === 'account' ? <AccountSheet mode="save" onClose={close} /> : null}
       {sheet?.startsWith('food') ? <FoodSheet mode={(sheet.split(':')[1] || 'photo') as FoodMode} onClose={close} onPro={() => setSheet('pro')} /> : null}

@@ -314,3 +314,162 @@ create policy "video_templates: admin write" on public.video_templates for all t
   using (public.is_admin()) with check (public.is_admin());
 
 grant execute on function public.is_admin() to authenticated;
+
+-- ---------- trainers and their clients ----------
+-- A trainer shares a code; a client joins with it. Everything goes through the functions below,
+-- so the tables themselves stay closed (row level security on, no policies).
+create table if not exists public.coaches (
+  user_id uuid primary key references auth.users on delete cascade,
+  name text not null check (char_length(name) between 1 and 40),
+  code text not null unique check (code ~ '^[A-Z0-9]{6}$'),
+  max_clients int not null default 20,
+  active boolean not null default true,
+  created_at timestamptz not null default now()
+);
+create table if not exists public.coach_clients (
+  client_id uuid primary key references auth.users on delete cascade,
+  coach_id uuid not null references public.coaches on delete cascade,
+  created_at timestamptz not null default now()
+);
+create table if not exists public.coach_plans (
+  client_id uuid primary key references auth.users on delete cascade,
+  coach_id uuid not null references public.coaches on delete cascade,
+  sessions jsonb not null,
+  note text not null default '' check (char_length(note) <= 500),
+  updated_at timestamptz not null default now()
+);
+create table if not exists public.coach_messages (
+  id bigint generated always as identity primary key,
+  coach_id uuid not null references public.coaches on delete cascade,
+  client_id uuid not null references auth.users on delete cascade,
+  from_coach boolean not null,
+  body text not null check (char_length(body) between 1 and 1000),
+  created_at timestamptz not null default now()
+);
+create index if not exists coach_messages_pair on public.coach_messages (coach_id, client_id, id);
+alter table public.coaches enable row level security;
+alter table public.coach_clients enable row level security;
+alter table public.coach_plans enable row level security;
+alter table public.coach_messages enable row level security;
+
+create or replace function public.is_client_of(p_client uuid) returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (select 1 from coach_clients where client_id = p_client and coach_id = auth.uid())
+$$;
+
+create or replace function public.become_coach(p_name text) returns public.coaches
+language plpgsql security definer set search_path = public as $$
+declare c coaches; v text;
+begin
+  if auth.uid() is null then raise exception 'not signed in'; end if;
+  select * into c from coaches where user_id = auth.uid();
+  if c.user_id is not null then
+    update coaches set name = trim(p_name), active = true where user_id = auth.uid() returning * into c;
+    return c;
+  end if;
+  loop
+    select string_agg(substr('ABCDEFGHJKMNPQRSTUVWXYZ23456789', (floor(random() * 31) + 1)::int, 1), '') into v from generate_series(1, 6);
+    exit when not exists (select 1 from coaches where code = v);
+  end loop;
+  insert into coaches (user_id, name, code) values (auth.uid(), trim(p_name), v) returning * into c;
+  return c;
+end $$;
+
+-- Everything the app needs at start: my trainer profile, my own trainer and the plan they wrote for me.
+create or replace function public.coach_me() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object(
+    'coach', (select jsonb_build_object('name', name, 'code', code, 'max', max_clients, 'active', active) from coaches where user_id = auth.uid()),
+    'mine', (select jsonb_build_object('id', c.user_id, 'name', c.name, 'active', c.active) from coach_clients k join coaches c on c.user_id = k.coach_id where k.client_id = auth.uid()),
+    'plan', (select jsonb_build_object('sessions', p.sessions, 'note', p.note, 'at', p.updated_at) from coach_plans p
+             join coach_clients k on k.client_id = p.client_id and k.coach_id = p.coach_id where p.client_id = auth.uid()))
+$$;
+
+create or replace function public.join_coach(p_code text) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare c coaches;
+begin
+  if auth.uid() is null then raise exception 'not signed in'; end if;
+  select * into c from coaches where code = upper(trim(p_code)) and active;
+  if c.user_id is null then raise exception 'coach not found'; end if;
+  if c.user_id = auth.uid() then raise exception 'own code'; end if;
+  if not exists (select 1 from coach_clients where client_id = auth.uid() and coach_id = c.user_id)
+     and (select count(*) from coach_clients where coach_id = c.user_id) >= c.max_clients then
+    raise exception 'coach full';
+  end if;
+  insert into coach_clients (client_id, coach_id) values (auth.uid(), c.user_id)
+    on conflict (client_id) do update set coach_id = excluded.coach_id, created_at = now();
+  return jsonb_build_object('id', c.user_id, 'name', c.name);
+end $$;
+
+create or replace function public.leave_coach() returns void
+language sql security definer set search_path = public as $$
+  delete from coach_clients where client_id = auth.uid();
+  delete from coach_plans where client_id = auth.uid();
+$$;
+
+create or replace function public.remove_client(p_client uuid) returns void
+language sql security definer set search_path = public as $$
+  delete from coach_plans where client_id = p_client and coach_id = auth.uid();
+  delete from coach_clients where client_id = p_client and coach_id = auth.uid();
+$$;
+
+-- The trainer's client list with each client's day and the last backup time.
+create or replace function public.coach_overview()
+returns table (client_id uuid, name text, streak int, today_done int, today_all int, today_date date, synced_at timestamptz, last_msg timestamptz, last_from_coach boolean)
+language sql stable security definer set search_path = public as $$
+  select k.client_id, coalesce(p.name, ''), coalesce(p.streak, 0), coalesce(p.today_done, 0), coalesce(p.today_all, 0), p.today_date, s.updated_at,
+         m.created_at, m.from_coach
+  from coach_clients k
+  left join profiles p on p.id = k.client_id
+  left join app_state s on s.user_id = k.client_id
+  left join lateral (select created_at, from_coach from coach_messages x where x.coach_id = k.coach_id and x.client_id = k.client_id order by id desc limit 1) m on true
+  where k.coach_id = auth.uid()
+  order by k.created_at
+$$;
+
+-- A client's backup (log, plan, progress), only for their own trainer.
+create or replace function public.coach_client_state(p_client uuid) returns jsonb
+language sql stable security definer set search_path = public as $$
+  select s.data from app_state s where s.user_id = p_client and public.is_client_of(p_client)
+$$;
+
+create or replace function public.set_client_plan(p_client uuid, p_sessions jsonb, p_note text) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not public.is_client_of(p_client) then raise exception 'not your client'; end if;
+  if jsonb_typeof(p_sessions) <> 'array' or jsonb_array_length(p_sessions) not between 1 and 7 or length(p_sessions::text) > 20000 then
+    raise exception 'bad plan';
+  end if;
+  insert into coach_plans (client_id, coach_id, sessions, note, updated_at)
+  values (p_client, auth.uid(), p_sessions, left(coalesce(p_note, ''), 500), now())
+  on conflict (client_id) do update set coach_id = excluded.coach_id, sessions = excluded.sessions, note = excluded.note, updated_at = now();
+end $$;
+
+-- Chat between a trainer and one client. p_other is the client (for the trainer) or the trainer (for the client).
+create or replace function public.coach_chat(p_other uuid)
+returns table (id bigint, from_coach boolean, body text, created_at timestamptz)
+language sql stable security definer set search_path = public as $$
+  select * from (
+    select m.id, m.from_coach, m.body, m.created_at from coach_messages m
+    where (m.coach_id = auth.uid() and m.client_id = p_other and public.is_client_of(p_other))
+       or (m.client_id = auth.uid() and m.coach_id = p_other and exists (select 1 from coach_clients where client_id = auth.uid() and coach_id = p_other))
+    order by m.id desc limit 100
+  ) t order by id
+$$;
+
+create or replace function public.coach_send(p_other uuid, p_body text) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if public.is_client_of(p_other) then
+    insert into coach_messages (coach_id, client_id, from_coach, body) values (auth.uid(), p_other, true, trim(p_body));
+  elsif exists (select 1 from coach_clients where client_id = auth.uid() and coach_id = p_other) then
+    insert into coach_messages (coach_id, client_id, from_coach, body) values (p_other, auth.uid(), false, trim(p_body));
+  else
+    raise exception 'not connected';
+  end if;
+end $$;
+
+grant execute on function public.is_client_of(uuid), public.become_coach(text), public.coach_me(), public.join_coach(text), public.leave_coach(),
+  public.remove_client(uuid), public.coach_overview(), public.coach_client_state(uuid), public.set_client_plan(uuid, jsonb, text),
+  public.coach_chat(uuid), public.coach_send(uuid, text) to authenticated;

@@ -1,5 +1,5 @@
 import type { Lang } from '../i18n/lang';
-import type { Plan, Profile } from './plan';
+import type { Plan, Profile, Session } from './plan';
 import type { Routine } from './routines';
 
 export type Meal = { name: string; kcal: number; protein: number; img?: string; est?: boolean; time?: string };
@@ -46,6 +46,8 @@ export type AppState = {
   lang?: Lang;
   // Video templates the person made from their own videos.
   templates?: VideoTemplate[];
+  // The person's trainer, if they joined one. `own` keeps their sessions from before the trainer's plan.
+  coach?: { id: string; name: string; planAt?: string; note?: string; own?: Session[] };
 };
 
 export const emptyState: AppState = { profile: null, plan: null, log: {}, progress: [], routines: [], strength: [], startedAt: null };

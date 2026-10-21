@@ -10,6 +10,7 @@ import { colors, fonts } from '../theme';
 import Svg, { Circle } from 'react-native-svg';
 import { Bar, Body, Card, CheckRow, Emblem, Eyebrow, H1, H2, LinkButton, Muted, Row, Small, Stack, useToast, Button } from '../ui/kit';
 import { Icon, IconName } from '../ui/icons';
+import { CoachBanner } from '../sheets/Coach';
 
 export function Today({ onOpen }: { onOpen: (sheet: string) => void }) {
   const { S, update } = useApp();
@@ -103,6 +104,8 @@ export function Today({ onOpen }: { onOpen: (sheet: string) => void }) {
           </Pressable>
         </Card>
       ) : null}
+
+      <CoachBanner onChat={() => onOpen('coachchat')} />
 
       <Row style={{ gap: 10 }}>
         {quick.map(q => (

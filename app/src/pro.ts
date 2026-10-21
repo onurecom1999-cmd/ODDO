@@ -27,10 +27,15 @@ export async function myTier(): Promise<Tier> {
 async function serverTier(): Promise<Tier> {
   const id = await userId();
   if (!id || !supabase) return 'free';
-  const { data } = await supabase.from('subscriptions').select('tier,status,ends_at').eq('user_id', id).maybeSingle();
-  if (!data) return 'free';
+  const [{ data }, coach] = await Promise.all([
+    supabase.from('subscriptions').select('tier,status,ends_at').eq('user_id', id).maybeSingle(),
+    supabase.rpc('coach_me').then(r => r.data as { coach?: { active: boolean } | null; mine?: { active: boolean } | null } | null, () => null),
+  ]);
+  // Trainers and their clients get Pro; the trainer pays for the clients.
+  const viaCoach: Tier = coach?.coach?.active || coach?.mine?.active ? 'pro' : 'free';
+  if (!data) return viaCoach;
   const live = ['on_trial', 'active', 'past_due'].includes(data.status) || (data.status === 'cancelled' && data.ends_at && new Date(data.ends_at) > new Date());
-  return live ? (data.tier as Tier) : 'free';
+  return best(live ? (data.tier as Tier) : 'free', viaCoach);
 }
 
 export function useTier() {

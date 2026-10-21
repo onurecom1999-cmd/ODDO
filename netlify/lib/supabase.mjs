@@ -26,12 +26,23 @@ export async function tierOf(userId) {
       headers: { apikey: SERVICE(), authorization: `Bearer ${SERVICE()}` },
     });
     const [s] = res.ok ? await res.json() : [];
-    if (!s) return 'free';
-    const live = ACTIVE.has(s.status) || (s.status === 'cancelled' && s.ends_at && new Date(s.ends_at) > new Date());
-    return live ? s.tier : 'free';
+    const live = s && (ACTIVE.has(s.status) || (s.status === 'cancelled' && s.ends_at && new Date(s.ends_at) > new Date()));
+    if (live) return s.tier;
+    return (await withCoach(userId)) ? 'pro' : 'free';
   } catch {
     return 'free';
   }
+}
+
+// Trainers and the clients of an active trainer get Pro: the trainer pays for the clients.
+async function withCoach(userId) {
+  const h = { apikey: SERVICE(), authorization: `Bearer ${SERVICE()}` };
+  const id = encodeURIComponent(userId);
+  const [own, client] = await Promise.all([
+    fetch(`${SB_URL}/rest/v1/coaches?user_id=eq.${id}&active=is.true&select=user_id`, { headers: h }).then(r => (r.ok ? r.json() : [])),
+    fetch(`${SB_URL}/rest/v1/coach_clients?client_id=eq.${id}&select=coaches!inner(active)&coaches.active=is.true`, { headers: h }).then(r => (r.ok ? r.json() : [])),
+  ]);
+  return own.length > 0 || client.length > 0;
 }
 
 export async function upsertSubscription(row) {

@@ -9,6 +9,7 @@ import { REMINDER_HOURS, remindersSupported, setReminder } from '../reminders';
 import { useApp } from '../state';
 import { colors, fonts } from '../theme';
 import { Body, Bold, Button, Card, Chip, Chips, Eyebrow, Field, LinkButton, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
+import { MyCoachSection } from './Coach';
 import { RoutinesEditSheet } from './Routines';
 
 const SITE = 'https://oddo-app.netlify.app';
@@ -98,6 +99,14 @@ export function SettingsSheet({ onClose, onOpen }: { onClose: () => void; onOpen
 
         <Section title={t('plan.language')}>
           <Chips>{LANGS.map(l => <Chip key={l} label={l.toUpperCase()} on={getLang() === l} onPress={() => { setLang(l); update(d => { d.lang = l; }); }} />)}</Chips>
+        </Section>
+
+        <Section title={t('coach.mine')} sub={S.coach ? undefined : t('coach.mineSub')}>
+          <MyCoachSection onChat={() => { onClose(); onOpen('coachchat'); }} />
+        </Section>
+
+        <Section title={t('coach.forTrainers')} sub={t('coach.forTrainersSub')}>
+          <Button small variant="ghost" label={t('coach.openArea')} onPress={() => { onClose(); onOpen('coach'); }} />
         </Section>
 
         <Section title={t('set.account')}>
