@@ -170,6 +170,18 @@
     .feat.hl p { color: rgba(10,10,10,.75); }
 
     /* Steps */
+    .earn { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 48px; }
+    @media (max-width: 760px) { .earn { grid-template-columns: 1fr; } }
+    .earn .feat .num { font-family: Anton, Impact, sans-serif; font-size: 56px; line-height: 1; letter-spacing: .01em; color: var(--accent); }
+    .earn .feat.hl .num { color: var(--accent-ink); }
+    .earn .feat ul { list-style: none; padding: 0; margin: 4px 0 0; display: grid; gap: 6px; color: var(--muted); font-size: 15px; }
+    .earn .feat ul li::before { content: "✓ "; color: var(--accent); font-weight: 900; }
+    .earn .feat.hl ul { color: rgba(10,10,10,.75); }
+    .earn .feat.hl ul li::before { color: var(--accent-ink); }
+    .earn-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 28px; }
+    .nav-link { color: var(--muted); font-weight: 700; font-size: 14px; text-decoration: none; }
+    .nav-link:hover { color: var(--text); }
+    @media (max-width: 560px) { .nav-link { display: none; } }
     .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 48px; counter-reset: s; }
     @media (max-width: 860px) { .steps { grid-template-columns: 1fr; } }
     .step { border-top: 2px solid var(--accent); padding-top: 20px; }
@@ -278,6 +290,7 @@
           <button data-lang="tr">TR</button>
           <button data-lang="en">EN</button>
         </div>
+        <a href="#verdienen" class="nav-link" data-i18n="nav_earn"></a>
         <a href="#pact" class="btn nav-cta" data-i18n="nav_cta"></a>
       </div>
     </div>
@@ -405,6 +418,24 @@
     </div>
   </section>
 
+  <section style="padding-top:0" id="verdienen">
+    <div class="wrap">
+      <div class="eyebrow reveal" data-i18n="e_eyebrow"></div>
+      <h2 class="display reveal" data-i18n-html="e_title"></h2>
+      <p class="hero-lead reveal" style="margin-top:24px" data-i18n="e_lead"></p>
+      <div class="earn">
+        <div class="feat hl reveal"><span class="tag" data-i18n="e1g"></span><div class="num" data-i18n="e1n"></div><h3 data-i18n="e1t"></h3><p data-i18n="e1"></p><ul><li data-i18n="e1a"></li><li data-i18n="e1b"></li><li data-i18n="e1c"></li></ul></div>
+        <div class="feat reveal"><span class="tag" data-i18n="e2g"></span><div class="num" data-i18n="e2n"></div><h3 data-i18n="e2t"></h3><p data-i18n="e2"></p><ul><li data-i18n="e2a"></li><li data-i18n="e2b"></li><li data-i18n="e2c"></li></ul></div>
+        <div class="feat reveal"><span class="tag" data-i18n="e3g"></span><div class="num" data-i18n="e3n"></div><h3 data-i18n="e3t"></h3><p data-i18n="e3"></p><ul><li data-i18n="e3a"></li><li data-i18n="e3b"></li><li data-i18n="e3c"></li></ul></div>
+        <div class="feat reveal"><span class="tag" data-i18n="e4g"></span><div class="num" data-i18n="e4n"></div><h3 data-i18n="e4t"></h3><p data-i18n="e4"></p><ul><li data-i18n="e4a"></li><li data-i18n="e4b"></li><li data-i18n="e4c"></li></ul></div>
+      </div>
+      <div class="earn-actions reveal">
+        <a href="/app/" class="btn app-only"><span data-i18n="e_cta"></span><span class="arrow">→</span></a>
+        <a href="/partner.html" class="btn btn-ghost" data-legal="partner" data-i18n="e_rules"></a>
+      </div>
+    </div>
+  </section>
+
   <section class="pact-section" id="pact">
     <div class="wrap pact-grid">
       <div>
@@ -441,6 +472,7 @@
         <details><summary data-i18n="fq3"></summary><p data-i18n="fa3"></p></details>
         <details><summary data-i18n="fq4"></summary><p data-i18n="fa4"></p></details>
         <details><summary data-i18n="fq5"></summary><p data-i18n="fa5"></p></details>
+        <details><summary data-i18n="fq6"></summary><p data-i18n="fa6"></p></details>
       </div>
     </div>
   </section>
@@ -536,6 +568,42 @@
         pu4: "Keine Werbung. Nie.",
         pu5: "Plan passt sich dir an, Hilfe per WhatsApp",
         pr_free: "Für immer gratis: Plan und Training, Essen eintragen, Barcode-Scanner, 3 Foto-Schätzungen am Tag, Laufen mit GPS, Gruppen und Community.",
+        nav_earn: "Verdienen",
+        e_eyebrow: "Mitmachen und verdienen",
+        e_title: "Jeder kann<br>mitverdienen.",
+        e_lead: "Du nutzt ODDO, du empfiehlst ODDO, du verdienst an ODDO. Egal ob du nur trainierst, Videos drehst, Kunden betreust oder ein Studio führst. Mitmachen kostet nichts.",
+        e1g: "Für alle",
+        e1n: "30 %",
+        e1t: "Freunde einladen, für immer verdienen",
+        e1: "Jeder Nutzer hat in der App einen eigenen Code und Link. Dein Freund bekommt den ersten Monat Pro gratis. Du bekommst 30 % von allem, was er zahlt, solange er dabei ist.",
+        e1a: "Code und Link unter „Verdienen“ in der App",
+        e1b: "1 Monat Pro gratis für dich beim ersten zahlenden Freund",
+        e1c: "Auszahlung per Überweisung oder PayPal",
+        e2g: "Creator und Clipper",
+        e2n: "1,10 $",
+        e2t: "Pro 1.000 Views auf deine Clips",
+        e2: "Dreh ein Video mit ODDO für TikTok, Instagram oder YouTube und reich den Link in der App ein. Bezahlt wird ab 5.000 Views, auch wenn niemand kauft.",
+        e2a: "+50 %, wenn man die App in Benutzung sieht",
+        e2b: "Das Creator-Studio plant deinen Clip mit Abspann und Code",
+        e2c: "Bis 330 $ pro Clip, dazu 30 % über deinen Code",
+        e3g: "Personal Trainer",
+        e3n: "30–40 %",
+        e3t: "Deine Kunden in einer App",
+        e3: "Deine Kunden starten mit deinem Code. Du siehst auf einen Blick, wer dranbleibt, schickst Pläne und schreibst im Chat. Jeder Kunde bekommt den ersten Monat Pro gratis.",
+        e3a: "Trainer-Bereich gratis, bis 20 Kunden",
+        e3b: "30 %, ab 10 zahlenden Kunden 35 %, ab 50 Kunden 40 %",
+        e3c: "Die ersten 20 Trainer: 50 % für 6 Monate",
+        e4g: "Fitnessstudios",
+        e4n: "1 App",
+        e4t: "Dein Studio in ODDO",
+        e4: "Mitglieder checken per QR-Code ein, sehen wie voll es gerade ist und buchen Kurse. Du verwaltest Mitglieder und Kurse und verdienst an jedem, der Pro holt.",
+        e4a: "Check-in mit QR-Code oder 6-stelligem Code",
+        e4b: "Auslastung live, Kurse mit Plätzen und Buchung",
+        e4c: "Dieselbe Provision wie Trainer",
+        e_cta: "In der App starten",
+        e_rules: "Regeln und Partnervertrag",
+        fq6: "Kann ich mit ODDO Geld verdienen?",
+        fa6: "Ja. Jeder Nutzer bekommt 30 % von allem, was eingeladene Freunde zahlen, solange sie dabei sind. Für Clips über ODDO zahlen wir ab 5.000 Views 1,10 $ pro 1.000 Views. Trainer und Studios verdienen bis zu 40 %. Alles findest du in der App unter „Verdienen“.",
         pact_eyebrow: "Der Moment",
         pact_title: "Unter-<br>schreib<br>ihn.",
         pact_lead: "Ein Versprechen an dich selbst wirkt anders, wenn du es unterschreibst. Trag dich ein und sichere dir einen Platz unter den Ersten mit Gründer-Zugang.",
@@ -630,6 +698,42 @@
         pu4: "Reklam yok. Asla.",
         pu5: "Plan sana uyar, WhatsApp ile yardım",
         pr_free: "Her zaman ücretsiz: plan ve antrenman, yemek kaydı, barkod tarayıcı, günde 3 fotoğraf tahmini, GPS ile koşu, gruplar ve topluluk.",
+        nav_earn: "Kazan",
+        e_eyebrow: "Katıl ve kazan",
+        e_title: "Herkes<br>kazanabilir.",
+        e_lead: "ODDO'yu kullanırsın, önerirsin, ODDO'dan kazanırsın. İster sadece antrenman yap, ister video çek, danışan çalıştır ya da salon işlet. Katılmak ücretsiz.",
+        e1g: "Herkes için",
+        e1n: "%30",
+        e1t: "Arkadaşını davet et, ömür boyu kazan",
+        e1: "Uygulamada her kullanıcının kendi kodu ve linki var. Arkadaşın ilk ay Pro'yu ücretsiz alır. O kaldığı sürece ödediği her şeyin %30'u senin.",
+        e1a: "Kod ve link uygulamada \"Kazan\" bölümünde",
+        e1b: "İlk ödeme yapan arkadaşınla sana 1 ay ücretsiz Pro",
+        e1c: "Havale veya PayPal ile ödeme",
+        e2g: "İçerik üreticileri",
+        e2n: "1,10 $",
+        e2t: "Videolarında 1.000 izlenme başına",
+        e2: "TikTok, Instagram veya YouTube için ODDO ile bir video çek ve linki uygulamada gönder. 5.000 izlenmeden itibaren ödenir, kimse satın almasa bile.",
+        e2a: "Uygulama kullanılırken görünürse %50 fazla",
+        e2b: "Creator Studio videonu kapanış ve kodla planlar",
+        e2c: "Video başına 330 $'a kadar, üstüne kodunla %30",
+        e3g: "Kişisel antrenörler",
+        e3n: "%30–40",
+        e3t: "Danışanların tek uygulamada",
+        e3: "Danışanların senin kodunla başlar. Kimin devam ettiğini bir bakışta görür, plan gönderir ve sohbet edersin. Her danışan ilk ay Pro'yu ücretsiz alır.",
+        e3a: "Antrenör alanı ücretsiz, 20 danışana kadar",
+        e3b: "%30, 10 ödeyen danışandan itibaren %35, 50'den itibaren %40",
+        e3c: "İlk 20 antrenör: 6 ay boyunca %50",
+        e4g: "Spor salonları",
+        e4n: "1 uygulama",
+        e4t: "Salonun ODDO'da",
+        e4: "Üyeler QR kodla giriş yapar, salonun ne kadar dolu olduğunu görür ve derslere kaydolur. Sen üyeleri ve dersleri yönetir, Pro alan herkesten kazanırsın.",
+        e4a: "QR kod veya 6 haneli kodla giriş",
+        e4b: "Canlı doluluk, kontenjanlı dersler ve rezervasyon",
+        e4c: "Antrenörlerle aynı komisyon",
+        e_cta: "Uygulamada başla",
+        e_rules: "Kurallar ve ortaklık sözleşmesi",
+        fq6: "ODDO ile para kazanabilir miyim?",
+        fa6: "Evet. Her kullanıcı, davet ettiği arkadaşları kaldığı sürece onların ödediği her şeyin %30'unu alır. ODDO hakkındaki videolar için 5.000 izlenmeden itibaren 1.000 izlenme başına 1,10 $ öderiz. Antrenörler ve salonlar %40'a kadar kazanır. Hepsi uygulamada \"Kazan\" bölümünde.",
         pact_eyebrow: "An geldi",
         pact_title: "İmzala<br>onu.",
         pact_lead: "Kendine verdiğin söz, imzaladığında farklı hissettirir. Kaydol ve kurucu erişimiyle ilk gelenler arasında yerini ayır.",
@@ -724,6 +828,42 @@
         pu4: "No ads. Ever.",
         pu5: "A plan that adapts to you, help on WhatsApp",
         pr_free: "Free forever: plan and training, food logging, barcode scanner, 3 photo estimates a day, GPS runs, groups and community.",
+        nav_earn: "Earn",
+        e_eyebrow: "Join and earn",
+        e_title: "Everyone<br>can earn.",
+        e_lead: "You use ODDO, you recommend ODDO, you earn from ODDO. Whether you just train, make videos, coach clients or run a gym. Joining is free.",
+        e1g: "For everyone",
+        e1n: "30%",
+        e1t: "Invite friends, earn for life",
+        e1: "Every user has their own code and link in the app. Your friend gets the first month of Pro free. You get 30% of everything they pay for as long as they stay.",
+        e1a: "Code and link under \"Earn\" in the app",
+        e1b: "1 month of Pro free for you with your first paying friend",
+        e1c: "Paid out by bank transfer or PayPal",
+        e2g: "Creators and clippers",
+        e2n: "$1.10",
+        e2t: "Per 1,000 views on your clips",
+        e2: "Make a video with ODDO for TikTok, Instagram or YouTube and submit the link in the app. We pay from 5,000 views, even if nobody buys.",
+        e2a: "+50% if the app is shown in use",
+        e2b: "Creator Studio plans your clip with end card and code",
+        e2c: "Up to $330 per clip, plus 30% through your code",
+        e3g: "Personal trainers",
+        e3n: "30–40%",
+        e3t: "Your clients in one app",
+        e3: "Your clients start with your code. You see at a glance who is keeping up, send plans and chat. Every client gets the first month of Pro free.",
+        e3a: "Trainer area free, up to 20 clients",
+        e3b: "30%, 35% from 10 paying clients, 40% from 50",
+        e3c: "The first 20 trainers: 50% for 6 months",
+        e4g: "Gyms",
+        e4n: "1 app",
+        e4t: "Your gym in ODDO",
+        e4: "Members check in with a QR code, see how busy it is and book classes. You manage members and classes and earn from everyone who gets Pro.",
+        e4a: "Check-in with QR code or 6-digit code",
+        e4b: "Live occupancy, classes with spots and booking",
+        e4c: "Same commission as trainers",
+        e_cta: "Start in the app",
+        e_rules: "Rules and partner agreement",
+        fq6: "Can I earn money with ODDO?",
+        fa6: "Yes. Every user gets 30% of everything invited friends pay for as long as they stay. For clips about ODDO we pay $1.10 per 1,000 views from 5,000 views. Trainers and gyms earn up to 40%. You find it all in the app under \"Earn\".",
         pact_eyebrow: "The moment",
         pact_title: "Sign<br>it.",
         pact_lead: "A promise to yourself hits different when you sign it. Add your name and claim a spot among the first, with founder access.",
