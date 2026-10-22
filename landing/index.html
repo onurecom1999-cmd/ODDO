@@ -4,8 +4,20 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ODDO – One Day or Day One</title>
-  <meta name="description" content="Irgendwann ist kein Tag. 12 Wochen, deine Crew, ein Pakt. Schaffst du 80 %, ist der nächste Pakt gratis.">
+  <meta name="description" content="Training, Ernährung per Foto, Lauf und Rad, Fortschritt: alles in einer App, ganz auf dich zugeschnitten. Ab jetzt keine Ausreden mehr.">
   <meta name="theme-color" content="#0a0a0a">
+  <link rel="canonical" href="https://oddo-app.netlify.app/">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ODDO">
+  <meta property="og:url" content="https://oddo-app.netlify.app/">
+  <meta property="og:title" content="ODDO – Ab jetzt gibt es keine Ausreden mehr">
+  <meta property="og:description" content="Persönlicher Trainingsplan, Kalorien per Foto, Lauf und Rad, Fortschritt: alles in einer App. Trag dich jetzt für den Gründerzugang ein.">
+  <meta property="og:image" content="https://oddo-app.netlify.app/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://oddo-app.netlify.app/og.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@600&family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
@@ -92,12 +104,6 @@
     .hero-lead strong { color: var(--text); font-weight: 600; }
     .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; margin-top: 32px; }
 
-    .countdown { display: flex; gap: 10px; }
-    .countdown div { text-align: center; }
-    .countdown b { display: block; font-family: Anton, Impact, sans-serif; font-size: 28px; line-height: 1; font-weight: 400; min-width: 2ch; }
-    .countdown span { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-    .countdown-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
-
     /* Phone mockup */
     .phone-wrap { position: relative; display: flex; justify-content: center; }
     .phone {
@@ -108,19 +114,6 @@
     .screen { background: #0f0f0f; border-radius: 34px; padding: 22px 18px; min-height: 560px; display: flex; flex-direction: column; gap: 16px; }
     .scr-top { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
     .scr-day { font-family: Anton, Impact, sans-serif; font-size: 34px; line-height: 1; }
-    .ring-row { display: flex; align-items: center; gap: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 14px; }
-    .ring { width: 74px; height: 74px; flex: none; }
-    .ring circle { fill: none; stroke-width: 8; }
-    .ring .track { stroke: #262626; }
-    .ring .prog { stroke: var(--accent); stroke-linecap: round; stroke-dasharray: 201; stroke-dashoffset: 201; transform: rotate(-90deg); transform-origin: center; transition: stroke-dashoffset 1.6s 1.6s cubic-bezier(.2,.8,.2,1); }
-    .ring text { fill: var(--text); font-family: Anton, Impact, sans-serif; font-size: 20px; }
-    .ring-row p { font-size: 13px; color: var(--muted); }
-    .ring-row p b { color: var(--text); display: block; font-size: 15px; }
-    .crew-title { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-    .crew { display: flex; gap: 8px; }
-    .av { position: relative; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 15px; color: var(--accent-ink); }
-    .av .ok { position: absolute; right: -2px; bottom: -2px; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); border: 2px solid #0f0f0f; font-size: 10px; display: grid; place-items: center; color: var(--accent-ink); }
-    .av.me { background: var(--surface-2); color: var(--text); border: 2px dashed var(--accent); }
     .today {
       margin-top: auto; background: var(--accent); color: var(--accent-ink); border-radius: 24px; padding: 20px;
       display: flex; justify-content: space-between; align-items: center;
@@ -129,12 +122,85 @@
     .today b { font-family: Anton, Impact, sans-serif; font-weight: 400; font-size: 24px; display: block; line-height: 1; }
     .today .go { width: 48px; height: 48px; border-radius: 50%; background: var(--accent-ink); color: var(--accent); display: grid; place-items: center; font-size: 22px; }
     .toast {
-      position: absolute; left: -10px; top: 70px; background: rgba(28,28,28,.92); backdrop-filter: blur(8px); border: 1px solid var(--border);
+      position: absolute; left: -10px; top: 46%; background: rgba(28,28,28,.92); backdrop-filter: blur(8px); border: 1px solid var(--border);
       border-radius: 16px; padding: 12px 14px; font-size: 13px; display: flex; gap: 10px; align-items: center; max-width: 240px;
       box-shadow: 0 20px 40px -20px #000; z-index: 2; opacity: 0; transform: translateY(10px); animation: rise .6s 2.6s forwards;
     }
-    .toast .av { width: 32px; height: 32px; font-size: 12px; }
     @media (max-width: 900px) { .toast { left: 0; } }
+
+
+    .hero-sub { font-size: clamp(22px, 3vw, 30px); font-weight: 800; line-height: 1.2; margin-bottom: 12px; text-wrap: balance; }
+    .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-top: 32px; }
+    html { overflow-x: clip; }
+    .hero-note { font-size: 13px; color: var(--dim); }
+    /* Shown from launch day on (APP_LIVE in the script). */
+    .app-only { display: none !important; }
+    body.app-live .app-only { display: inline-flex !important; }
+    body.app-live p.app-only { display: block !important; }
+    .stores { margin-top: 14px; font-size: 13px; color: var(--muted); }
+    footer .legal { display: flex; gap: 18px; flex-wrap: wrap; }
+    footer .legal a { color: var(--dim); }
+
+    /* Phone screen */
+    .scr-budget { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 14px 16px; }
+    .scr-budget small { font-size: 10px; font-weight: 800; letter-spacing: .14em; color: var(--accent); }
+    .scr-budget b { display: block; font-family: Anton, Impact, sans-serif; font-weight: 400; font-size: 40px; line-height: 1.05; }
+    .scr-bar { height: 7px; background: var(--surface-2); border-radius: 7px; overflow: hidden; margin-top: 8px; }
+    .scr-bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width 1.4s 1.4s cubic-bezier(.2,.8,.2,1); }
+    .scr-bar.go i { width: 58%; }
+    .scr-list { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 4px 14px; }
+    .scr-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--border); font-size: 13px; font-weight: 600; }
+    .scr-item:first-child { border-top: 0; }
+    .scr-item .bx { width: 20px; height: 20px; border-radius: 6px; border: 2px solid var(--dim); flex: none; display: grid; place-items: center; font-size: 11px; color: var(--accent-ink); font-weight: 900; }
+    .scr-item.ok .bx { background: var(--accent); border-color: var(--accent); }
+    .scr-item.ok span { color: var(--muted); }
+    .scr-item small { margin-left: auto; color: var(--muted); font-weight: 500; font-size: 11px; white-space: nowrap; }
+    .toast .ic { width: 32px; height: 32px; border-radius: 10px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-family: Anton, Impact, sans-serif; font-size: 15px; flex: none; }
+
+    /* Features */
+    .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 48px; }
+    @media (max-width: 900px) { .features { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px) { .features { grid-template-columns: 1fr; } }
+    .feat { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 28px; display: flex; flex-direction: column; gap: 10px; }
+    .feat .tag { font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+    .feat h3 { font-size: 23px; font-weight: 800; line-height: 1.2; }
+    .feat p { color: var(--muted); }
+    .feat.hl { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+    .feat.hl .tag { color: var(--accent-ink); }
+    .feat.hl p { color: rgba(10,10,10,.75); }
+
+    /* Steps */
+    .earn { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 48px; }
+    @media (max-width: 760px) { .earn { grid-template-columns: 1fr; } }
+    .earn .feat .num { font-family: Anton, Impact, sans-serif; font-size: 56px; line-height: 1; letter-spacing: .01em; color: var(--accent); }
+    .earn .feat.hl .num { color: var(--accent-ink); }
+    .earn .feat ul { list-style: none; padding: 0; margin: 4px 0 0; display: grid; gap: 6px; color: var(--muted); font-size: 15px; }
+    .earn .feat ul li::before { content: "✓ "; color: var(--accent); font-weight: 900; }
+    .earn .feat.hl ul { color: rgba(10,10,10,.75); }
+    .earn .feat.hl ul li::before { color: var(--accent-ink); }
+    .earn-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 28px; }
+    .nav-link { color: var(--muted); font-weight: 700; font-size: 14px; text-decoration: none; }
+    .nav-link:hover { color: var(--text); }
+    @media (max-width: 560px) { .nav-link { display: none; } }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 48px; counter-reset: s; }
+    @media (max-width: 860px) { .steps { grid-template-columns: 1fr; } }
+    .step { border-top: 2px solid var(--accent); padding-top: 20px; }
+    .step .n { font-family: Anton, Impact, sans-serif; font-size: 64px; line-height: 1; color: var(--accent); }
+    .step h3 { font-size: 24px; font-weight: 800; margin: 10px 0 8px; }
+    .step p { color: var(--muted); }
+
+    /* Before / after */
+    .vs { margin-top: 48px; display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--border); border-radius: 28px; overflow: hidden; }
+    @media (max-width: 760px) { .vs { grid-template-columns: 1fr; } }
+    .vs > div { padding: 36px; }
+    .vs .them { background: var(--surface); color: var(--muted); }
+    .vs .us { background: var(--surface-2); }
+    .vs .big { font-family: Anton, Impact, sans-serif; font-size: clamp(40px, 9vw, 64px); line-height: 1; margin: 10px 0; }
+    .vs .them .big { color: var(--dim); text-decoration: line-through; text-decoration-color: var(--red); text-decoration-thickness: 4px; }
+    .vs ul { list-style: none; margin-top: 18px; }
+    .vs li { padding: 8px 0; border-top: 1px solid var(--border); font-size: 15px; }
+    .vs .us li::before { content: "✓  "; color: var(--accent); font-weight: 800; }
+    .vs .them li::before { content: "✕  "; color: var(--red); font-weight: 800; }
 
     /* Sections */
     section { padding: 96px 0; }
@@ -151,30 +217,6 @@
     .quote p { font-size: 20px; font-weight: 600; color: var(--muted); text-decoration: line-through; text-decoration-color: var(--red); text-decoration-thickness: 2px; }
     .quote small { display: block; margin-top: 12px; color: var(--dim); font-size: 13px; }
     .verdict { margin-top: 48px; font-size: clamp(22px, 3vw, 32px); font-weight: 800; max-width: 760px; line-height: 1.25; }
-
-    /* Pillars */
-    .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 48px; }
-    @media (max-width: 860px) { .pillars { grid-template-columns: 1fr; } }
-    .pillar { background: var(--surface); border: 1px solid var(--border); border-radius: 28px; padding: 32px; min-height: 280px; display: flex; flex-direction: column; }
-    .pillar .n { font-family: Anton, Impact, sans-serif; font-size: 72px; line-height: 1; color: var(--accent); }
-    .pillar h3 { font-size: 26px; margin: 16px 0 10px; font-weight: 800; }
-    .pillar p { color: var(--muted); }
-    .pillar.hl { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-    .pillar.hl .n { color: var(--accent-ink); }
-    .pillar.hl p { color: rgba(10,10,10,.75); }
-
-    /* Timeline */
-    .timeline { margin-top: 56px; }
-    .weeks { display: grid; grid-template-columns: repeat(12, 1fr); gap: 6px; }
-    .wk { height: 64px; border-radius: 10px; background: var(--surface-2); position: relative; overflow: hidden; }
-    .wk::after { content: ""; position: absolute; inset: 0; background: var(--accent); transform: scaleY(0); transform-origin: bottom; transition: transform .5s cubic-bezier(.2,.8,.2,1); }
-    .timeline.in .wk::after { transform: scaleY(1); }
-    .wk span { position: absolute; left: 0; right: 0; bottom: 6px; text-align: center; font-size: 11px; font-weight: 600; color: var(--muted); z-index: 1; transition: color .3s .3s; }
-    .timeline.in .wk span { color: var(--accent-ink); }
-    .milestones { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 20px; }
-    @media (max-width: 760px) { .milestones { grid-template-columns: 1fr 1fr; } .wk { height: 44px; } .wk span { font-size: 9px; } }
-    .ms b { display: block; font-family: Anton, Impact, sans-serif; font-weight: 400; font-size: 22px; }
-    .ms small { color: var(--muted); font-size: 14px; }
 
     /* Pact */
     .pact-section { background: linear-gradient(180deg, var(--bg), #11140a 50%, var(--bg)); }
@@ -213,19 +255,6 @@
     .paper.signed { padding-bottom: 120px; }
     .paper.signed .welcome { text-align: left; max-width: 60%; }
 
-    /* Price */
-    .price-box { margin-top: 48px; display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--border); border-radius: 28px; overflow: hidden; }
-    @media (max-width: 760px) { .price-box { grid-template-columns: 1fr; } }
-    .price-box > div { padding: 36px; }
-    .price-box .them { background: var(--surface); color: var(--muted); }
-    .price-box .us { background: var(--surface-2); }
-    .price-box .big { font-family: Anton, Impact, sans-serif; font-size: clamp(44px, 11vw, 72px); white-space: nowrap; line-height: 1; margin: 10px 0; }
-    .price-box .them .big { color: var(--dim); text-decoration: line-through; text-decoration-color: var(--red); text-decoration-thickness: 4px; }
-    .price-box ul { list-style: none; margin-top: 18px; }
-    .price-box li { padding: 7px 0; border-top: 1px solid var(--border); font-size: 15px; }
-    .price-box .us li::before { content: "✓  "; color: var(--accent); font-weight: 800; }
-    .price-box .them li::before { content: "✕  "; color: var(--red); font-weight: 800; }
-
     /* FAQ */
     details { border-top: 1px solid var(--border); padding: 22px 0; }
     details:last-child { border-bottom: 1px solid var(--border); }
@@ -261,6 +290,7 @@
           <button data-lang="tr">TR</button>
           <button data-lang="en">EN</button>
         </div>
+        <a href="#verdienen" class="nav-link" data-i18n="nav_earn"></a>
         <a href="#pact" class="btn nav-cta" data-i18n="nav_cta"></a>
       </div>
     </div>
@@ -274,46 +304,36 @@
           <span class="line oneday">One day</span>
           <span class="line dayone">Day One.</span>
         </h1>
+        <p class="hero-sub" data-i18n="hero_sub"></p>
         <p class="hero-lead" data-i18n-html="hero_lead"></p>
         <div class="hero-actions">
           <a href="#pact" class="btn"><span data-i18n="hero_cta"></span><span class="arrow">→</span></a>
-          <div>
-            <div class="countdown-label" data-i18n="countdown_label"></div>
-            <div class="countdown" id="countdown">
-              <div><b data-cd="d">00</b><span data-i18n="cd_d"></span></div>
-              <div><b data-cd="h">00</b><span data-i18n="cd_h"></span></div>
-              <div><b data-cd="m">00</b><span data-i18n="cd_m"></span></div>
-              <div><b data-cd="s">00</b><span data-i18n="cd_s"></span></div>
-            </div>
-          </div>
+          <a href="/app/" class="btn btn-ghost app-only" data-i18n="try_web"></a>
+          <span class="hero-note" data-i18n="hero_note"></span>
         </div>
+        <p class="stores app-only" data-i18n="stores"></p>
       </div>
 
       <div class="phone-wrap" aria-hidden="true">
-        <div class="toast"><div class="av" style="background:#ff9f43">L</div><span data-i18n="toast"></span></div>
+        <div class="toast"><div class="ic">✓</div><span data-i18n="toast"></span></div>
         <div class="phone">
           <div class="screen">
-            <div class="scr-top"><span>ODDO</span><span data-i18n="scr_week"></span></div>
+            <div class="scr-top"><span>ODDO</span><span data-i18n="scr_date"></span></div>
             <div class="scr-day" data-i18n="scr_day"></div>
-            <div class="ring-row">
-              <svg class="ring" viewBox="0 0 74 74">
-                <circle class="track" cx="37" cy="37" r="32"/>
-                <circle class="prog" id="ring" cx="37" cy="37" r="32"/>
-                <text x="37" y="44" text-anchor="middle">14/36</text>
-              </svg>
-              <p><b data-i18n="scr_ring_title"></b><span data-i18n="scr_ring_text"></span></p>
+            <div class="scr-budget">
+              <small data-i18n="scr_left"></small>
+              <b>840 kcal</b>
+              <div class="scr-bar" id="bar"><i></i></div>
             </div>
-            <div class="crew-title" data-i18n="scr_crew"></div>
-            <div class="crew">
-              <div class="av" style="background:#ff9f43">L<span class="ok">✓</span></div>
-              <div class="av" style="background:#54a0ff">M<span class="ok">✓</span></div>
-              <div class="av" style="background:#ff6b9d">A</div>
-              <div class="av" style="background:#1dd1a1">J<span class="ok">✓</span></div>
-              <div class="av me" data-i18n="scr_me"></div>
+            <div class="scr-list">
+              <div class="scr-item ok"><span class="bx">✓</span><span data-i18n="scr_i1"></span><small data-i18n="scr_i1s"></small></div>
+              <div class="scr-item ok"><span class="bx">✓</span><span data-i18n="scr_i2"></span><small>5,2 km</small></div>
+              <div class="scr-item ok"><span class="bx">✓</span><span data-i18n="scr_i3"></span><small>3</small></div>
+              <div class="scr-item"><span class="bx"></span><span data-i18n="scr_i4"></span><small>128 / 155 g</small></div>
             </div>
             <div class="today">
-              <div><small data-i18n="scr_today"></small><b data-i18n="scr_workout"></b><small data-i18n="scr_time"></small></div>
-              <div class="go">→</div>
+              <div><small data-i18n="scr_today"></small><b data-i18n="scr_photo"></b><small data-i18n="scr_photo_s"></small></div>
+              <div class="go">+</div>
             </div>
           </div>
         </div>
@@ -336,22 +356,82 @@
 
   <section>
     <div class="wrap">
+      <div class="eyebrow reveal" data-i18n="feat_eyebrow"></div>
+      <h2 class="display reveal" data-i18n-html="feat_title"></h2>
+      <div class="features">
+        <div class="feat hl reveal"><span class="tag" data-i18n="f1g"></span><h3 data-i18n="f1t"></h3><p data-i18n="f1"></p></div>
+        <div class="feat reveal"><span class="tag" data-i18n="f2g"></span><h3 data-i18n="f2t"></h3><p data-i18n="f2"></p></div>
+        <div class="feat reveal"><span class="tag" data-i18n="f3g"></span><h3 data-i18n="f3t"></h3><p data-i18n="f3"></p></div>
+        <div class="feat reveal"><span class="tag" data-i18n="f4g"></span><h3 data-i18n="f4t"></h3><p data-i18n="f4"></p></div>
+        <div class="feat reveal"><span class="tag" data-i18n="f5g"></span><h3 data-i18n="f5t"></h3><p data-i18n="f5"></p></div>
+        <div class="feat reveal"><span class="tag" data-i18n="f6g"></span><h3 data-i18n="f6t"></h3><p data-i18n="f6"></p></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
       <div class="eyebrow reveal" data-i18n="how_eyebrow"></div>
       <h2 class="display reveal" data-i18n-html="how_title"></h2>
-      <div class="pillars">
-        <div class="pillar reveal"><div class="n">01</div><h3 data-i18n="p1t"></h3><p data-i18n="p1"></p></div>
-        <div class="pillar reveal"><div class="n">02</div><h3 data-i18n="p2t"></h3><p data-i18n="p2"></p></div>
-        <div class="pillar hl reveal"><div class="n">03</div><h3 data-i18n="p3t"></h3><p data-i18n="p3"></p></div>
+      <div class="steps">
+        <div class="step reveal"><div class="n">1</div><h3 data-i18n="s1t"></h3><p data-i18n="s1"></p></div>
+        <div class="step reveal"><div class="n">2</div><h3 data-i18n="s2t"></h3><p data-i18n="s2"></p></div>
+        <div class="step reveal"><div class="n">3</div><h3 data-i18n="s3t"></h3><p data-i18n="s3"></p></div>
       </div>
+    </div>
+  </section>
 
-      <div class="timeline reveal" id="timeline">
-        <div class="weeks"></div>
-        <div class="milestones">
-          <div class="ms"><b data-i18n="m1t"></b><small data-i18n="m1"></small></div>
-          <div class="ms"><b data-i18n="m2t"></b><small data-i18n="m2"></small></div>
-          <div class="ms"><b data-i18n="m3t"></b><small data-i18n="m3"></small></div>
-          <div class="ms"><b data-i18n="m4t" class="accent"></b><small data-i18n="m4"></small></div>
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="eyebrow reveal" data-i18n="vs_eyebrow"></div>
+      <h2 class="display reveal" data-i18n-html="vs_title"></h2>
+      <div class="vs reveal">
+        <div class="them">
+          <div data-i18n="them_label"></div>
+          <div class="big" data-i18n="them_big"></div>
+          <ul><li data-i18n="t1"></li><li data-i18n="t2"></li><li data-i18n="t3"></li><li data-i18n="t4"></li></ul>
         </div>
+        <div class="us">
+          <div data-i18n="us_label"></div>
+          <div class="big accent" data-i18n="us_big"></div>
+          <ul><li data-i18n="u1"></li><li data-i18n="u2"></li><li data-i18n="u3"></li><li data-i18n="u4"></li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="eyebrow reveal" data-i18n="pr_eyebrow"></div>
+      <h2 class="display reveal" data-i18n-html="pr_title"></h2>
+      <div class="vs reveal">
+        <div class="them">
+          <div data-i18n="pr_them"></div>
+          <ul><li data-i18n="pt1"></li><li data-i18n="pt2"></li><li data-i18n="pt3"></li><li data-i18n="pt4"></li><li data-i18n="pt5"></li></ul>
+        </div>
+        <div class="us">
+          <div data-i18n="pr_us"></div>
+          <ul><li data-i18n="pu1"></li><li data-i18n="pu2"></li><li data-i18n="pu3"></li><li data-i18n="pu4"></li><li data-i18n="pu5"></li></ul>
+        </div>
+      </div>
+      <p class="verdict reveal" style="margin-top:24px" data-i18n="pr_free"></p>
+    </div>
+  </section>
+
+  <section style="padding-top:0" id="verdienen">
+    <div class="wrap">
+      <div class="eyebrow reveal" data-i18n="e_eyebrow"></div>
+      <h2 class="display reveal" data-i18n-html="e_title"></h2>
+      <p class="hero-lead reveal" style="margin-top:24px" data-i18n="e_lead"></p>
+      <div class="earn">
+        <div class="feat hl reveal"><span class="tag" data-i18n="e1g"></span><div class="num" data-i18n="e1n"></div><h3 data-i18n="e1t"></h3><p data-i18n="e1"></p><ul><li data-i18n="e1a"></li><li data-i18n="e1b"></li><li data-i18n="e1c"></li></ul></div>
+        <div class="feat reveal"><span class="tag" data-i18n="e2g"></span><div class="num" data-i18n="e2n"></div><h3 data-i18n="e2t"></h3><p data-i18n="e2"></p><ul><li data-i18n="e2a"></li><li data-i18n="e2b"></li><li data-i18n="e2c"></li></ul></div>
+        <div class="feat reveal"><span class="tag" data-i18n="e3g"></span><div class="num" data-i18n="e3n"></div><h3 data-i18n="e3t"></h3><p data-i18n="e3"></p><ul><li data-i18n="e3a"></li><li data-i18n="e3b"></li><li data-i18n="e3c"></li></ul></div>
+        <div class="feat reveal"><span class="tag" data-i18n="e4g"></span><div class="num" data-i18n="e4n"></div><h3 data-i18n="e4t"></h3><p data-i18n="e4"></p><ul><li data-i18n="e4a"></li><li data-i18n="e4b"></li><li data-i18n="e4c"></li></ul></div>
+      </div>
+      <div class="earn-actions reveal">
+        <a href="/app/" class="btn app-only"><span data-i18n="e_cta"></span><span class="arrow">→</span></a>
+        <a href="/partner.html" class="btn btn-ghost" data-legal="partner" data-i18n="e_rules"></a>
       </div>
     </div>
   </section>
@@ -385,31 +465,14 @@
 
   <section>
     <div class="wrap">
-      <div class="eyebrow reveal" data-i18n="price_eyebrow"></div>
-      <h2 class="display reveal" data-i18n-html="price_title"></h2>
-      <div class="price-box reveal">
-        <div class="them">
-          <div data-i18n="them_label"></div>
-          <div class="big" data-i18n="them_price"></div>
-          <ul><li data-i18n="t1"></li><li data-i18n="t2"></li><li data-i18n="t3"></li></ul>
-        </div>
-        <div class="us">
-          <div data-i18n="us_label"></div>
-          <div class="big accent" data-i18n="us_price"></div>
-          <ul><li data-i18n="u1"></li><li data-i18n="u2"></li><li data-i18n="u3"></li><li data-i18n="u4"></li></ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section style="padding-top:0">
-    <div class="wrap">
       <div class="eyebrow reveal" data-i18n="faq_eyebrow"></div>
       <div class="reveal">
-        <details><summary data-i18n="f1q"></summary><p data-i18n="f1a"></p></details>
-        <details><summary data-i18n="f2q"></summary><p data-i18n="f2a"></p></details>
-        <details><summary data-i18n="f3q"></summary><p data-i18n="f3a"></p></details>
-        <details><summary data-i18n="f4q"></summary><p data-i18n="f4a"></p></details>
+        <details><summary data-i18n="fq1"></summary><p data-i18n="fa1"></p></details>
+        <details><summary data-i18n="fq2"></summary><p data-i18n="fa2"></p></details>
+        <details><summary data-i18n="fq3"></summary><p data-i18n="fa3"></p></details>
+        <details><summary data-i18n="fq4"></summary><p data-i18n="fa4"></p></details>
+        <details><summary data-i18n="fq5"></summary><p data-i18n="fa5"></p></details>
+        <details><summary data-i18n="fq6"></summary><p data-i18n="fa6"></p></details>
       </div>
     </div>
   </section>
@@ -429,218 +492,413 @@
     <div class="wrap">
       <span class="logo" style="font-size:18px;color:var(--muted)">ODDO</span>
       <span data-i18n="footer"></span>
+      <span class="legal">
+        <a data-legal="datenschutz" href="/datenschutz.html" data-i18n="privacy"></a>
+        <a data-legal="agb" href="/agb.html" data-i18n="terms"></a>
+        <a href="/impressum.html" data-i18n="imprint"></a>
+      </span>
     </div>
   </footer>
 
   <script>
-    // Start of the first pact (Cyprus time).
-    const PACT_START = new Date("2026-10-26T06:00:00+03:00");
-
     const texts = {
       de: {
-        nav_cta: "Pakt unterschreiben",
-        pill: "Pakt #001 · Start 26. Oktober · nur 30 Plätze",
-        hero_lead: "Du sagst seit Jahren <strong>„irgendwann“</strong>. ODDO macht daraus Tag 1: <strong>12 Wochen, deine Crew, ein Pakt.</strong> Ziehst du durch, geht der nächste Pakt auf uns.",
-        hero_cta: "Ich bin bereit",
-        countdown_label: "Day One startet in",
-        cd_d: "Tage", cd_h: "Std", cd_m: "Min", cd_s: "Sek",
-        toast: "Lisa hat gerade trainiert. Du bist dran.",
-        scr_week: "Woche 5 von 12",
-        scr_day: "Tag 29",
-        scr_ring_title: "Noch 15 Einheiten",
-        scr_ring_text: "bis dein nächster Pakt gratis ist",
-        scr_crew: "Deine Crew heute",
-        scr_me: "Du",
-        scr_today: "HEUTE",
-        scr_workout: "Ganzkörper A",
-        scr_time: "34 Minuten · Studio",
+        nav_cta: "Platz sichern",
+        pill: "Warteliste offen · Gründer-Zugang für die Ersten",
+        hero_sub: "Ab jetzt gibt es keine Ausreden mehr.",
+        hero_lead: "Training, Ernährung, Lauf und Rad, Fortschritt. <strong>Alles in einer App</strong>, ganz auf dich zugeschnitten. Du musst nichts mehr suchen, planen oder abtippen. Die gesparte Zeit gehört deinem Training.",
+        hero_cta: "Meinen Day One sichern",
+        hero_note: "2 Minuten Fragen, dann steht dein Plan.",
+        toast: "Bei Kniebeugen alle Sätze geschafft. Nächste Woche +2,5 kg.",
+        scr_date: "Montag",
+        scr_day: "Tag 12",
+        scr_left: "HEUTE NOCH ÜBRIG",
+        scr_i1: "Ganzkörper A", scr_i1s: "45 Min.",
+        scr_i2: "Lauf",
+        scr_i3: "Mahlzeiten",
+        scr_i4: "Eiweiß",
+        scr_today: "ESSEN",
+        scr_photo: "Foto machen",
+        scr_photo_s: "KI rechnet Kalorien und Eiweiß",
         pain_eyebrow: "Sei ehrlich",
-        pain_title: "Du hast kein<br>Motivations-<br>problem.",
-        q1: "„Ab Montag zieh ich's durch.“", q1s: "Jeder Sonntagabend, seit 2019",
-        q2: "„Studio-Abo abgeschlossen.“", q2s: "3-mal hingegangen",
-        q3: "„Den Plan speicher ich mir.“", q3s: "Liegt bei deinen Screenshots",
-        verdict: "Du hast ein <span class=\"accent\">Alleine-Problem.</span> Niemand merkt, wenn du aufhörst. Bei ODDO merken es fünf Leute.",
-        how_eyebrow: "So funktioniert ODDO",
-        how_title: "Drei Dinge.<br>Mehr nicht.",
-        p1t: "Der Pakt", p1: "12 Wochen, ein klares Ziel, ein fester Starttermin. Jeden Tag zeigt dir ein einziger Button, was dran ist. Du denkst nicht nach, du machst.",
-        p2t: "Die Crew", p2: "4 bis 6 Leute, gleiches Ziel, gleicher Start. Ihr seht, wer heute trainiert hat. Einmal pro Woche Live-Call mit Coach.",
-        p3t: "Die Belohnung", p3: "Schaffst du 29 von 36 Einheiten, ist dein nächster Pakt gratis. Wer durchzieht, zahlt nicht noch mal.",
-        m1t: "Woche 1", m1: "Day One. Crew lernt sich kennen.",
-        m2t: "Woche 4", m2: "Technik sitzt. Es wird Routine.",
-        m3t: "Woche 8", m3: "Erste Rekorde. Freunde fragen nach.",
-        m4t: "Woche 12", m4: "Vorher-Nachher. Nächster Pakt gratis.",
+        pain_title: "Fünf Apps.<br>Null<br>Ergebnis.",
+        q1: "„Den Plan such ich mir auf YouTube.“", q1s: "Nach 20 Minuten Videos: kein Training",
+        q2: "„Ab heute zähl ich Kalorien.“", q2s: "Drei Tage Tabellen, dann aufgegeben",
+        q3: "„Ich mach morgen Fotos.“", q3s: "Kein Vorher-Bild, kein Beweis",
+        verdict: "Zu viel Aufwand ist die beste Ausrede. <span class=\"accent\">ODDO nimmt sie dir.</span>",
+        feat_eyebrow: "Was ODDO kann",
+        feat_title: "Eine App.<br>Alles drin.",
+        f1g: "Dein Plan", f1t: "Dein Plan, auf deiner Stufe", f1: "Du sagst uns Ziel, Zeit, Gym, Zuhause oder Calisthenics und woran es bisher gescheitert ist. Daraus entsteht dein persönlicher Plan mit Kalorienbudget und Eiweißziel.",
+        f2g: "Training", f2t: "Jeder Satz zählt", f2: "Übungen, Sätze und Wiederholungen sind vorgegeben, mit Hinweisen zur Ausführung. Du trägst ein, was du geschafft hast: Wiederholungen und Gewicht.",
+        f3g: "Ernährung", f3t: "Foto statt Abtippen", f3: "Fotografier dein Essen. Die KI erkennt es und schätzt Kalorien und Eiweiß. Du siehst sofort, wie viel von deinem Tagesbudget übrig ist.",
+        f4g: "Ausdauer", f4t: "Lauf und Rad", f4: "Läufe, Radtouren und Spaziergänge mit Strecke, Zeit und Tempo. Die verbrannten Kalorien fließen in dein Tagesbudget ein.",
+        f5g: "Fortschritt", f5t: "Schwarz auf weiß", f5: "Gewicht, Bauchumfang und Fortschrittsfotos. Tag 1 neben heute, damit du siehst, was die Waage noch nicht zeigt.",
+        f6g: "Coach", f6t: "Persönliche Tipps für jede neue Woche", f6: "ODDO schaut sich deine Woche an und sagt dir wie ein erfahrener Coach, wo du steigern kannst: mehr Gewicht, die nächste Übungsstufe, mehr Eiweiß.",
+        how_eyebrow: "So startest du",
+        how_title: "Drei Schritte.<br>Mehr nicht.",
+        s1t: "2 Minuten Fragen", s1: "Ziel, Zeit, Trainingsort, ein kurzer Einsteigertest und dein ehrliches Warum.",
+        s2t: "Dein Plan steht", s2: "Training, Tagesbudget, Eiweißziel und was diesmal anders ist als bei deinen letzten Versuchen.",
+        s3t: "Jeden Tag abhaken", s3: "Training, Essen, Bewegung. Vier Häkchen am Tag, einmal pro Woche dein Fortschritt.",
+        vs_eyebrow: "Der Unterschied",
+        vs_title: "Weniger Apps.<br><span class=\"accent\">Mehr Zeit.</span>",
+        them_label: "So wie bisher",
+        them_big: "5 Apps",
+        t1: "Trainingsplan aus Videos zusammensuchen",
+        t2: "Kalorien einzeln in Tabellen eintippen",
+        t3: "Läufe in einer anderen App",
+        t4: "Fortschritt verstreut in der Galerie",
+        us_label: "Mit ODDO",
+        us_big: "1 App",
+        u1: "Plan fertig, passend zu deiner Zeit",
+        u2: "Essen per Foto in Sekunden erfasst",
+        u3: "Training, Lauf und Rad an einem Ort",
+        u4: "Jede Woche persönliche Tipps, wie es weitergeht",
+        pr_eyebrow: "Das ODDO-Versprechen",
+        pr_title: "Die Fitness-App,<br><span class=\"accent\">die dich nicht reinlegt.</span>",
+        pr_them: "Was andere Apps machen",
+        pt1: "Testphase endet, Abbuchung ohne Vorwarnung",
+        pt2: "Kündigen nur über Umwege",
+        pt3: "Barcode-Scanner plötzlich nur noch im Abo",
+        pt4: "Werbung mitten im Eintragen",
+        pt5: "Immer derselbe starre Plan",
+        pr_us: "Was ODDO verspricht",
+        pu1: "Wir erinnern dich, bevor ein Gratis-Zeitraum endet",
+        pu2: "Kündigen mit 2 Tippen, direkt in der App",
+        pu3: "Barcode-Scanner gratis, ohne Limit",
+        pu4: "Keine Werbung. Nie.",
+        pu5: "Plan passt sich dir an, Hilfe per WhatsApp",
+        pr_free: "Für immer gratis: Plan und Training, Essen eintragen, Barcode-Scanner, 3 Foto-Schätzungen am Tag, Laufen mit GPS, Gruppen und Community.",
+        nav_earn: "Verdienen",
+        e_eyebrow: "Mitmachen und verdienen",
+        e_title: "Jeder kann<br>mitverdienen.",
+        e_lead: "Du nutzt ODDO, du empfiehlst ODDO, du verdienst an ODDO. Egal ob du nur trainierst, Videos drehst, Kunden betreust oder ein Studio führst. Mitmachen kostet nichts.",
+        e1g: "Für alle",
+        e1n: "30 %",
+        e1t: "Freunde einladen, für immer verdienen",
+        e1: "Jeder Nutzer hat in der App einen eigenen Code und Link. Dein Freund bekommt den ersten Monat Pro gratis. Du bekommst 30 % von allem, was er zahlt, solange er dabei ist.",
+        e1a: "Code und Link unter „Verdienen“ in der App",
+        e1b: "1 Monat Pro gratis für dich beim ersten zahlenden Freund",
+        e1c: "Auszahlung per Überweisung oder PayPal",
+        e2g: "Creator und Clipper",
+        e2n: "1,10 $",
+        e2t: "Pro 1.000 Views auf deine Clips",
+        e2: "Dreh ein Video mit ODDO für TikTok, Instagram oder YouTube und reich den Link in der App ein. Bezahlt wird ab 5.000 Views, auch wenn niemand kauft.",
+        e2a: "+50 %, wenn man die App in Benutzung sieht",
+        e2b: "Das Creator-Studio plant deinen Clip mit Abspann und Code",
+        e2c: "Bis 330 $ pro Clip, dazu 30 % über deinen Code",
+        e3g: "Personal Trainer",
+        e3n: "30–40 %",
+        e3t: "Deine Kunden in einer App",
+        e3: "Deine Kunden starten mit deinem Code. Du siehst auf einen Blick, wer dranbleibt, schickst Pläne und schreibst im Chat. Jeder Kunde bekommt den ersten Monat Pro gratis.",
+        e3a: "Trainer-Bereich gratis, bis 20 Kunden",
+        e3b: "30 %, ab 10 zahlenden Kunden 35 %, ab 50 Kunden 40 %",
+        e3c: "Die ersten 20 Trainer: 50 % für 6 Monate",
+        e4g: "Fitnessstudios",
+        e4n: "1 App",
+        e4t: "Dein Studio in ODDO",
+        e4: "Mitglieder checken per QR-Code ein, sehen wie voll es gerade ist und buchen Kurse. Du verwaltest Mitglieder und Kurse und verdienst an jedem, der Pro holt.",
+        e4a: "Check-in mit QR-Code oder 6-stelligem Code",
+        e4b: "Auslastung live, Kurse mit Plätzen und Buchung",
+        e4c: "Dieselbe Provision wie Trainer",
+        e_cta: "In der App starten",
+        e_rules: "Regeln und Partnervertrag",
+        fq6: "Kann ich mit ODDO Geld verdienen?",
+        fa6: "Ja. Jeder Nutzer bekommt 30 % von allem, was eingeladene Freunde zahlen, solange sie dabei sind. Für Clips über ODDO zahlen wir ab 5.000 Views 1,10 $ pro 1.000 Views. Trainer und Studios verdienen bis zu 40 %. Alles findest du in der App unter „Verdienen“.",
         pact_eyebrow: "Der Moment",
         pact_title: "Unter-<br>schreib<br>ihn.",
-        pact_lead: "Ein Versprechen an dich selbst wirkt anders, wenn du es unterschreibst. Trag deinen Namen ein und sichere dir einen der 30 Plätze im ersten Pakt.",
-        paper_title: "Der ODDO-Pakt",
-        paper_terms: "Ich, <span class=\"name-out\" id=\"name-out\">&nbsp;</span>, beginne am <b>26. Oktober 2026</b> meinen Day One. Ich trainiere 12 Wochen mit meiner Crew. Schaffe ich 29 von 36 Einheiten, ist mein nächster Pakt gratis.",
+        pact_lead: "Ein Versprechen an dich selbst wirkt anders, wenn du es unterschreibst. Trag dich ein und sichere dir einen Platz unter den Ersten mit Gründer-Zugang.",
+        paper_title: "Mein Day One",
+        paper_terms: "Ich, <span class=\"name-out\" id=\"name-out\">&nbsp;</span>, höre auf mit „irgendwann“. Ab meinem Day One habe ich Plan, Essen, Training und Fortschritt in einer App. Und keine Ausrede mehr.",
         label_name: "Dein Vorname (Unterschrift)",
         label_email: "Deine E-Mail",
-        sign_cta: "Pakt unterschreiben",
+        sign_cta: "Unterschreiben und Platz sichern",
         fine: "Noch nichts bezahlen. Wir melden uns vor dem Start mit allen Infos.",
         stamp: "Besiegelt",
-        welcome: "Willkommen in Crew #001. Check deine Mails, wir melden uns vor dem Start.",
-        price_eyebrow: "Der Preis",
-        price_title: "Einmal zahlen.<br><span class=\"accent\">Durchziehen.</span>",
-        them_label: "Typische Coaching-App",
-        them_price: "30 € / Monat",
-        t1: "Abo läuft, auch wenn du nicht trainierst",
-        t2: "Du trainierst alleine",
-        t3: "Kündigen ist kompliziert",
-        us_label: "ODDO-Pakt",
-        us_price: "69 €",
-        u1: "12 Wochen, einmal bezahlt",
-        u2: "Deine Crew und wöchentlicher Live-Call",
-        u3: "Nächster Pakt gratis bei 80 %",
-        u4: "Kein Abo, keine Falle",
+        welcome: "Du bist dabei. Check deine Mails, wir melden uns vor dem Start.",
         faq_eyebrow: "Fragen",
-        f1q: "Ich bin Anfänger. Ist das was für mich?", f1a: "Genau dafür ist der erste Pakt gemacht. Du startest mit Technik und leichten Gewichten, jede Übung gibt es auch als Variante für Zuhause.",
-        f2q: "Was passiert, wenn ich eine Woche ausfalle?", f2a: "Nichts Schlimmes. Für den Gratis-Pakt brauchst du 29 von 36 Einheiten, du hast also Puffer für Krankheit oder Urlaub.",
-        f3q: "Studio oder Zuhause?", f3a: "Beides. Du wählst zu Beginn, und für jede Übung gibt es eine Alternative ohne Geräte.",
-        f4q: "Wie funktioniert die Crew?", f4a: "Du kommst in eine Gruppe mit 4 bis 6 Leuten mit ähnlichem Ziel und Level. Ihr seht eure Trainings, schreibt euch und trefft euch einmal pro Woche im Live-Call.",
+        fq1: "Ich bin Anfänger. Ist das was für mich?", fa1: "Genau dafür ist ODDO gemacht. Ein kurzer Einsteigertest setzt jede Übung auf deine Stufe, von Knie-Liegestützen bis zum ersten Klimmzug.",
+        fq2: "Gym, Zuhause oder Calisthenics?", fa2: "Alles drei. Du wählst am Anfang, und dein Plan nutzt nur, was du wirklich hast.",
+        fq3: "Wie genau ist das Essen per Foto?", fa3: "Es ist eine gute Schätzung, keine Laborwaage. Du kannst die Portion anpassen oder Werte selbst eintragen. Für den Alltag reicht das, und es kostet dich Sekunden statt Minuten.",
+        fq4: "Ersetzt ODDO einen Arzt oder Ernährungsberater?", fa4: "Nein. ODDO ist eine App für Training und Alltag, keine medizinische Beratung. Bei Schmerzen oder Vorerkrankungen sprich bitte vorher mit einem Arzt.",
+        fq5: "Was kostet ODDO?", fa5: "ODDO ist kostenlos. Pro kostet 9,99 € im Monat und bringt mehr Essensfotos pro Tag und persönliche Tipps. Die ersten 100 Gründer zahlen 4,99 € im Monat, für immer. Kündigen geht mit 2 Tippen in der App, und vor jeder Abbuchung nach einem Gratis-Zeitraum erinnern wir dich.",
         or: "oder",
         later: "One day …",
         now: "Day One",
         nopes: ["Irgendwann ist kein Tag.", "Montag sagst du seit Jahren.", "Der Knopf ist kaputt. Nimm den anderen."],
-        footer: "© 2026 ODDO · One Day or Day One"
+        footer: "© 2026 ODDO · One Day or Day One",
+        try_web: "Im Browser starten",
+        stores: "iPhone und Android: bald im App Store und bei Google Play.",
+        privacy: "Datenschutz",
+        terms: "AGB",
+        imprint: "Impressum"
       },
       tr: {
-        nav_cta: "Paktı imzala",
-        pill: "Pakt #001 · 26 Ekim'de başlıyor · sadece 30 kişi",
-        hero_lead: "Yıllardır <strong>\"bir gün\"</strong> diyorsun. ODDO bunu 1. güne çeviriyor: <strong>12 hafta, ekibin, tek bir pakt.</strong> Sonuna kadar gidersen bir sonraki pakt bizden.",
-        hero_cta: "Hazırım",
-        countdown_label: "Day One'a kalan",
-        cd_d: "Gün", cd_h: "Saat", cd_m: "Dk", cd_s: "Sn",
-        toast: "Lisa az önce antrenmanını yaptı. Sıra sende.",
-        scr_week: "12 haftanın 5.si",
-        scr_day: "29. gün",
-        scr_ring_title: "15 antrenman kaldı",
-        scr_ring_text: "bir sonraki pakt ücretsiz olana kadar",
-        scr_crew: "Bugün ekibin",
-        scr_me: "Sen",
-        scr_today: "BUGÜN",
-        scr_workout: "Tüm vücut A",
-        scr_time: "34 dakika · Salon",
+        nav_cta: "Yerini ayır",
+        pill: "Bekleme listesi açık · İlk gelenlere kurucu erişimi",
+        hero_sub: "Bundan sonra bahane yok.",
+        hero_lead: "Antrenman, beslenme, koşu ve bisiklet, ilerleme. <strong>Hepsi tek bir uygulamada</strong>, tamamen sana göre hazırlanmış. Artık arama, planlama ya da tek tek yazma yok. Kazandığın zaman antrenmanına ait.",
+        hero_cta: "Day One'ımı ayır",
+        hero_note: "2 dakikalık sorular, sonra planın hazır.",
+        toast: "Squat'ta tüm setleri tamamladın. Gelecek hafta +2,5 kg.",
+        scr_date: "Pazartesi",
+        scr_day: "12. gün",
+        scr_left: "BUGÜN KALAN",
+        scr_i1: "Tüm vücut A", scr_i1s: "45 dk",
+        scr_i2: "Koşu",
+        scr_i3: "Öğünler",
+        scr_i4: "Protein",
+        scr_today: "YEMEK",
+        scr_photo: "Fotoğraf çek",
+        scr_photo_s: "Yapay zekâ kalori ve proteini hesaplar",
         pain_eyebrow: "Dürüst ol",
-        pain_title: "Senin motivasyon<br>sorunun<br>yok.",
-        q1: "\"Pazartesi başlıyorum.\"", q1s: "Her pazar akşamı, 2019'dan beri",
-        q2: "\"Spor salonuna üye oldum.\"", q2s: "3 kez gittin",
-        q3: "\"Bu programı kaydedeyim.\"", q3s: "Ekran görüntülerinin arasında duruyor",
-        verdict: "Senin sorunun <span class=\"accent\">yalnız olmak.</span> Bıraktığında kimse fark etmiyor. ODDO'da beş kişi fark eder.",
-        how_eyebrow: "ODDO nasıl çalışır",
-        how_title: "Üç şey.<br>Fazlası değil.",
-        p1t: "Pakt", p1: "12 hafta, net bir hedef, sabit bir başlangıç tarihi. Her gün tek bir buton ne yapacağını gösterir. Düşünmezsin, yaparsın.",
-        p2t: "Ekip", p2: "Aynı hedefe ve aynı başlangıca sahip 4-6 kişi. Bugün kimin antrenman yaptığını görürsünüz. Haftada bir koçla canlı görüşme.",
-        p3t: "Ödül", p3: "36 antrenmandan 29'unu tamamlarsan bir sonraki pakt ücretsiz. Sonuna kadar giden, bir daha ödemez.",
-        m1t: "1. hafta", m1: "Day One. Ekip tanışıyor.",
-        m2t: "4. hafta", m2: "Teknik oturuyor. Rutin başlıyor.",
-        m3t: "8. hafta", m3: "İlk rekorlar. Arkadaşlar soruyor.",
-        m4t: "12. hafta", m4: "Önce ve sonra. Sonraki pakt ücretsiz.",
+        pain_title: "Beş uygulama.<br>Sıfır<br>sonuç.",
+        q1: "\"Programı YouTube'dan bulurum.\"", q1s: "20 dakika video, antrenman yok",
+        q2: "\"Bugünden itibaren kalori sayıyorum.\"", q2s: "Üç gün tablolar, sonra bıraktın",
+        q3: "\"Yarın fotoğraf çekerim.\"", q3s: "Önce fotoğrafı yok, kanıt yok",
+        verdict: "Fazla uğraş en iyi bahanedir. <span class=\"accent\">ODDO onu elinden alır.</span>",
+        feat_eyebrow: "ODDO neler yapar",
+        feat_title: "Tek uygulama.<br>Her şey içinde.",
+        f1g: "Senin planın", f1t: "Senin seviyende, senin planın", f1: "Hedefini, zamanını, salon, ev ya da calisthenics tercihini ve şimdiye kadar neden bıraktığını söylersin. Bundan kalori bütçen ve protein hedefinle kişisel planın oluşur.",
+        f2g: "Antrenman", f2t: "Her set sayılır", f2: "Egzersizler, setler ve tekrarlar hazır, nasıl yapılacağına dair ipuçlarıyla. Başardığını girersin: tekrar ve ağırlık.",
+        f3g: "Beslenme", f3t: "Yazmak yerine fotoğraf", f3: "Yemeğinin fotoğrafını çek. Yapay zekâ onu tanır, kalori ve proteini tahmin eder. Günlük bütçenden ne kaldığını hemen görürsün.",
+        f4g: "Kondisyon", f4t: "Koşu ve bisiklet", f4: "Koşular, bisiklet turları ve yürüyüşler; mesafe, süre ve tempo ile. Yaktığın kaloriler günlük bütçene eklenir.",
+        f5g: "İlerleme", f5t: "Siyah üstüne beyaz", f5: "Kilo, bel çevresi ve ilerleme fotoğrafları. 1. gün ile bugün yan yana, tartının henüz göstermediğini gör.",
+        f6g: "Koç", f6t: "Her yeni hafta için kişisel ipuçları", f6: "ODDO haftana bakar ve deneyimli bir koç gibi nerede artırabileceğini söyler: daha fazla ağırlık, bir sonraki egzersiz seviyesi, daha fazla protein.",
+        how_eyebrow: "Nasıl başlarsın",
+        how_title: "Üç adım.<br>Fazlası değil.",
+        s1t: "2 dakikalık sorular", s1: "Hedef, zaman, antrenman yeri, kısa bir başlangıç testi ve dürüst \"neden\"in.",
+        s2t: "Planın hazır", s2: "Antrenman, günlük bütçe, protein hedefi ve bu sefer önceki denemelerinden neyin farklı olduğu.",
+        s3t: "Her gün işaretle", s3: "Antrenman, yemek, hareket. Günde dört tik, haftada bir ilerlemen.",
+        vs_eyebrow: "Fark",
+        vs_title: "Daha az uygulama.<br><span class=\"accent\">Daha çok zaman.</span>",
+        them_label: "Şimdiye kadar",
+        them_big: "5 uygulama",
+        t1: "Antrenman programını videolardan toplamak",
+        t2: "Kalorileri tek tek tablolara yazmak",
+        t3: "Koşular başka bir uygulamada",
+        t4: "İlerleme galeride dağınık",
+        us_label: "ODDO ile",
+        us_big: "1 uygulama",
+        u1: "Zamanına uygun, hazır plan",
+        u2: "Yemek fotoğrafla saniyeler içinde kayıtlı",
+        u3: "Antrenman, koşu ve bisiklet tek yerde",
+        u4: "Her hafta nasıl devam edeceğine dair kişisel ipuçları",
+        pr_eyebrow: "ODDO sözü",
+        pr_title: "Seni kandırmayan<br><span class=\"accent\">fitness uygulaması.</span>",
+        pr_them: "Diğer uygulamalar",
+        pt1: "Deneme biter, uyarmadan ücret çekilir",
+        pt2: "İptal etmek dolambaçlı",
+        pt3: "Barkod tarayıcı birden abonelikte",
+        pt4: "Kayıt yaparken reklam",
+        pt5: "Hep aynı katı plan",
+        pr_us: "ODDO'nun sözü",
+        pu1: "Ücretsiz süre bitmeden seni uyarırız",
+        pu2: "Uygulamada 2 dokunuşla iptal",
+        pu3: "Barkod tarayıcı ücretsiz ve sınırsız",
+        pu4: "Reklam yok. Asla.",
+        pu5: "Plan sana uyar, WhatsApp ile yardım",
+        pr_free: "Her zaman ücretsiz: plan ve antrenman, yemek kaydı, barkod tarayıcı, günde 3 fotoğraf tahmini, GPS ile koşu, gruplar ve topluluk.",
+        nav_earn: "Kazan",
+        e_eyebrow: "Katıl ve kazan",
+        e_title: "Herkes<br>kazanabilir.",
+        e_lead: "ODDO'yu kullanırsın, önerirsin, ODDO'dan kazanırsın. İster sadece antrenman yap, ister video çek, danışan çalıştır ya da salon işlet. Katılmak ücretsiz.",
+        e1g: "Herkes için",
+        e1n: "%30",
+        e1t: "Arkadaşını davet et, ömür boyu kazan",
+        e1: "Uygulamada her kullanıcının kendi kodu ve linki var. Arkadaşın ilk ay Pro'yu ücretsiz alır. O kaldığı sürece ödediği her şeyin %30'u senin.",
+        e1a: "Kod ve link uygulamada \"Kazan\" bölümünde",
+        e1b: "İlk ödeme yapan arkadaşınla sana 1 ay ücretsiz Pro",
+        e1c: "Havale veya PayPal ile ödeme",
+        e2g: "İçerik üreticileri",
+        e2n: "1,10 $",
+        e2t: "Videolarında 1.000 izlenme başına",
+        e2: "TikTok, Instagram veya YouTube için ODDO ile bir video çek ve linki uygulamada gönder. 5.000 izlenmeden itibaren ödenir, kimse satın almasa bile.",
+        e2a: "Uygulama kullanılırken görünürse %50 fazla",
+        e2b: "Creator Studio videonu kapanış ve kodla planlar",
+        e2c: "Video başına 330 $'a kadar, üstüne kodunla %30",
+        e3g: "Kişisel antrenörler",
+        e3n: "%30–40",
+        e3t: "Danışanların tek uygulamada",
+        e3: "Danışanların senin kodunla başlar. Kimin devam ettiğini bir bakışta görür, plan gönderir ve sohbet edersin. Her danışan ilk ay Pro'yu ücretsiz alır.",
+        e3a: "Antrenör alanı ücretsiz, 20 danışana kadar",
+        e3b: "%30, 10 ödeyen danışandan itibaren %35, 50'den itibaren %40",
+        e3c: "İlk 20 antrenör: 6 ay boyunca %50",
+        e4g: "Spor salonları",
+        e4n: "1 uygulama",
+        e4t: "Salonun ODDO'da",
+        e4: "Üyeler QR kodla giriş yapar, salonun ne kadar dolu olduğunu görür ve derslere kaydolur. Sen üyeleri ve dersleri yönetir, Pro alan herkesten kazanırsın.",
+        e4a: "QR kod veya 6 haneli kodla giriş",
+        e4b: "Canlı doluluk, kontenjanlı dersler ve rezervasyon",
+        e4c: "Antrenörlerle aynı komisyon",
+        e_cta: "Uygulamada başla",
+        e_rules: "Kurallar ve ortaklık sözleşmesi",
+        fq6: "ODDO ile para kazanabilir miyim?",
+        fa6: "Evet. Her kullanıcı, davet ettiği arkadaşları kaldığı sürece onların ödediği her şeyin %30'unu alır. ODDO hakkındaki videolar için 5.000 izlenmeden itibaren 1.000 izlenme başına 1,10 $ öderiz. Antrenörler ve salonlar %40'a kadar kazanır. Hepsi uygulamada \"Kazan\" bölümünde.",
         pact_eyebrow: "An geldi",
         pact_title: "İmzala<br>onu.",
-        pact_lead: "Kendine verdiğin söz, imzaladığında farklı hissettirir. Adını yaz ve ilk paktın 30 yerinden birini ayır.",
-        paper_title: "ODDO Paktı",
-        paper_terms: "Ben, <span class=\"name-out\" id=\"name-out\">&nbsp;</span>, <b>26 Ekim 2026</b>'da Day One'ımı başlatıyorum. Ekibimle 12 hafta antrenman yapacağım. 36 antrenmandan 29'unu tamamlarsam bir sonraki paktım ücretsiz.",
+        pact_lead: "Kendine verdiğin söz, imzaladığında farklı hissettirir. Kaydol ve kurucu erişimiyle ilk gelenler arasında yerini ayır.",
+        paper_title: "Benim Day One'ım",
+        paper_terms: "Ben, <span class=\"name-out\" id=\"name-out\">&nbsp;</span>, \"bir gün\" demeyi bırakıyorum. Day One'ımdan itibaren plan, yemek, antrenman ve ilerleme tek bir uygulamada. Ve artık bahane yok.",
         label_name: "Adın (imza)",
         label_email: "E-posta adresin",
-        sign_cta: "Paktı imzala",
+        sign_cta: "İmzala ve yerini ayır",
         fine: "Şimdilik ödeme yok. Başlamadan önce tüm bilgilerle sana yazacağız.",
         stamp: "Mühürlendi",
-        welcome: "Ekip #001'e hoş geldin. E-postanı kontrol et, başlamadan önce yazacağız.",
-        price_eyebrow: "Fiyat",
-        price_title: "Bir kez öde.<br><span class=\"accent\">Sonuna kadar git.</span>",
-        them_label: "Tipik koçluk uygulaması",
-        them_price: "30 € / ay",
-        t1: "Antrenman yapmasan da abonelik işler",
-        t2: "Yalnız antrenman yaparsın",
-        t3: "İptal etmek zordur",
-        us_label: "ODDO Paktı",
-        us_price: "69 €",
-        u1: "12 hafta, tek ödeme",
-        u2: "Ekibin ve haftalık canlı görüşme",
-        u3: "%80'de sonraki pakt ücretsiz",
-        u4: "Abonelik yok, tuzak yok",
+        welcome: "Artık içeridesin. E-postanı kontrol et, başlamadan önce yazacağız.",
         faq_eyebrow: "Sorular",
-        f1q: "Yeni başlıyorum. Bana uygun mu?", f1a: "İlk pakt tam da bunun için. Teknik ve hafif ağırlıklarla başlarsın, her egzersizin evde yapılabilen bir versiyonu da var.",
-        f2q: "Bir hafta kaçırırsam ne olur?", f2a: "Sorun yok. Ücretsiz pakt için 36'dan 29 antrenman yeterli, yani hastalık veya tatil için payın var.",
-        f3q: "Salon mu, ev mi?", f3a: "İkisi de. Başta seçersin ve her egzersizin ekipmansız bir alternatifi vardır.",
-        f4q: "Ekip nasıl çalışıyor?", f4a: "Benzer hedef ve seviyedeki 4-6 kişilik bir gruba girersin. Antrenmanlarınızı görür, yazışır ve haftada bir canlı görüşmede buluşursunuz.",
+        fq1: "Yeni başlıyorum. Bana uygun mu?", fa1: "ODDO tam da bunun için. Kısa bir başlangıç testi her egzersizi senin seviyene ayarlar, dizüstü şınavdan ilk barfiksine kadar.",
+        fq2: "Salon, ev ya da calisthenics?", fa2: "Üçü de. Başta seçersin ve planın sadece gerçekten elinde olanı kullanır.",
+        fq3: "Fotoğrafla yemek takibi ne kadar doğru?", fa3: "İyi bir tahmin, laboratuvar terazisi değil. Porsiyonu ayarlayabilir ya da değerleri kendin girebilirsin. Günlük hayat için yeterli ve dakikalar yerine saniyeler sürer.",
+        fq4: "ODDO doktorun veya diyetisyenin yerini tutar mı?", fa4: "Hayır. ODDO antrenman ve günlük hayat için bir uygulama, tıbbi danışmanlık değil. Ağrın ya da bir rahatsızlığın varsa lütfen önce bir doktorla konuş.",
+        fq5: "ODDO ne kadar?", fa5: "ODDO ücretsiz. Pro ayda 9,99 € ve günde daha fazla yemek fotoğrafı ve kişisel ipuçları sunar. İlk 100 kurucu ömür boyu ayda 4,99 € öder. Uygulamada 2 dokunuşla iptal edebilirsin ve ücretsiz süre bitmeden seni uyarırız.",
         or: "yoksa",
         later: "One day …",
         now: "Day One",
         nopes: ["\"Bir gün\" diye bir gün yok.", "Yıllardır pazartesi diyorsun.", "Bu buton bozuk. Diğerini seç."],
-        footer: "© 2026 ODDO · One Day or Day One"
+        footer: "© 2026 ODDO · One Day or Day One",
+        try_web: "Tarayıcıda başla",
+        stores: "iPhone ve Android: yakında App Store ve Google Play'de.",
+        privacy: "Gizlilik",
+        terms: "Koşullar",
+        imprint: "Künye"
       },
       en: {
-        nav_cta: "Sign the pact",
-        pill: "Pact #001 · starts October 26 · only 30 spots",
-        hero_lead: "You've been saying <strong>\"someday\"</strong> for years. ODDO turns it into day one: <strong>12 weeks, your crew, one pact.</strong> See it through and your next pact is on us.",
-        hero_cta: "I'm ready",
-        countdown_label: "Day One starts in",
-        cd_d: "Days", cd_h: "Hrs", cd_m: "Min", cd_s: "Sec",
-        toast: "Lisa just finished her workout. Your turn.",
-        scr_week: "Week 5 of 12",
-        scr_day: "Day 29",
-        scr_ring_title: "15 sessions to go",
-        scr_ring_text: "until your next pact is free",
-        scr_crew: "Your crew today",
-        scr_me: "You",
-        scr_today: "TODAY",
-        scr_workout: "Full body A",
-        scr_time: "34 minutes · Gym",
+        nav_cta: "Save my spot",
+        pill: "Waitlist open · Founder access for early sign-ups",
+        hero_sub: "From now on, no more excuses.",
+        hero_lead: "Training, nutrition, runs and rides, progress. <strong>All in one app</strong>, tailored to you. Nothing left to search for, plan or type in. The time you save belongs to your training.",
+        hero_cta: "Claim my Day One",
+        hero_note: "2 minutes of questions, then your plan is ready.",
+        toast: "All squat sets done. Next week +2.5 kg.",
+        scr_date: "Monday",
+        scr_day: "Day 12",
+        scr_left: "LEFT TODAY",
+        scr_i1: "Full body A", scr_i1s: "45 min",
+        scr_i2: "Run",
+        scr_i3: "Meals",
+        scr_i4: "Protein",
+        scr_today: "FOOD",
+        scr_photo: "Take a photo",
+        scr_photo_s: "AI counts calories and protein",
         pain_eyebrow: "Be honest",
-        pain_title: "You don't have<br>a motivation<br>problem.",
-        q1: "\"Starting Monday, for real.\"", q1s: "Every Sunday night since 2019",
-        q2: "\"Signed up for the gym.\"", q2s: "Went 3 times",
-        q3: "\"I'll save this workout plan.\"", q3s: "Somewhere in your screenshots",
-        verdict: "You have a <span class=\"accent\">doing-it-alone problem.</span> Nobody notices when you quit. At ODDO, five people do.",
-        how_eyebrow: "How ODDO works",
-        how_title: "Three things.<br>Nothing more.",
-        p1t: "The pact", p1: "12 weeks, one clear goal, a fixed start date. Every day a single button shows you what's next. You don't think, you do.",
-        p2t: "The crew", p2: "4 to 6 people, same goal, same start. You see who trained today. A live call with a coach once a week.",
-        p3t: "The reward", p3: "Complete 29 of 36 sessions and your next pact is free. Finishers don't pay twice.",
-        m1t: "Week 1", m1: "Day One. Meet your crew.",
-        m2t: "Week 4", m2: "Form locks in. It becomes routine.",
-        m3t: "Week 8", m3: "First PRs. Friends start asking.",
-        m4t: "Week 12", m4: "Before and after. Next pact free.",
+        pain_title: "Five apps.<br>Zero<br>results.",
+        q1: "\"I'll find a plan on YouTube.\"", q1s: "20 minutes of videos, no workout",
+        q2: "\"Starting today I count calories.\"", q2s: "Three days of spreadsheets, then gave up",
+        q3: "\"I'll take photos tomorrow.\"", q3s: "No before picture, no proof",
+        verdict: "Too much hassle is the best excuse. <span class=\"accent\">ODDO takes it away.</span>",
+        feat_eyebrow: "What ODDO does",
+        feat_title: "One app.<br>Everything in it.",
+        f1g: "Your plan", f1t: "Your plan, at your level", f1: "Tell us your goal, your time, gym, home or calisthenics, and why it hasn't worked before. That becomes your personal plan with a calorie budget and protein target.",
+        f2g: "Training", f2t: "Every set counts", f2: "Exercises, sets and reps are laid out, with form cues. You log what you did: reps and weight.",
+        f3g: "Nutrition", f3t: "Photo instead of typing", f3: "Snap your meal. The AI recognizes it and estimates calories and protein. You instantly see how much of today's budget is left.",
+        f4g: "Cardio", f4t: "Runs and rides", f4: "Runs, rides and walks with distance, time and pace. The calories you burn flow into your daily budget.",
+        f5g: "Progress", f5t: "In black and white", f5: "Weight, waist and progress photos. Day 1 next to today, so you see what the scale doesn't show yet.",
+        f6g: "Coach", f6t: "Personal tips for every new week", f6: "ODDO looks at your week and, like an experienced coach, tells you where to step up: more weight, the next exercise level, more protein.",
+        how_eyebrow: "How you start",
+        how_title: "Three steps.<br>Nothing more.",
+        s1t: "2 minutes of questions", s1: "Goal, time, where you train, a quick starter test and your honest why.",
+        s2t: "Your plan is ready", s2: "Training, daily budget, protein target and what's different this time compared to your last attempts.",
+        s3t: "Tick it off daily", s3: "Training, food, movement. Four ticks a day, your progress once a week.",
+        vs_eyebrow: "The difference",
+        vs_title: "Fewer apps.<br><span class=\"accent\">More time.</span>",
+        them_label: "The old way",
+        them_big: "5 apps",
+        t1: "Piecing a plan together from videos",
+        t2: "Typing calories into spreadsheets",
+        t3: "Runs in yet another app",
+        t4: "Progress scattered across your camera roll",
+        us_label: "With ODDO",
+        us_big: "1 app",
+        u1: "A ready plan that fits your time",
+        u2: "Meals logged by photo in seconds",
+        u3: "Training, runs and rides in one place",
+        u4: "Personal tips every week on what's next",
+        pr_eyebrow: "The ODDO promise",
+        pr_title: "The fitness app<br><span class=\"accent\">that doesn't trick you.</span>",
+        pr_them: "What other apps do",
+        pt1: "Trial ends, charged without warning",
+        pt2: "Cancelling takes detours",
+        pt3: "Barcode scanner suddenly subscription-only",
+        pt4: "Ads in the middle of logging",
+        pt5: "The same rigid plan every week",
+        pr_us: "What ODDO promises",
+        pu1: "We remind you before any free period ends",
+        pu2: "Cancel in 2 taps, right in the app",
+        pu3: "Barcode scanner free, no limit",
+        pu4: "No ads. Ever.",
+        pu5: "A plan that adapts to you, help on WhatsApp",
+        pr_free: "Free forever: plan and training, food logging, barcode scanner, 3 photo estimates a day, GPS runs, groups and community.",
+        nav_earn: "Earn",
+        e_eyebrow: "Join and earn",
+        e_title: "Everyone<br>can earn.",
+        e_lead: "You use ODDO, you recommend ODDO, you earn from ODDO. Whether you just train, make videos, coach clients or run a gym. Joining is free.",
+        e1g: "For everyone",
+        e1n: "30%",
+        e1t: "Invite friends, earn for life",
+        e1: "Every user has their own code and link in the app. Your friend gets the first month of Pro free. You get 30% of everything they pay for as long as they stay.",
+        e1a: "Code and link under \"Earn\" in the app",
+        e1b: "1 month of Pro free for you with your first paying friend",
+        e1c: "Paid out by bank transfer or PayPal",
+        e2g: "Creators and clippers",
+        e2n: "$1.10",
+        e2t: "Per 1,000 views on your clips",
+        e2: "Make a video with ODDO for TikTok, Instagram or YouTube and submit the link in the app. We pay from 5,000 views, even if nobody buys.",
+        e2a: "+50% if the app is shown in use",
+        e2b: "Creator Studio plans your clip with end card and code",
+        e2c: "Up to $330 per clip, plus 30% through your code",
+        e3g: "Personal trainers",
+        e3n: "30–40%",
+        e3t: "Your clients in one app",
+        e3: "Your clients start with your code. You see at a glance who is keeping up, send plans and chat. Every client gets the first month of Pro free.",
+        e3a: "Trainer area free, up to 20 clients",
+        e3b: "30%, 35% from 10 paying clients, 40% from 50",
+        e3c: "The first 20 trainers: 50% for 6 months",
+        e4g: "Gyms",
+        e4n: "1 app",
+        e4t: "Your gym in ODDO",
+        e4: "Members check in with a QR code, see how busy it is and book classes. You manage members and classes and earn from everyone who gets Pro.",
+        e4a: "Check-in with QR code or 6-digit code",
+        e4b: "Live occupancy, classes with spots and booking",
+        e4c: "Same commission as trainers",
+        e_cta: "Start in the app",
+        e_rules: "Rules and partner agreement",
+        fq6: "Can I earn money with ODDO?",
+        fa6: "Yes. Every user gets 30% of everything invited friends pay for as long as they stay. For clips about ODDO we pay $1.10 per 1,000 views from 5,000 views. Trainers and gyms earn up to 40%. You find it all in the app under \"Earn\".",
         pact_eyebrow: "The moment",
         pact_title: "Sign<br>it.",
-        pact_lead: "A promise to yourself hits different when you sign it. Write your name and claim one of 30 spots in the first pact.",
-        paper_title: "The ODDO Pact",
-        paper_terms: "I, <span class=\"name-out\" id=\"name-out\">&nbsp;</span>, start my Day One on <b>October 26, 2026</b>. I'll train for 12 weeks with my crew. If I complete 29 of 36 sessions, my next pact is free.",
+        pact_lead: "A promise to yourself hits different when you sign it. Add your name and claim a spot among the first, with founder access.",
+        paper_title: "My Day One",
+        paper_terms: "I, <span class=\"name-out\" id=\"name-out\">&nbsp;</span>, am done with \"someday\". From my Day One I have my plan, food, training and progress in one app. And no more excuses.",
         label_name: "Your first name (signature)",
         label_email: "Your email",
-        sign_cta: "Sign the pact",
+        sign_cta: "Sign and save my spot",
         fine: "No payment yet. We'll reach out with all details before the start.",
         stamp: "Sealed",
-        welcome: "Welcome to crew #001. Check your inbox, we'll be in touch before the start.",
-        price_eyebrow: "The price",
-        price_title: "Pay once.<br><span class=\"accent\">See it through.</span>",
-        them_label: "Typical coaching app",
-        them_price: "€30 / month",
-        t1: "Keeps billing even when you don't train",
-        t2: "You train alone",
-        t3: "Cancelling is a hassle",
-        us_label: "ODDO Pact",
-        us_price: "€69",
-        u1: "12 weeks, paid once",
-        u2: "Your crew and a weekly live call",
-        u3: "Next pact free at 80%",
-        u4: "No subscription, no trap",
+        welcome: "You're in. Check your inbox, we'll be in touch before the start.",
         faq_eyebrow: "Questions",
-        f1q: "I'm a beginner. Is this for me?", f1a: "That's exactly who the first pact is for. You start with technique and light weights, and every exercise has a home version.",
-        f2q: "What if I miss a week?", f2a: "No big deal. The free pact needs 29 of 36 sessions, so you have room for being sick or on holiday.",
-        f3q: "Gym or home?", f3a: "Both. You choose at the start, and every exercise has an equipment-free alternative.",
-        f4q: "How does the crew work?", f4a: "You join a group of 4 to 6 people with a similar goal and level. You see each other's workouts, chat, and meet once a week on a live call.",
+        fq1: "I'm a beginner. Is this for me?", fa1: "That's exactly who ODDO is for. A quick starter test sets every exercise to your level, from knee push-ups to your first pull-up.",
+        fq2: "Gym, home or calisthenics?", fa2: "All three. You choose at the start, and your plan only uses what you actually have.",
+        fq3: "How accurate is food by photo?", fa3: "It's a good estimate, not a lab scale. You can adjust the portion or enter values yourself. For everyday life that's enough, and it takes seconds instead of minutes.",
+        fq4: "Does ODDO replace a doctor or dietitian?", fa4: "No. ODDO is an app for training and everyday life, not medical advice. If you have pain or a health condition, please talk to a doctor first.",
+        fq5: "What does ODDO cost?", fa5: "ODDO is free. Pro costs 9.99 € a month and adds more meal photos per day and personal tips. The first 100 founders pay 4.99 € a month, forever. Cancel in 2 taps in the app, and we remind you before any charge after a free period.",
         or: "or",
         later: "One day …",
         now: "Day One",
         nopes: ["Someday isn't a day.", "You've been saying Monday for years.", "This button is broken. Pick the other one."],
-        footer: "© 2026 ODDO · One Day or Day One"
+        footer: "© 2026 ODDO · One Day or Day One",
+        try_web: "Start in your browser",
+        stores: "iPhone and Android: coming soon to the App Store and Google Play.",
+        privacy: "Privacy",
+        terms: "Terms",
+        imprint: "Imprint"
       }
     };
 
     let lang = "de";
+
+    // Launch day: set to true. Shows "start in your browser" and the store note.
+    const APP_LIVE = false;
+    document.body.classList.toggle("app-live", APP_LIVE);
 
     function setLang(next) {
       lang = next;
@@ -649,6 +907,7 @@
       document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t[el.dataset.i18n]; });
       document.querySelectorAll("[data-i18n-html]").forEach(el => { el.innerHTML = t[el.dataset.i18nHtml]; });
       document.querySelectorAll(".lang button").forEach(b => b.classList.toggle("active", b.dataset.lang === lang));
+      document.querySelectorAll("[data-legal]").forEach(a => { a.href = `/${a.dataset.legal}.html#${lang}`; });
       syncName();
       try { localStorage.setItem("oddo-lang", lang); } catch (e) {}
     }
@@ -662,43 +921,16 @@
       return texts[browser] ? browser : "en";
     }
 
-    // The signature typed into the form appears live inside the pact text.
+    // The signature typed into the form appears live inside the pledge text.
     const sig = document.getElementById("sig");
     function syncName() {
       const out = document.getElementById("name-out");
-      if (out) out.textContent = sig.value.trim() || " ";
+      if (out) out.textContent = sig.value.trim() || " ";
     }
     sig.addEventListener("input", syncName);
 
     document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => setLang(b.dataset.lang)));
     setLang(initialLang());
-
-    // Countdown to the first pact.
-    function tick() {
-      const diff = Math.max(0, PACT_START - Date.now());
-      const parts = {
-        d: Math.floor(diff / 864e5),
-        h: Math.floor(diff / 36e5) % 24,
-        m: Math.floor(diff / 6e4) % 60,
-        s: Math.floor(diff / 1e3) % 60
-      };
-      for (const k in parts) document.querySelector(`[data-cd="${k}"]`).textContent = String(parts[k]).padStart(2, "0");
-    }
-    tick();
-    setInterval(tick, 1000);
-
-    // 12 week blocks for the timeline.
-    const weeks = document.querySelector(".weeks");
-    for (let i = 1; i <= 12; i++) {
-      const w = document.createElement("div");
-      w.className = "wk";
-      w.innerHTML = `<span style="transition-delay:${(0.3 + (i - 1) * 0.08).toFixed(2)}s">W${i}</span>`;
-      weeks.appendChild(w);
-    }
-    // Pseudo-elements can't take inline styles, so stagger the fill with generated rules.
-    const wkStyle = document.createElement("style");
-    wkStyle.textContent = Array.from({ length: 12 }, (_, i) => `.wk:nth-child(${i + 1})::after{transition-delay:${(i * 0.08).toFixed(2)}s}`).join("");
-    document.head.appendChild(wkStyle);
 
     // Scroll reveal.
     const io = new IntersectionObserver(entries => {
@@ -706,14 +938,14 @@
     }, { threshold: 0.15 });
     document.querySelectorAll(".reveal").forEach(el => io.observe(el));
 
-    // Progress ring fills on load: 14 of 36 sessions.
-    requestAnimationFrame(() => { document.getElementById("ring").style.strokeDashoffset = 201 * (1 - 14 / 36); });
+    // The budget bar on the phone fills on load.
+    requestAnimationFrame(() => document.getElementById("bar").classList.add("go"));
 
     // Nav border once scrolled.
     const nav = document.getElementById("nav");
     addEventListener("scroll", () => nav.classList.toggle("scrolled", scrollY > 10), { passive: true });
 
-    // Signing the pact.
+    // Signing up.
     document.getElementById("pact-form").addEventListener("submit", async e => {
       e.preventDefault();
       const form = e.target;
