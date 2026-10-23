@@ -1006,7 +1006,7 @@ export const de = {
   'trial.title': 'Pro gratis über {via}',
   'trial.sub': 'Bis {date}. Danach wird nichts abgebucht, Free läuft einfach weiter.',
   'trial.soon': 'Endet am {date}. Tippe hier, wenn du Pro behalten willst.',
-  'trial.push': 'Dein Gratis-Monat Pro endet am {date}. Es wird nichts abgebucht. Willst du Pro behalten? Tippe in der App auf ODDO Pro.',
+  'trial.push': 'Dein gratis ODDO Pro endet am {date}. Es wird nichts abgebucht. Willst du Pro behalten? Tippe in der App auf ODDO Pro.',
   'promise.title': 'Das ODDO-Versprechen',
   'promise.remind': 'Wir erinnern dich, bevor ein Gratis-Zeitraum endet.',
   'promise.cancel': 'Kündigen mit 2 Tippen, direkt in der App.',
@@ -1124,6 +1124,10 @@ export const de = {
   'clips.credited': '{amount} gutgeschrieben.',
   'clips.rejected': 'Clip abgelehnt.',
   'clips.today': 'heute eingereicht',
+  'trial.week': 'Deine Pro-Woche, geschenkt',
+  'reveal.giftEyebrow': 'Geschenk zum Start',
+  'reveal.giftTitle': '7 Tage ODDO Pro gratis',
+  'reveal.giftText': 'Bis zu 25 Essensfotos am Tag und persönliche Tipps für deine Woche. Ohne Karte. Danach wird nichts abgebucht, Free läuft einfach weiter.',
 };
 
 export type Key = keyof typeof de;

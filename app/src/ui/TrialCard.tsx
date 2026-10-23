@@ -6,7 +6,7 @@ import { remindTrialEnd } from '../reminders';
 import { colors, fonts } from '../theme';
 import { Small } from './kit';
 
-// The free Pro month after joining a trainer or studio: how long it lasts, and a promise that nothing is charged.
+// Free Pro (the Pro week, or the month after joining a trainer, studio or friend): how long it lasts, and a promise that nothing is charged.
 export function TrialCard({ onPro }: { onPro: () => void }) {
   const perks = usePerks();
   const [paying, setPaying] = useState(false);
@@ -27,7 +27,7 @@ export function TrialCard({ onPro }: { onPro: () => void }) {
         <Small style={{ fontSize: 11 }}>{days === 1 ? t('trial.day') : t('trial.days')}</Small>
       </View>
       <View style={{ flex: 1, gap: 2 }}>
-        <Text style={{ fontFamily: fonts.bold, fontSize: 15, color: colors.text }}>{perks?.via ? t('trial.title', { via: perks.via }) : perks?.bonus ? t('trial.bonus') : t('trial.title', { via: 'ODDO' })}</Text>
+        <Text style={{ fontFamily: fonts.bold, fontSize: 15, color: colors.text }}>{perks?.via ? t('trial.title', { via: perks.via }) : perks?.bonus ? t('trial.bonus') : t('trial.week')}</Text>
         <Small>{t(soon ? 'trial.soon' : 'trial.sub', { date })}</Small>
       </View>
       <Text style={{ color: colors.dim, fontSize: 22 }}>›</Text>

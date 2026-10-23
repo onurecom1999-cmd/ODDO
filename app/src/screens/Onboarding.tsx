@@ -8,6 +8,7 @@ import { l3 } from '../i18n';
 import { useApp } from '../state';
 import { RoleCards } from '../ui/RoleCards';
 import { setStartCode } from '../sheets/Studio';
+import { startTrial } from '../pro';
 import { colors, fonts } from '../theme';
 import { Body, Bold, Button, Card, Chip, Chips, Eyebrow, Field, H1, H2, LinkButton, Muted, Row, Screen, Small, Stack, Stat, Badge, CheckRow } from '../ui/kit';
 
@@ -126,7 +127,12 @@ export function Onboarding({ onExample, onLogin, start }: { onExample: () => voi
               <Muted>{s.text}</Muted>
             </Card>
           ))}
-          <Button label={t('reveal.go')} onPress={() => update(d => { d.lang = getLang(); d.onboarded = true; })} />
+          <Card style={{ gap: 6, borderWidth: 1, borderColor: colors.accent }}>
+            <Eyebrow>{t('reveal.giftEyebrow')}</Eyebrow>
+            <Bold style={{ fontSize: 18 }}>{t('reveal.giftTitle')}</Bold>
+            <Muted>{t('reveal.giftText')}</Muted>
+          </Card>
+          <Button label={t('reveal.go')} onPress={() => { startTrial().catch(() => {}); update(d => { d.lang = getLang(); d.onboarded = true; }); }} />
         </Stack>
       </Screen>
     );

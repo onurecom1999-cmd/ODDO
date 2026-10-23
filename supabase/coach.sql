@@ -899,19 +899,38 @@ language sql security definer set search_path = public as $$
   update commissions set status = 'void' where event_key = p_key and status = 'pending'
 $$;
 
--- What the app needs about a person's free Pro: as a partner, or in the free month after joining one.
+-- Every new person gets one Pro week for free, without a card. Nothing is charged afterwards: Free simply continues.
+create table if not exists public.pro_trials (
+  user_id uuid primary key references auth.users on delete cascade,
+  until timestamptz not null,
+  created_at timestamptz not null default now()
+);
+alter table public.pro_trials enable row level security;
+-- Starts the Pro week once per account and returns when it ends.
+create or replace function public.start_trial() returns timestamptz
+language sql security definer set search_path = public as $$
+  insert into pro_trials (user_id, until) select auth.uid(), now() + interval '7 days' where auth.uid() is not null
+  on conflict (user_id) do nothing;
+  select until from pro_trials where user_id = auth.uid();
+$$;
+revoke execute on function public.start_trial() from public, anon;
+grant execute on function public.start_trial() to authenticated;
+
+-- What the app needs about a person's free Pro: as a partner, in the free month after joining one, or in the Pro week.
 create or replace function public.partner_perks() returns jsonb
 language sql stable security definer set search_path = public as $$
   select jsonb_build_object(
     'partner', exists (select 1 from coaches where user_id = auth.uid() and active)
                or exists (select 1 from studio_staff t join studios s on s.id = t.studio_id and s.active where t.user_id = auth.uid()),
     'free_until', (select max(u) from (select free_until u from referrals where user_id = auth.uid()
-                   union all select bonus_until from partners where user_id = auth.uid()) x where u > now()),
+                   union all select bonus_until from partners where user_id = auth.uid()
+                   union all select until from pro_trials where user_id = auth.uid()) x where u > now()),
     'via', (select coalesce((select name from coaches where user_id = r.partner_id and r.kind = 'coach'),
                             (select name from studios where owner = r.partner_id and r.kind = 'studio' order by created_at limit 1),
                             (select name from profiles where id = r.partner_id and r.kind = 'friend'))
             from referrals r where r.user_id = auth.uid() and r.free_until > now()),
-    'bonus', exists (select 1 from partners where user_id = auth.uid() and bonus_until > now()))
+    'bonus', exists (select 1 from partners where user_id = auth.uid() and bonus_until > now()),
+    'week', exists (select 1 from pro_trials where user_id = auth.uid() and until > now()))
 $$;
 
 -- The partner's earnings page.

@@ -1007,7 +1007,7 @@ export const en: Record<Key, string> = {
   'trial.title': 'Pro free via {via}',
   'trial.sub': 'Until {date}. Nothing is charged after that, Free simply continues.',
   'trial.soon': 'Ends on {date}. Tap here if you want to keep Pro.',
-  'trial.push': 'Your free month of Pro ends on {date}. Nothing is charged. Want to keep Pro? Tap ODDO Pro in the app.',
+  'trial.push': 'Your free ODDO Pro ends on {date}. Nothing is charged. Want to keep Pro? Tap ODDO Pro in the app.',
   'promise.title': 'The ODDO promise',
   'promise.remind': 'We remind you before any free period ends.',
   'promise.cancel': 'Cancel in 2 taps, right in the app.',
@@ -1125,4 +1125,8 @@ export const en: Record<Key, string> = {
   'clips.credited': '{amount} credited.',
   'clips.rejected': 'Clip rejected.',
   'clips.today': 'submitted today',
+  'trial.week': 'Your free Pro week',
+  'reveal.giftEyebrow': 'A gift to start',
+  'reveal.giftTitle': '7 days of ODDO Pro, free',
+  'reveal.giftText': 'Up to 25 food photos a day and personal tips for your week. No card needed. Nothing is charged afterwards, Free simply continues.',
 };

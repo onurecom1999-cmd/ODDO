@@ -35,17 +35,18 @@ export async function tierOf(userId) {
 }
 
 // Trainers and studio staff get Pro. People who joined through a code get Pro for their free month,
-// and people whose invited friend started paying get a free month too.
+// people whose invited friend started paying get a free month too, and every new person gets one Pro week.
 async function withCoach(userId) {
   const id = encodeURIComponent(userId);
   const now = new Date().toISOString();
-  const [own, staff, trial, bonus] = await Promise.all([
+  const [own, staff, trial, bonus, week] = await Promise.all([
     rest(`coaches?user_id=eq.${id}&active=is.true&select=user_id`),
     rest(`studio_staff?user_id=eq.${id}&select=studios!inner(active)&studios.active=is.true`),
     rest(`referrals?user_id=eq.${id}&free_until=gt.${now}&select=user_id`),
     rest(`partners?user_id=eq.${id}&bonus_until=gt.${now}&select=user_id`),
+    rest(`pro_trials?user_id=eq.${id}&until=gt.${now}&select=user_id`),
   ]);
-  return own.length > 0 || staff.length > 0 || trial.length > 0 || bonus.length > 0;
+  return [own, staff, trial, bonus, week].some(rows => rows.length > 0);
 }
 
 const headers = () => ({ apikey: SERVICE(), authorization: `Bearer ${SERVICE()}`, 'content-type': 'application/json' });

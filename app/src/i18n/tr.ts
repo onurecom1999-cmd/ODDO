@@ -1007,7 +1007,7 @@ export const tr: Record<Key, string> = {
   'trial.title': '{via} üzerinden ücretsiz Pro',
   'trial.sub': '{date} tarihine kadar. Sonra ücret alınmaz, Free devam eder.',
   'trial.soon': '{date} tarihinde bitiyor. Pro\'yu tutmak istersen dokun.',
-  'trial.push': 'Ücretsiz Pro ayın {date} tarihinde bitiyor. Ücret alınmaz. Pro\'yu tutmak ister misin? Uygulamada ODDO Pro\'ya dokun.',
+  'trial.push': 'Ücretsiz ODDO Pro’n {date} tarihinde bitiyor. Ücret alınmaz. Pro\'yu tutmak ister misin? Uygulamada ODDO Pro\'ya dokun.',
   'promise.title': 'ODDO sözü',
   'promise.remind': 'Ücretsiz süre bitmeden seni uyarırız.',
   'promise.cancel': 'Uygulamada 2 dokunuşla iptal.',
@@ -1125,4 +1125,8 @@ export const tr: Record<Key, string> = {
   'clips.credited': '{amount} eklendi.',
   'clips.rejected': 'Video reddedildi.',
   'clips.today': 'bugün gönderildi',
+  'trial.week': 'Hediye Pro haftan',
+  'reveal.giftEyebrow': 'Başlangıç hediyesi',
+  'reveal.giftTitle': '7 gün ODDO Pro ücretsiz',
+  'reveal.giftText': 'Günde 25’e kadar yemek fotoğrafı ve haftan için kişisel ipuçları. Kart gerekmez. Sonrasında ücret alınmaz, Free devam eder.',
 };

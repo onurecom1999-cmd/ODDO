@@ -38,13 +38,21 @@ async function serverTier(): Promise<Tier> {
   return best(live ? (data.tier as Tier) : 'free', viaCoach);
 }
 
-// bonus: a free month for bringing in a friend who pays.
-export type Perks = { partner: boolean; free_until: string | null; via: string | null; bonus?: boolean };
+// bonus: a free month for bringing in a friend who pays. week: the free Pro week every new person gets.
+export type Perks = { partner: boolean; free_until: string | null; via: string | null; bonus?: boolean; week?: boolean };
 export async function partnerPerks(): Promise<Perks | null> {
   if (!supabase || !(await userId())) return null;
   const { data, error } = await supabase.rpc('partner_perks');
   if (error) throw error;
   return data as Perks;
+}
+
+// Starts the free Pro week once per account; nothing is charged when it ends.
+export async function startTrial(): Promise<string | null> {
+  if (!supabase || !(await userId())) return null;
+  const { data, error } = await supabase.rpc('start_trial');
+  if (error) throw error;
+  return data as string | null;
 }
 
 export function useTier() {
