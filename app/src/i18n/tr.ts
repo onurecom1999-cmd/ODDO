@@ -476,7 +476,7 @@ export const tr: Record<Key, string> = {
   'pro.ult2': 'Kliplerinden otomatik video kurgusu (lansmandan sonra)',
   'pro.ult3': 'Pro\'daki her şey',
   'pro.founderBadge': 'Kurucu',
-  'pro.founderTitle': '9,99 € yerine 4,99 €, ömür boyu',
+  'pro.founderTitle': '{was} yerine {price}, ömür boyu',
   'pro.founderText': 'Sadece ilk 100 kişiye. Ayrıca kurucu amblemi ve 30 gün üst üste sonrası 3 ay hediye.',
   'pro.founderCta': 'Kurucu yerini ayırt',
   'pro.legal': 'Aylık iptal edilebilir. Ödeme güvenli şekilde Lemon Squeezy üzerinden yapılır.',

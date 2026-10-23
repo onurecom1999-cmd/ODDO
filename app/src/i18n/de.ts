@@ -475,7 +475,7 @@ export const de = {
   'pro.ult2': 'Automatischer Videoschnitt aus deinen Clips (kommt nach dem Start)',
   'pro.ult3': 'Alles aus Pro',
   'pro.founderBadge': 'Gründer',
-  'pro.founderTitle': '4,99 € statt 9,99 €, für immer',
+  'pro.founderTitle': '{price} statt {was}, für immer',
   'pro.founderText': 'Nur für die ersten 100. Dazu das Gründer-Emblem und nach 30 Tagen am Stück 3 Monate geschenkt.',
   'pro.founderCta': 'Gründerplatz sichern',
   'pro.legal': 'Monatlich kündbar. Die Bezahlung läuft sicher über Lemon Squeezy.',

@@ -8,10 +8,12 @@ import { Badge, Bold, Button, Card, LinkButton, Muted, Row, Sheet, Small, Stack,
 
 const SITE = 'https://oddo-app.netlify.app';
 
-const PLANS: { id: Tier; price: string; perks: string[] }[] = [
-  { id: 'free', price: '0 €', perks: ['pro.free1', 'pro.free4', 'pro.free2', 'pro.free3'] },
-  { id: 'pro', price: '9,99 €', perks: ['pro.pro1', 'pro.pro2', 'pro.pro3', 'pro.pro4'] },
-  { id: 'ultimate', price: '19,99 €', perks: ['pro.ult1', 'pro.ult2', 'pro.ult3'] },
+// Web prices, in US dollars like the Lemon Squeezy store. In the store apps the store's own price is shown instead.
+export const usd = (n: number) => n.toLocaleString(LOCALE[getLang()], { style: 'currency', currency: 'USD', minimumFractionDigits: n % 1 ? 2 : 0 });
+const PLANS: { id: Tier; price: number; perks: string[] }[] = [
+  { id: 'free', price: 0, perks: ['pro.free1', 'pro.free4', 'pro.free2', 'pro.free3'] },
+  { id: 'pro', price: 9.99, perks: ['pro.pro1', 'pro.pro2', 'pro.pro3', 'pro.pro4'] },
+  { id: 'ultimate', price: 19.99, perks: ['pro.ult1', 'pro.ult2', 'pro.ult3'] },
 ];
 
 export function ProSheet({ onClose, reason }: { onClose: () => void; reason?: string }) {
@@ -50,7 +52,7 @@ export function ProSheet({ onClose, reason }: { onClose: () => void; reason?: st
           <Card style={{ borderColor: colors.accent, borderWidth: 2 }}>
             <Stack gap={10}>
               <Badge label={t('pro.founderBadge')} accent />
-              <Text style={{ fontFamily: fonts.display, fontSize: 30, color: colors.text }}>{prices.founder ? t('pro.founderTitleStore', { price: prices.founder }) : t('pro.founderTitle')}</Text>
+              <Text style={{ fontFamily: fonts.display, fontSize: 30, color: colors.text }}>{prices.founder ? t('pro.founderTitleStore', { price: prices.founder }) : t('pro.founderTitle', { price: usd(4.99), was: usd(9.99) })}</Text>
               <Muted>{t('pro.founderText')}</Muted>
               <Button label={t('pro.founderCta')} onPress={() => buy('pro', true)} disabled={busy || (!storeBilling && !checkoutReady('pro'))} />
             </Stack>
@@ -62,7 +64,7 @@ export function ProSheet({ onClose, reason }: { onClose: () => void; reason?: st
               <Row style={{ justifyContent: 'space-between' }}>
                 <Text style={{ fontFamily: fonts.display, fontSize: 26, color: colors.text }}>{t(`pro.${p.id}` as Key)}</Text>
                 <View style={{ alignItems: 'flex-end' }}>
-                  <Bold>{(p.id !== 'free' && prices[p.id]) || p.price}</Bold>
+                  <Bold>{(p.id !== 'free' && prices[p.id]) || usd(p.price)}</Bold>
                   {p.id === 'free' ? null : <Small>{t('pro.month')}</Small>}
                 </View>
               </Row>

@@ -476,7 +476,7 @@ export const en: Record<Key, string> = {
   'pro.ult2': 'Automatic video editing from your clips (after launch)',
   'pro.ult3': 'Everything in Pro',
   'pro.founderBadge': 'Founder',
-  'pro.founderTitle': '4.99 € instead of 9.99 €, forever',
+  'pro.founderTitle': '{price} instead of {was}, forever',
   'pro.founderText': 'Only for the first 100. Plus the founder emblem and 3 months free after a 30-day streak.',
   'pro.founderCta': 'Claim a founder spot',
   'pro.legal': 'Cancel monthly. Payments are handled securely by Lemon Squeezy.',
