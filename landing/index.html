@@ -140,6 +140,7 @@
     .app-only { display: none !important; }
     body.app-live .app-only { display: inline-flex !important; }
     body.app-live p.app-only { display: block !important; }
+    body.app-live .hide-live { display: none !important; }
     .stores { margin-top: 14px; font-size: 13px; color: var(--muted); }
     footer .legal { display: flex; gap: 18px; flex-wrap: wrap; }
     footer .legal a { color: var(--dim); }
@@ -296,7 +297,7 @@
           <button data-lang="en">EN</button>
         </div>
         <a href="#verdienen" class="nav-link" data-i18n="nav_earn"></a>
-        <a href="#pact" class="btn nav-cta" data-i18n="nav_cta"></a>
+        <a href="#pact" class="btn nav-cta" data-i18n="nav_cta" data-live="nav_live"></a>
       </div>
     </div>
   </nav>
@@ -312,8 +313,8 @@
         <p class="hero-sub" data-i18n="hero_sub"></p>
         <p class="hero-lead" data-i18n-html="hero_lead"></p>
         <div class="hero-actions">
-          <a href="#pact" class="btn"><span data-i18n="hero_cta"></span><span class="arrow">→</span></a>
-          <a href="/app/" class="btn btn-ghost app-only" data-i18n="try_web"></a>
+          <a href="#pact" class="btn" data-live="live_cta"><span data-i18n="hero_cta"></span><span class="arrow">→</span></a>
+          <a href="/app/" class="btn btn-ghost app-only hide-live" data-i18n="try_web"></a>
           <span class="hero-note" data-i18n="hero_note"></span>
         </div>
         <p class="stores app-only" data-i18n="stores"></p>
@@ -487,7 +488,7 @@
       <h2 class="display reveal"><span style="color:var(--dim)">One day</span><br><span data-i18n="or"></span> <span class="accent">Day One?</span></h2>
       <div class="choice reveal">
         <button class="btn btn-ghost" id="later" data-i18n="later"></button>
-        <a href="#pact" class="btn"><span data-i18n="now"></span><span class="arrow">→</span></a>
+        <a href="#pact" class="btn" data-live="now"><span data-i18n="now"></span><span class="arrow">→</span></a>
       </div>
       <p class="nope" id="nope"></p>
     </div>
@@ -514,6 +515,8 @@
         og_title: "ODDO – Die Fitness-App, die dich nicht reinlegt",
         og_desc: "Training, Kalorien per Foto, Laufen und Fortschritt in einer App. Ehrliche Preise, kündbar mit zwei Taps.",
         nav_cta: "Platz sichern",
+        nav_live: "Starten",
+        live_cta: "Jetzt starten: 7 Tage Pro gratis",
         pill: "Warteliste offen · Gründer-Zugang für die Ersten",
         hero_sub: "Ab jetzt gibt es keine Ausreden mehr.",
         hero_lead: "Training, Ernährung, Lauf und Rad, Fortschritt. <strong>Alles in einer App</strong>, ganz auf dich zugeschnitten. Du musst nichts mehr suchen, planen oder abtippen. Die gesparte Zeit gehört deinem Training.",
@@ -648,6 +651,8 @@
         og_title: "ODDO – Seni kandırmayan fitness uygulaması",
         og_desc: "Antrenman, fotoğrafla kalori, koşu ve ilerleme tek uygulamada. Dürüst fiyat, iki dokunuşla iptal.",
         nav_cta: "Yerini ayır",
+        nav_live: "Başla",
+        live_cta: "Hemen başla: 7 gün Pro ücretsiz",
         pill: "Bekleme listesi açık · İlk gelenlere kurucu erişimi",
         hero_sub: "Bundan sonra bahane yok.",
         hero_lead: "Antrenman, beslenme, koşu ve bisiklet, ilerleme. <strong>Hepsi tek bir uygulamada</strong>, tamamen sana göre hazırlanmış. Artık arama, planlama ya da tek tek yazma yok. Kazandığın zaman antrenmanına ait.",
@@ -782,6 +787,8 @@
         og_title: "ODDO – The fitness app that doesn't trick you",
         og_desc: "Training, calories by photo, runs and progress in one app. Honest pricing, cancel in two taps.",
         nav_cta: "Save my spot",
+        nav_live: "Start",
+        live_cta: "Start now: 7 days of Pro free",
         pill: "Waitlist open · Founder access for early sign-ups",
         hero_sub: "From now on, no more excuses.",
         hero_lead: "Training, nutrition, runs and rides, progress. <strong>All in one app</strong>, tailored to you. Nothing left to search for, plan or type in. The time you save belongs to your training.",
@@ -920,6 +927,15 @@
     // Launch day: set to true. Shows "start in your browser" and the store note.
     const APP_LIVE = false;
     document.body.classList.toggle("app-live", APP_LIVE);
+    // A friend's invite code in the address (?r=ABC1234) travels along into the app.
+    const REF = new URLSearchParams(location.search).get("r");
+    const APP_URL = "/app/" + (REF && /^[A-Za-z0-9]{6,7}$/.test(REF) ? "?r=" + REF.toUpperCase() : "");
+    document.querySelectorAll('a[href="/app/"]').forEach(a => { a.href = APP_URL; });
+    // From launch day on, the main buttons lead straight into the app instead of the waitlist.
+    if (APP_LIVE) document.querySelectorAll("[data-live]").forEach(a => {
+      a.href = APP_URL;
+      (a.querySelector("[data-i18n]") || a).dataset.i18n = a.dataset.live;
+    });
 
     function setLang(next) {
       lang = next;
@@ -957,7 +973,7 @@
     document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => {
       const next = b.dataset.lang;
       try { localStorage.setItem("oddo-lang", next); } catch (e) {}
-      if (LANG_PATH[next] !== location.pathname) location.href = LANG_PATH[next] + location.hash; else setLang(next);
+      if (LANG_PATH[next] !== location.pathname) location.href = LANG_PATH[next] + location.search + location.hash; else setLang(next);
     }));
     setLang(initialLang());
 
