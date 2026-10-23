@@ -49,6 +49,13 @@ export async function partnerPerks(): Promise<Perks | null> {
   return data as Perks;
 }
 
+// Founder places still free out of 100; null when it can't be checked.
+export async function founderLeft(): Promise<number | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc('founder_left');
+  return error || typeof data !== 'number' ? null : data;
+}
+
 // Starts the free Pro week once per account; nothing is charged when it ends.
 export async function startTrial(): Promise<string | null> {
   if (!supabase || !(await userId())) return null;

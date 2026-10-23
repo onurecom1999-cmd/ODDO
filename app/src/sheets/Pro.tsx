@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Linking, Text, View } from 'react-native';
 import { getLang, Key, LOCALE, t } from '../i18n';
-import { best, changeSubscription, checkout, checkoutReady, founderOffer, liveSub, mySubscription, Plan, STORE_MANAGE, Subscription, Tier, useTier } from '../pro';
+import { best, changeSubscription, checkout, checkoutReady, founderLeft, founderOffer, liveSub, mySubscription, Plan, STORE_MANAGE, Subscription, Tier, useTier } from '../pro';
 import { storeBilling, StorePlan, storeBuy, storePrices, storeRestore } from '../store';
 import { colors, fonts } from '../theme';
 import { Badge, Bold, Button, Card, LinkButton, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
@@ -26,7 +26,10 @@ export function ProSheet({ onClose, reason }: { onClose: () => void; reason?: st
   const [prices, setPrices] = useState<Partial<Record<StorePlan, string>>>({});
   useEffect(() => { if (storeBilling) storePrices().then(setPrices, () => {}); }, []);
   const ready = (id: Plan) => storeBilling ? !!prices[id] : checkoutReady(id);
-  const founder = storeBilling ? !!prices.founder : founderOffer;
+  // The count shows once the first places are taken; at 0 the founder offer disappears.
+  const [left, setLeft] = useState<number | null>(null);
+  useEffect(() => { founderLeft().then(setLeft, () => {}); }, []);
+  const founder = (storeBilling ? !!prices.founder : founderOffer) && left !== 0;
   const buy = async (id: Plan, isFounder = false) => {
     setBusy(true);
     if (storeBilling) {
@@ -56,6 +59,7 @@ export function ProSheet({ onClose, reason }: { onClose: () => void; reason?: st
               <Badge label={t('pro.founderBadge')} accent />
               <Text style={{ fontFamily: fonts.display, fontSize: 30, color: colors.text }}>{prices.founder ? t('pro.founderTitleStore', { price: prices.founder }) : t('pro.founderTitle', { price: usd(4.99), was: usd(9.99) })}</Text>
               <Muted>{t('pro.founderText')}</Muted>
+              {left != null && left < 100 ? <Bold style={{ color: colors.accent }}>{t('pro.founderLeft', { n: left })}</Bold> : null}
               <Button label={t('pro.founderCta')} onPress={() => buy('pro', true)} disabled={busy || (!storeBilling && !checkoutReady('pro'))} />
             </Stack>
           </Card>

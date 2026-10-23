@@ -1168,3 +1168,11 @@ begin
 end $$;
 revoke execute on function public.add_product(text, text, text, numeric, numeric, int) from public, anon;
 grant execute on function public.add_product(text, text, text, numeric, numeric, int) to authenticated;
+
+-- How many of the 100 founder places are still free. Counts every founder subscription ever started, so a
+-- place stays taken after cancelling. Readable without an account, for the landing page too.
+create or replace function public.founder_left() returns int
+language sql stable security definer set search_path = public as $$
+  select greatest(0, 100 - (select count(*) from subscriptions where founder)::int)
+$$;
+grant execute on function public.founder_left() to anon, authenticated;

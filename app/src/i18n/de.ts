@@ -1140,6 +1140,8 @@ export const de = {
   'weekover.keep': 'Pro behalten',
   'weekover.free': 'Mit Free weitermachen',
   'weekover.note': 'Es wurde nichts abgebucht. Alles, was du eingetragen hast, bleibt.',
+  'pro.founderLeft': 'Noch {n} von 100 Plätzen frei',
+  'pro.founderLeft.one': 'Nur noch 1 Platz frei',
 };
 
 export type Key = keyof typeof de;

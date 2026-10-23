@@ -1141,4 +1141,6 @@ export const en: Record<Key, string> = {
   'weekover.keep': 'Keep Pro',
   'weekover.free': 'Continue with Free',
   'weekover.note': 'Nothing was charged. Everything you logged stays.',
+  'pro.founderLeft': '{n} of 100 places left',
+  'pro.founderLeft.one': 'Only 1 place left',
 };

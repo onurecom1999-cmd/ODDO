@@ -1141,4 +1141,6 @@ export const tr: Record<Key, string> = {
   'weekover.keep': 'Pro\'yu tut',
   'weekover.free': 'Free ile devam et',
   'weekover.note': 'Hiçbir ücret alınmadı. Girdiğin her şey kalır.',
+  'pro.founderLeft': '100 yerden {n} tanesi boş',
+  'pro.founderLeft.one': 'Sadece 1 yer kaldı',
 };
