@@ -930,7 +930,8 @@ language sql stable security definer set search_path = public as $$
                             (select name from profiles where id = r.partner_id and r.kind = 'friend'))
             from referrals r where r.user_id = auth.uid() and r.free_until > now()),
     'bonus', exists (select 1 from partners where user_id = auth.uid() and bonus_until > now()),
-    'week', exists (select 1 from pro_trials where user_id = auth.uid() and until > now()))
+    'week', exists (select 1 from pro_trials where user_id = auth.uid() and until > now()),
+    'week_over', exists (select 1 from pro_trials where user_id = auth.uid() and until <= now()))
 $$;
 
 -- The partner's earnings page.

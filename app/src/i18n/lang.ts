@@ -23,7 +23,11 @@ export function detectLang(): Lang {
 let current: Lang = 'de';
 export function setLang(lang: Lang) {
   current = lang;
-  if (Platform.OS === 'web') try { localStorage.setItem(LANG_KEY, lang); } catch {}
+  if (Platform.OS === 'web') {
+    try { localStorage.setItem(LANG_KEY, lang); } catch {}
+    // Capitals follow the page language: Turkish "bitti" becomes "BİTTİ", not "BITTI".
+    if (typeof document !== 'undefined') document.documentElement.lang = lang;
+  }
 }
 export function getLang() { return current; }
 export function l3(x: L3) { return x[current]; }

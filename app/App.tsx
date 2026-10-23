@@ -26,6 +26,7 @@ import { CreatorSheet } from './src/sheets/Creator';
 import { AccountSheet } from './src/sheets/Account';
 import { ProSheet } from './src/sheets/Pro';
 import { RewardSheet } from './src/sheets/Reward';
+import { useWeekOver, WeekOverSheet } from './src/sheets/WeekOver';
 import { FoodMode, FoodPick, FoodSheet } from './src/sheets/Food';
 import { TrainSheet } from './src/sheets/Train';
 import { loadState, StateProvider, useApp } from './src/state';
@@ -100,6 +101,8 @@ function Main() {
   useStartCode(() => setStudioTick(n => n + 1), coachSync);
   // The short tour runs once, right after the plan.
   useEffect(() => { if (!S.example && (S.tour ?? 0) < TOUR) setSheet('tour'); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // Once the free Pro week is over: what it brought, and the choice to keep Pro.
+  useWeekOver(() => setSheet(s => s ?? 'weekover'));
   const go = (next: Tab) => { setTab(next); scroll.current?.scrollTo({ y: 0, animated: false }); };
   return (
     <View style={{ flex: 1 }}>
@@ -147,6 +150,7 @@ function Main() {
       {sheet === 'reward' ? <RewardSheet onClose={close} /> : null}
       {sheet?.startsWith('settings') ? <SettingsSheet initial={sheet.split(':')[1] as SettingsPage | undefined} onClose={close} onOpen={open} /> : null}
       {sheet === 'pro' ? <ProSheet onClose={close} /> : null}
+      {sheet === 'weekover' ? <WeekOverSheet onClose={close} onPro={() => setSheet('pro')} /> : null}
       {sheet === 'earn' ? <EarnSheet onClose={close} /> : null}
       {sheet === 'coach' ? <CoachSheet onClose={close} /> : null}
       {sheet === 'tour' ? <TourSheet onClose={() => { close(); update(d => { d.tour = TOUR; }); }}

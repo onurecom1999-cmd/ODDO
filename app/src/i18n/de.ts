@@ -1130,6 +1130,16 @@ export const de = {
   'reveal.giftText': 'Bis zu 25 Essensfotos am Tag und persönliche Tipps für deine Woche. Ohne Karte. Danach wird nichts abgebucht, Free läuft einfach weiter.',
   'pro.year': 'Jährlich für {price}',
   'pro.yearSave': 'Nur {month} im Monat, du sparst die Hälfte.',
+  'weekover.eyebrow': 'Deine Pro-Woche',
+  'weekover.title': 'Deine Pro-Woche ist vorbei. So lief sie.',
+  'weekover.active': 'Aktive Tage',
+  'weekover.trained': 'Trainings',
+  'weekover.meals': 'Mahlzeiten erfasst',
+  'weekover.text': 'Ab heute läuft Free: 3 Essensfotos am Tag und ein Tipp am Tag. Mit Pro behältst du bis zu 25 Fotos und bis zu fünf persönliche Auswertungen am Tag.',
+  'weekover.founder': 'Die ersten 100 zahlen {price} im Monat, für immer.',
+  'weekover.keep': 'Pro behalten',
+  'weekover.free': 'Mit Free weitermachen',
+  'weekover.note': 'Es wurde nichts abgebucht. Alles, was du eingetragen hast, bleibt.',
 };
 
 export type Key = keyof typeof de;

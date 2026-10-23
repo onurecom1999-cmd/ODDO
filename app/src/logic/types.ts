@@ -54,6 +54,8 @@ export type AppState = {
   tour?: number;
   // Set when the person already chose how they use ODDO on the start screen, so the tour does not ask again.
   asked?: boolean;
+  // Set once the person saw the screen at the end of their free Pro week.
+  weekOverSeen?: boolean;
 };
 
 export const emptyState: AppState = { profile: null, plan: null, log: {}, progress: [], routines: [], strength: [], startedAt: null };
