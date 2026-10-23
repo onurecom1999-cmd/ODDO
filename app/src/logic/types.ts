@@ -56,6 +56,8 @@ export type AppState = {
   asked?: boolean;
   // Set once the person saw the screen at the end of their free Pro week.
   weekOverSeen?: boolean;
+  // Streak milestones at which the day card already opened by itself.
+  shareAsked?: number[];
 };
 
 export const emptyState: AppState = { profile: null, plan: null, log: {}, progress: [], routines: [], strength: [], startedAt: null };

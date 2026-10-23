@@ -48,6 +48,12 @@ export const CLIP_URL = /^https:\/\/([a-z0-9-]+\.)*(tiktok\.com|instagram\.com|y
 export const submitClip = (url: string) => rpc<Clip>('submit_clip', { p_url: url.trim() });
 export const myClips = () => rpc<Clip[]>('my_clips');
 export const openClips = () => rpc<OpenClip[]>('admin_clips');
+// Onur's growth numbers (admin only).
+export type Growth = {
+  users_1: number; users_7: number; users_30: number; users_all: number; friends_30: number; partners_30: number;
+  trials_30: number; paying: number; founder_left: number; clip_views_30: number; top: { name: string; n: number }[];
+};
+export const adminGrowth = () => rpc<Growth>('admin_growth');
 export const rateClip = (id: number, views: number, turkish: boolean, appUse: boolean, ok: boolean, note = '') =>
   rpc<number>('admin_rate_clip', { p_id: id, p_views: views, p_turkish: turkish, p_app_use: appUse, p_ok: ok, p_note: note.slice(0, 200) });
 export const voidClip = (id: number) => rpc<void>('admin_void_clip', { p_id: id });

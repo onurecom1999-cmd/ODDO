@@ -304,7 +304,7 @@ Diese Vereinbarung gilt zwischen Onur Ünal, Betreiber von ODDO ({ADDR}), und di
 - Pro-Partner: 35 % bei 10 bis 49 zahlenden Kunden.
 - Elite: 40 % ab 50 zahlenden Kunden.
 - Der Satz richtet sich nach der Zahl deiner zahlenden Kunden zum Zeitpunkt der jeweiligen Zahlung.
-- Freunde: Mit deinem persönlichen Einladungscode gelten dieselben Sätze ab 30 % (Gründungspartner-Plätze gibt es dafür nicht). Beim ersten Freund, der zahlt, bekommst du zusätzlich einen Monat ODDO Pro gratis.
+- Freunde: Mit deinem persönlichen Einladungscode gelten dieselben Sätze ab 30 % (Gründungspartner-Plätze gibt es dafür nicht). Beim ersten Freund, der zahlt, bekommst du zusätzlich einen Monat ODDO Pro gratis. Für jeden der ersten 12 Freunde, die mit deinem Code starten, bekommst du eine Woche ODDO Pro gratis.
 - Der Freundes-Code gilt nur für Personen, die noch über keinen Code gestartet sind und kein bezahltes Abo haben.
 - Partner-Bonus: Wirbst du einen anderen Trainer oder ein Studio, erhältst du einmalig 50 €, sobald dort 10 Kunden zahlen.
 
@@ -354,7 +354,7 @@ This agreement is between Onur Ünal, operator of ODDO ({ADDR}), and you ("partn
 - Pro partner: 35 % with 10 to 49 paying clients.
 - Elite: 40 % with 50 or more paying clients.
 - The rate depends on the number of your paying clients at the time of each payment.
-- Friends: with your personal invite code the same rates apply from 30 % (there are no founding places for it). With the first friend who pays, you also get one month of ODDO Pro free.
+- Friends: with your personal invite code the same rates apply from 30 % (there are no founding places for it). With the first friend who pays, you also get one month of ODDO Pro free. For each of the first 12 friends who start with your code, you get one week of ODDO Pro free.
 - A friend code only works for people who have not started with a code yet and have no paid subscription.
 - Partner bonus: if you bring in another trainer or gym, you get a one-time 50 € once 10 of their clients pay.
 
@@ -404,7 +404,7 @@ Bu sözleşme, ODDO işletmecisi Onur Ünal ({ADDR}) ile sen ("ortak") arasında
 - Pro ortak: 10-49 ödeyen danışanda %35.
 - Elit: 50 ve üzeri ödeyen danışanda %40.
 - Oran, her ödeme anındaki ödeyen danışan sayına göre belirlenir.
-- Arkadaşlar: kişisel davet kodunla %30'dan başlayan aynı oranlar geçerlidir (bunun için kurucu ortak yeri yoktur). Ödeme yapan ilk arkadaşınla sana ek olarak 1 ay ücretsiz ODDO Pro verilir.
+- Arkadaşlar: kişisel davet kodunla %30'dan başlayan aynı oranlar geçerlidir (bunun için kurucu ortak yeri yoktur). Ödeme yapan ilk arkadaşınla sana ek olarak 1 ay ücretsiz ODDO Pro verilir. Kodunla başlayan ilk 12 arkadaşın her biri için sana 1 hafta ücretsiz ODDO Pro verilir.
 - Arkadaş kodu yalnızca henüz bir kodla başlamamış ve ücretli aboneliği olmayan kişiler için geçerlidir.
 - Ortak bonusu: başka bir antrenör veya salon getirirsen, orada 10 danışan ödediğinde bir kerelik 50 € alırsın.
 

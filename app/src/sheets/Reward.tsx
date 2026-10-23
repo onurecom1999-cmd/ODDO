@@ -11,11 +11,12 @@ import { colors, fonts } from '../theme';
 import { Bold, Button, Card as Box, Chip, Chips, Emblem, Field, Muted, Row, Sheet, Stack, useToast } from '../ui/kit';
 import { cardImage } from './cardImage';
 import { CommunityError, post } from '../community';
+import { inviteText, useInvite } from './Earn';
 
 const upper = (s: string) => s.toLocaleUpperCase(LOCALE[getLang()]);
 
 // The card as a view, laid out on a 1080-wide grid and scaled to the screen.
-function Card({ c, photo, width }: { c: DayCard; photo: string; width: number }) {
+function Card({ c, photo, width, code }: { c: DayCard; photo: string; width: number; code?: string | null }) {
   const k = width / 1080, px = (n: number) => n * k;
   return (
     <View style={{ width, height: px(1350), backgroundColor: colors.bg, overflow: 'hidden', borderRadius: 18 }}>
@@ -43,7 +44,7 @@ function Card({ c, photo, width }: { c: DayCard; photo: string; width: number })
       </View>
       <Row style={{ position: 'absolute', left: px(80), right: px(80), bottom: px(70), justifyContent: 'space-between' }}>
         <Text style={{ fontFamily: fonts.semibold, fontSize: px(32), color: colors.muted }}>{c.footer}</Text>
-        <Text style={{ fontFamily: fonts.semibold, fontSize: px(32), color: colors.muted }}>oddo-app.netlify.app</Text>
+        <Text style={{ fontFamily: fonts.semibold, fontSize: px(32), color: code ? colors.accent : colors.muted }}>{code ? `ODDO · Code ${code}` : 'oddo-app.netlify.app'}</Text>
       </Row>
     </View>
   );
@@ -53,6 +54,9 @@ export function RewardSheet({ onClose }: { onClose: () => void }) {
   const { S } = useApp();
   const toast = useToast();
   const c = dayCard(S);
+  const code = useInvite();
+  // The share text carries the invite link, so whoever sees the card can start with a free Pro month.
+  const shareText = code ? `${t('reward.shareText')} ${inviteText(code)} #ODDO` : `${t('reward.shareText')} #ODDO`;
   const [photo, setPhoto] = useState('');
   const [width, setWidth] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -77,13 +81,13 @@ export function RewardSheet({ onClose }: { onClose: () => void }) {
     setBusy(true);
     try {
       if (Platform.OS === 'web') {
-        const blob = await cardImage(c, photo, upper);
+        const blob = await cardImage(c, photo, upper, code);
         if (!blob) throw new Error('draw');
         const name = `oddo-${c.day.toLowerCase().replace(/\W+/g, '-')}.png`;
         const file = new File([blob], name, { type: 'image/png' });
         const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
         if (nav.canShare?.({ files: [file] })) {
-          try { await nav.share({ files: [file], text: `${t('reward.shareText')} #ODDO` }); } catch (e) { if ((e as Error)?.name !== 'AbortError') throw e; }
+          try { await nav.share({ files: [file], text: shareText }); } catch (e) { if ((e as Error)?.name !== 'AbortError') throw e; }
         } else {
           const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click();
           setTimeout(() => URL.revokeObjectURL(a.href), 4000);
@@ -107,7 +111,7 @@ export function RewardSheet({ onClose }: { onClose: () => void }) {
           <Muted style={{ flex: 1 }}>{c.perfect ? c.footer : t('reward.hint')}</Muted>
         </Row>
         <View onLayout={e => setWidth(Math.min(e.nativeEvent.layout.width, 440))} style={{ alignItems: 'center' }}>
-          {width ? <View ref={ref} collapsable={false}><Card c={c} photo={photo} width={width} /></View> : null}
+          {width ? <View ref={ref} collapsable={false}><Card c={c} photo={photo} width={width} code={code} /></View> : null}
         </View>
         <Row style={{ gap: 10 }}>
           <Button variant="ghost" small style={{ flex: 1 }} label={photo ? t('reward.changePhoto') : t('reward.addPhoto')} onPress={addPhoto} />

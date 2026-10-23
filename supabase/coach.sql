@@ -1028,6 +1028,11 @@ begin
   if exists (select 1 from referrals where user_id = auth.uid()) then raise exception 'already referred'; end if;
   if exists (select 1 from subscriptions s where s.user_id = auth.uid() and public.sub_live(s)) then raise exception 'already paying'; end if;
   insert into referrals (user_id, partner_id, kind) values (auth.uid(), o, 'friend');
+  -- Give a week, get a week: the inviter gets 7 more days of Pro for each of their first 12 friends.
+  if (select count(*) from referrals where partner_id = o and kind = 'friend') <= 12 then
+    insert into pro_trials (user_id, until) values (o, now() + interval '7 days')
+    on conflict (user_id) do update set until = greatest(pro_trials.until, now()) + interval '7 days';
+  end if;
   select name into n from profiles where id = o;
   return jsonb_build_object('name', coalesce(n, ''));
 end $$;
@@ -1176,3 +1181,26 @@ language sql stable security definer set search_path = public as $$
   select greatest(0, 100 - (select count(*) from subscriptions where founder)::int)
 $$;
 grant execute on function public.founder_left() to anon, authenticated;
+
+-- Onur's growth numbers: new accounts, where they came from, trials, paying people and the best inviters.
+create or replace function public.admin_growth() returns jsonb
+language plpgsql stable security definer set search_path = public, auth as $$
+begin
+  if not public.is_admin() then raise exception 'not admin'; end if;
+  return jsonb_build_object(
+    'users_1', (select count(*) from auth.users where created_at > now() - interval '1 day'),
+    'users_7', (select count(*) from auth.users where created_at > now() - interval '7 days'),
+    'users_30', (select count(*) from auth.users where created_at > now() - interval '30 days'),
+    'users_all', (select count(*) from auth.users),
+    'friends_30', (select count(*) from public.referrals where kind = 'friend' and created_at > now() - interval '30 days'),
+    'partners_30', (select count(*) from public.referrals where kind in ('coach', 'studio') and created_at > now() - interval '30 days'),
+    'trials_30', (select count(*) from public.pro_trials where created_at > now() - interval '30 days'),
+    'paying', (select count(*) from public.subscriptions s where public.sub_live(s)),
+    'founder_left', public.founder_left(),
+    'clip_views_30', (select coalesce(sum(views), 0) from public.clips where status = 'approved' and decided_at > now() - interval '30 days'),
+    'top', (select coalesce(jsonb_agg(x), '[]') from (
+      select coalesce(nullif(p.name, ''), '?') as name, count(*) as n from public.referrals r left join public.profiles p on p.id = r.partner_id
+      where r.created_at > now() - interval '30 days' group by r.partner_id, p.name order by n desc limit 5) x));
+end $$;
+revoke execute on function public.admin_growth() from public, anon;
+grant execute on function public.admin_growth() to authenticated;

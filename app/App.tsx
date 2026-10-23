@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollViewInstance, Text, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { detectLang, Key, setLang, t } from './src/i18n';
+import { dayKey, dayScore, streak } from './src/logic/day';
 import { exampleState } from './src/logic/example';
 import { AppState, CardioType, emptyState } from './src/logic/types';
 import { Logo, Onboarding } from './src/screens/Onboarding';
@@ -37,6 +38,8 @@ type Tab = 'today' | 'move' | 'community' | 'me';
 const TABS: Tab[] = ['today', 'move', 'community', 'me'];
 // Raise to show the tour again to everyone after it changes.
 const TOUR = 2;
+// Streaks of perfect days at which the day card offers itself for sharing.
+const SHARE_AT = [1, 3, 7, 14, 30, 60, 100, 365];
 
 export default function App() {
   const [fontsLoaded, fontError] = useFonts({ Anton_400Regular, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold, Caveat_600SemiBold });
@@ -101,6 +104,13 @@ function Main() {
   useStartCode(() => setStudioTick(n => n + 1), coachSync);
   // The short tour runs once, right after the plan.
   useEffect(() => { if (!S.example && (S.tour ?? 0) < TOUR) setSheet('tour'); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // Perfect-day streaks worth sharing: the day card opens once for each, when no other sheet is open.
+  const perfect = !S.example && dayScore(S, dayKey()).perfect, run = perfect ? streak(S) : 0;
+  useEffect(() => {
+    if (!run || sheet || !SHARE_AT.includes(run) || (S.shareAsked || []).includes(run)) return;
+    update(d => { d.shareAsked = [...(d.shareAsked || []), run]; });
+    setSheet('reward');
+  }, [run, sheet]); // eslint-disable-line react-hooks/exhaustive-deps
   // Once the free Pro week is over: what it brought, and the choice to keep Pro.
   useWeekOver(() => setSheet(s => s ?? 'weekover'));
   const go = (next: Tab) => { setTab(next); scroll.current?.scrollTo({ y: 0, animated: false }); };
