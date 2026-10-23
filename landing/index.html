@@ -8,6 +8,7 @@
   <meta name="theme-color" content="#0a0a0a">
   <link rel="canonical" href="https://oddo-app.netlify.app/">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="ODDO">
   <meta property="og:url" content="https://oddo-app.netlify.app/">
@@ -50,6 +51,8 @@
     .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
     .display { font-family: Anton, Impact, sans-serif; font-weight: 400; text-transform: uppercase; letter-spacing: 0.01em; line-height: 0.92; }
     .accent { color: var(--accent); }
+    /* Turkish capitals carry dots and cedillas (İ, Ş, Ç, Ğ) that collide at the tight display line height. */
+    html[lang="tr"] .display { line-height: 1.04; }
 
     /* Buttons */
     .btn {
@@ -140,6 +143,8 @@
     .stores { margin-top: 14px; font-size: 13px; color: var(--muted); }
     footer .legal { display: flex; gap: 18px; flex-wrap: wrap; }
     footer .legal a { color: var(--dim); }
+    footer .topics { display: flex; gap: 18px; flex-wrap: wrap; }
+    footer .topics a { color: var(--muted); }
 
     /* Phone screen */
     .scr-budget { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 14px 16px; }
@@ -492,6 +497,7 @@
     <div class="wrap">
       <span class="logo" style="font-size:18px;color:var(--muted)">ODDO</span>
       <span data-i18n="footer"></span>
+      <span class="topics"></span>
       <span class="legal">
         <a data-legal="datenschutz" href="/datenschutz.html" data-i18n="privacy"></a>
         <a data-legal="agb" href="/agb.html" data-i18n="terms"></a>

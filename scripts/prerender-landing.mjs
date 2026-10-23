@@ -2,10 +2,12 @@
 // so search engines and link previews see real content in the right language without running the script.
 // Usage: node scripts/prerender-landing.mjs <site dir>
 import { mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { TOPICS } from './topics.mjs';
 
 const SITE = 'https://oddo-app.netlify.app';
 const PATH = { de: '/', tr: '/tr/', en: '/en/' };
 const LOCALE = { de: 'de_DE', tr: 'tr_TR', en: 'en_US' };
+const OG = { de: '/og.png', tr: '/og-tr.png', en: '/og-en.png' };
 const PRICE = { pro: '9.99', ultimate: '19.99' };
 
 const dir = process.argv[2] || 'site';
@@ -32,6 +34,10 @@ function page(lang) {
   html = html.replace(/(<meta property="og:url" content=")[^"]*"/, `$1${url}"`);
   html = html.replace(/(<meta property="og:title" content=")[^"]*"/, `$1${attr(t.og_title)}"`);
   html = html.replace(/(<meta property="og:description" content=")[^"]*"/, `$1${attr(t.og_desc)}"`);
+  html = html.replace(/(<meta (?:property="og:image"|name="twitter:image") content=")[^"]*"/g, `$1${SITE + OG[lang]}"`);
+  // Links to the search pages in this language, so search engines find them from the home page.
+  const topics = TOPICS.map(topic => `<a href="${topic[lang].path}">${esc(topic[lang].link)}</a>`).join('');
+  html = html.replace('<span class="topics"></span>', `<span class="topics">${topics}</span>`);
   const alt = Object.keys(PATH).map(l => `  <link rel="alternate" hreflang="${l}" href="${SITE + PATH[l]}">`).join('\n');
   const ld = {
     '@context': 'https://schema.org',
