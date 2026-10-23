@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url><loc>https://oddo-app.netlify.app/</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://oddo-app.netlify.app/"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://oddo-app.netlify.app/tr/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://oddo-app.netlify.app/en/"/>
+  </url>
+  <url><loc>https://oddo-app.netlify.app/tr/</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://oddo-app.netlify.app/"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://oddo-app.netlify.app/tr/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://oddo-app.netlify.app/en/"/>
+  </url>
+  <url><loc>https://oddo-app.netlify.app/en/</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://oddo-app.netlify.app/"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://oddo-app.netlify.app/tr/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://oddo-app.netlify.app/en/"/>
+  </url>
+</urlset>

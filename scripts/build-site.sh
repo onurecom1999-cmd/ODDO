@@ -4,6 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 rm -rf site
 cp -r landing site
+node scripts/prerender-landing.mjs site
 (
   cd app
   [ "${SKIP_INSTALL:-}" = 1 ] || npm ci
