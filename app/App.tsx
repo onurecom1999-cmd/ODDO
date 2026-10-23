@@ -1,9 +1,10 @@
 import { Anton_400Regular } from '@expo-google-fonts/anton';
 import { Caveat_600SemiBold } from '@expo-google-fonts/caveat';
 import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold, useFonts } from '@expo-google-fonts/inter';
+import * as StoreReview from 'expo-store-review';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollViewInstance, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollViewInstance, Text, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { detectLang, Key, setLang, t } from './src/i18n';
 import { dayKey, dayScore, streak } from './src/logic/day';
@@ -111,6 +112,13 @@ function Main() {
     update(d => { d.shareAsked = [...(d.shareAsked || []), run]; });
     setSheet('reward');
   }, [run, sheet]); // eslint-disable-line react-hooks/exhaustive-deps
+  // After a week of perfect days, people are happiest with the app: ask once for a store rating, after they closed their day card.
+  // The store decides whether it actually shows the dialog.
+  const askReview = () => {
+    if (Platform.OS === 'web' || S.reviewAsked || run < 7) return;
+    update(d => { d.reviewAsked = true; });
+    StoreReview.isAvailableAsync().then(ok => (ok ? StoreReview.requestReview() : undefined)).catch(() => {});
+  };
   // Once the free Pro week is over: what it brought, and the choice to keep Pro.
   useWeekOver(() => setSheet(s => s ?? 'weekover'));
   const go = (next: Tab) => { setTab(next); scroll.current?.scrollTo({ y: 0, animated: false }); };
@@ -157,7 +165,7 @@ function Main() {
       {sheet === 'train' ? <TrainSheet onClose={close} /> : null}
       {sheet?.startsWith('cardio') && !sheet.endsWith(':live') ? <CardioSheet onClose={close} initialType={(sheet.split(':')[1] || 'run') as CardioType} onLive={type => setSheet(`cardio:${type}:live`)} /> : null}
       {sheet?.startsWith('cardio') && sheet.endsWith(':live') ? <LiveRecord onClose={close} type={(sheet.split(':')[1] || 'run') as CardioType} /> : null}
-      {sheet === 'reward' ? <RewardSheet onClose={close} /> : null}
+      {sheet === 'reward' ? <RewardSheet onClose={() => { close(); askReview(); }} /> : null}
       {sheet?.startsWith('settings') ? <SettingsSheet initial={sheet.split(':')[1] as SettingsPage | undefined} onClose={close} onOpen={open} /> : null}
       {sheet === 'pro' ? <ProSheet onClose={close} /> : null}
       {sheet === 'weekover' ? <WeekOverSheet onClose={close} onPro={() => setSheet('pro')} /> : null}

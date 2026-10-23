@@ -58,6 +58,8 @@ export type AppState = {
   weekOverSeen?: boolean;
   // Streak milestones at which the day card already opened by itself.
   shareAsked?: number[];
+  // Set once the app asked for a store rating.
+  reviewAsked?: boolean;
 };
 
 export const emptyState: AppState = { profile: null, plan: null, log: {}, progress: [], routines: [], strength: [], startedAt: null };
