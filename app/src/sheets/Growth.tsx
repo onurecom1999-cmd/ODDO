@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { fmt, t } from '../i18n';
-import { adminGrowth, Growth } from '../partner';
+import { adminChallenge, adminGrowth, Growth } from '../partner';
 import { colors, fonts } from '../theme';
-import { Bold, Card, Muted, Small, Stack, Stat } from '../ui/kit';
+import { Bold, Button, Card, Field, Muted, Small, Stack, Stat, useToast } from '../ui/kit';
 
 // The goal on Onur's growth page.
 const GOAL = 50000;
@@ -41,6 +41,7 @@ export function AdminGrowth() {
         <Bold>{t('growth.k', { k: fmt(k, 2) })}</Bold>
         <Muted>{t('growth.kText')}</Muted>
       </Card>
+      <ChallengeCard />
       {g.top.length ? (
         <Card style={{ gap: 8 }}>
           <Bold>{t('growth.top')}</Bold>
@@ -48,5 +49,27 @@ export function AdminGrowth() {
         </Card>
       ) : null}
     </Stack>
+  );
+}
+
+// Onur creates a challenge group for a campus or gym and hands out its code; up to 5,000 people fit in.
+function ChallengeCard() {
+  const toast = useToast();
+  const [name, setName] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [made, setMade] = useState<{ invite_code: string; name: string } | null>(null);
+  const create = async () => {
+    setBusy(true);
+    try { setMade(await adminChallenge(name, 5000)); setName(''); } catch { toast(t('growth.challengeFailed')); }
+    setBusy(false);
+  };
+  return (
+    <Card style={{ gap: 10 }}>
+      <Bold>{t('growth.challenge')}</Bold>
+      <Muted>{t('growth.challengeSub')}</Muted>
+      <Field value={name} onChangeText={setName} placeholder={t('growth.challengePh')} maxLength={30} />
+      <Button small label={busy ? '…' : t('growth.challengeCta')} disabled={busy || !name.trim()} onPress={create} />
+      {made ? <Text style={{ fontFamily: fonts.bold, fontSize: 16, color: colors.accent }}>{t('growth.challengeMade', { name: made.name, code: made.invite_code })}</Text> : null}
+    </Card>
   );
 }

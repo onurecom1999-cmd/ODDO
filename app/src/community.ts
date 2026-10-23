@@ -2,7 +2,8 @@ import { userId } from './cloud';
 import type { DayCard } from './logic/reward';
 import { supabase } from './supabase';
 
-export type Group = { id: string; name: string; invite_code: string };
+// max_members above 30: a challenge group (campus or gym), where only its creator writes in the chat.
+export type Group = { id: string; name: string; invite_code: string; max_members?: number; created_by?: string | null; group_members?: { count: number }[] };
 export type Member = { user_id: string; name: string; streak: number; today_done: number; today_all: number; today_date: string | null };
 export type Message = { id: number; user_id: string; kind: 'text' | 'nudge' | 'cheer'; body: string; to_user: string | null; created_at: string };
 export type Post = {
@@ -27,7 +28,7 @@ function fail(e: { message?: string } | null): never {
 
 export async function myGroups(): Promise<Group[]> {
   const { sb } = await db();
-  const { data, error } = await sb.from('groups').select('id,name,invite_code').order('created_at');
+  const { data, error } = await sb.from('groups').select('id,name,invite_code,max_members,created_by,group_members(count)').order('created_at');
   if (error) fail(error);
   return data as Group[];
 }

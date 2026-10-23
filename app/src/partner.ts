@@ -54,6 +54,8 @@ export type Growth = {
   trials_30: number; paying: number; founder_left: number; clip_views_30: number; top: { name: string; n: number }[];
 };
 export const adminGrowth = () => rpc<Growth>('admin_growth');
+// A big group for a campus or gym challenge; returns its join code.
+export const adminChallenge = (name: string, max: number) => rpc<{ invite_code: string; name: string }>('admin_challenge', { p_name: name.trim().slice(0, 30), p_max: max });
 export const rateClip = (id: number, views: number, turkish: boolean, appUse: boolean, ok: boolean, note = '') =>
   rpc<number>('admin_rate_clip', { p_id: id, p_views: views, p_turkish: turkish, p_app_use: appUse, p_ok: ok, p_note: note.slice(0, 200) });
 export const voidClip = (id: number) => rpc<void>('admin_void_clip', { p_id: id });

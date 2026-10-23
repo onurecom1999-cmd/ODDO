@@ -114,6 +114,9 @@ function GroupSheet({ group, onClose, onLeft }: { group: C.Group; onClose: () =>
   }, [group.id, toast]);
   useEffect(() => { load(); }, [load]);
 
+  const big = (group.max_members ?? 30) > 30;
+  const canWrite = !big || (!!me && group.created_by === me);
+  const count = group.group_members?.[0]?.count ?? mem.length;
   const today = dayKey();
   const done = (m: C.Member) => (m.today_date === today ? m.today_done : 0);
   const ranked = [...mem].sort((a, b) => b.streak - a.streak || done(b) - done(a));
@@ -130,7 +133,7 @@ function GroupSheet({ group, onClose, onLeft }: { group: C.Group; onClose: () =>
         <Card>
           <Stack gap={10}>
             <Row style={{ justifyContent: 'space-between' }}>
-              <Muted>{t('com.members', { n: mem.length })}</Muted>
+              <Muted>{t('com.members', { n: count })}</Muted>
               <Text selectable style={{ fontFamily: fonts.display, fontSize: 26, color: colors.accent, letterSpacing: 2 }}>{group.invite_code}</Text>
             </Row>
             <Button small label={t('com.invite')} onPress={invite} />
@@ -147,7 +150,7 @@ function GroupSheet({ group, onClose, onLeft }: { group: C.Group; onClose: () =>
                 <Bold>{m.user_id === me ? t('com.you') : m.name || '…'}</Bold>
                 <Small>{t('com.streak', { n: m.streak })} · {m.today_date === today && m.today_all ? t('com.todayOf', { done: m.today_done, all: m.today_all }) : t('com.notToday')}</Small>
               </View>
-              {m.user_id !== me && done(m) < (m.today_all || 1) ? (
+              {!big && m.user_id !== me && done(m) < (m.today_all || 1) ? (
                 <Button small variant="ghost" label={t('com.nudge')} onPress={() => { say(t('com.nudgeText', { name: m.name }), 'nudge', m.user_id); toast(t('com.nudged')); }} />
               ) : null}
             </Row>
@@ -162,11 +165,15 @@ function GroupSheet({ group, onClose, onLeft }: { group: C.Group; onClose: () =>
               <Text style={{ fontFamily: m.kind === 'text' ? fonts.body : fonts.bold, fontSize: 15, color: m.user_id === me ? colors.ink : colors.text }}>{m.kind === 'nudge' ? '👉 ' : ''}{m.body}</Text>
             </View>
           ))}
-          <Chips>{t('com.cheers').split('|').map(c => <Chip key={c} label={c} onPress={() => say(c, 'cheer')} />)}</Chips>
-          <Row style={{ gap: 10, alignItems: 'flex-end' }}>
-            <Field value={text} onChangeText={setText} placeholder={t('com.chatPh')} maxLength={500} />
-            <Button small label={t('com.send')} onPress={() => { if (text.trim()) { say(text.trim()); setText(''); } }} />
-          </Row>
+          {canWrite ? (
+            <>
+              <Chips>{t('com.cheers').split('|').map(c => <Chip key={c} label={c} onPress={() => say(c, 'cheer')} />)}</Chips>
+              <Row style={{ gap: 10, alignItems: 'flex-end' }}>
+                <Field value={text} onChangeText={setText} placeholder={t('com.chatPh')} maxLength={500} />
+                <Button small label={t('com.send')} onPress={() => { if (text.trim()) { say(text.trim()); setText(''); } }} />
+              </Row>
+            </>
+          ) : <Small>{t('com.bigChat')}</Small>}
         </Stack>
 
         {leaving ? (

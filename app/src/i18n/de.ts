@@ -1168,6 +1168,13 @@ export const de = {
   'install.ios': 'Tippe unten in Safari auf Teilen (□↑) und dann auf „Zum Home-Bildschirm“.',
   'install.android': 'Tippe oben rechts auf das Menü (⋮) und dann auf „App installieren“ oder „Zum Startbildschirm hinzufügen“.',
   'install.later': 'Später',
+  'growth.challenge': 'Challenge-Gruppe anlegen',
+  'growth.challengeSub': 'Für eine Uni oder ein Gym: bis zu 5.000 Leute in einer Gruppe, mit Rangliste der Besten. Den Code verteilst du auf Flyern oder in Stories.',
+  'growth.challengePh': 'z. B. GAU 30 Days',
+  'growth.challengeCta': 'Gruppe anlegen',
+  'growth.challengeMade': '{name} steht. Code: {code}',
+  'growth.challengeFailed': 'Die Gruppe konnte nicht angelegt werden.',
+  'com.bigChat': 'In Challenge-Gruppen schreibt nur das ODDO-Team. Für eure eigene Runde legt eine Gruppe mit Freunden an.',
 };
 
 export type Key = keyof typeof de;

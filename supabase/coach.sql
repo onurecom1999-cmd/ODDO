@@ -47,6 +47,8 @@ create table if not exists public.groups (
   created_by uuid references auth.users on delete set null,
   created_at timestamptz not null default now()
 );
+-- Friend groups hold 30 people. Challenge groups (campus or gym challenges) that Onur creates hold many more.
+alter table public.groups add column if not exists max_members int not null default 30;
 create table if not exists public.group_members (
   group_id uuid not null references public.groups on delete cascade,
   user_id uuid not null references auth.users on delete cascade,
@@ -169,7 +171,11 @@ create policy "group_members: group read" on public.group_members for select usi
 drop policy if exists "group_messages: group read" on public.group_messages;
 create policy "group_messages: group read" on public.group_messages for select using (public.in_group(group_id));
 drop policy if exists "group_messages: group write" on public.group_messages;
-create policy "group_messages: group write" on public.group_messages for insert with check (user_id = auth.uid() and public.in_group(group_id));
+-- In challenge groups (more than 30 places) only the creator writes.
+create policy "group_messages: group write" on public.group_messages for insert with check (
+  user_id = auth.uid() and public.in_group(group_id)
+  and exists (select 1 from public.groups g where g.id = group_id and (g.max_members <= 30 or g.created_by = auth.uid()))
+);
 
 drop policy if exists "follows: read" on public.follows;
 create policy "follows: read" on public.follows for select to authenticated using (true);
@@ -231,7 +237,7 @@ begin
   select * into g from groups where invite_code = upper(trim(p_code));
   if g.id is null then raise exception 'group not found'; end if;
   if exists (select 1 from group_members where group_id = g.id and user_id = auth.uid()) then return g; end if;
-  if (select count(*) from group_members where group_id = g.id) >= 30 then raise exception 'group full'; end if;
+  if (select count(*) from group_members where group_id = g.id) >= g.max_members then raise exception 'group full'; end if;
   if (select count(*) from group_members where user_id = auth.uid()) >= 10 then raise exception 'too many groups'; end if;
   insert into group_members (group_id, user_id) values (g.id, auth.uid());
   return g;
@@ -243,12 +249,17 @@ language sql security definer set search_path = public as $$
 $$;
 
 -- Weekly ranking: perfect days and workouts since Monday, from the backups.
+-- Big challenge groups return the best 50 by streak, plus the person asking.
 create or replace function public.group_week(p_group uuid)
 returns table (user_id uuid, name text, streak int, today_done int, today_all int, today_date date)
 language sql stable security definer set search_path = public as $$
+  (select p.id, p.name, p.streak, p.today_done, p.today_all, p.today_date
+   from group_members m join profiles p on p.id = m.user_id
+   where m.group_id = p_group and public.in_group(p_group)
+   order by p.streak desc, p.today_done desc limit 50)
+  union
   select p.id, p.name, p.streak, p.today_done, p.today_all, p.today_date
-  from group_members m join profiles p on p.id = m.user_id
-  where m.group_id = p_group and public.in_group(p_group)
+  from profiles p where p.id = auth.uid() and public.in_group(p_group)
 $$;
 
 -- Founder program: the first 100 accounts that claim it get a number.
@@ -1204,3 +1215,21 @@ begin
 end $$;
 revoke execute on function public.admin_growth() from public, anon;
 grant execute on function public.admin_growth() to authenticated;
+
+
+-- A challenge group for a campus or gym: like a friend group, but for up to p_max people. Only Onur creates them.
+create or replace function public.admin_challenge(p_name text, p_max int) returns public.groups
+language plpgsql security definer set search_path = public as $$
+declare g groups; code text;
+begin
+  if not public.is_admin() then raise exception 'not admin'; end if;
+  loop
+    select string_agg(substr('ABCDEFGHJKMNPQRSTUVWXYZ23456789', (floor(random() * 31) + 1)::int, 1), '') into code from generate_series(1, 6);
+    exit when not exists (select 1 from groups where invite_code = code);
+  end loop;
+  insert into groups (name, invite_code, created_by, max_members) values (trim(p_name), code, auth.uid(), least(greatest(p_max, 30), 10000)) returning * into g;
+  insert into group_members (group_id, user_id) values (g.id, auth.uid()) on conflict do nothing;
+  return g;
+end $$;
+revoke execute on function public.admin_challenge(text, int) from public, anon;
+grant execute on function public.admin_challenge(text, int) to authenticated;

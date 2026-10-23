@@ -1169,4 +1169,11 @@ export const tr: Record<Key, string> = {
   'install.ios': 'Safari\'de alttaki Paylaş\'a (□↑), sonra „Ana Ekrana Ekle“ye dokun.',
   'install.android': 'Sağ üstteki menüye (⋮), sonra „Uygulamayı yükle“ veya „Ana ekrana ekle“ye dokun.',
   'install.later': 'Sonra',
+  'growth.challenge': 'Challenge grubu oluştur',
+  'growth.challengeSub': 'Bir üniversite veya salon için: tek grupta 5.000 kişiye kadar, en iyilerin sıralamasıyla. Kodu el ilanı veya hikâyelerde paylaş.',
+  'growth.challengePh': 'örn. GAU 30 Days',
+  'growth.challengeCta': 'Grup oluştur',
+  'growth.challengeMade': '{name} hazır. Kod: {code}',
+  'growth.challengeFailed': 'Grup oluşturulamadı.',
+  'com.bigChat': 'Challenge gruplarında sadece ODDO ekibi yazar. Kendi ekibiniz için arkadaşlarınla bir grup oluşturun.',
 };

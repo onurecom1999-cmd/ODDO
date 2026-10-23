@@ -1169,4 +1169,11 @@ export const en: Record<Key, string> = {
   'install.ios': 'In Safari, tap Share (□↑) at the bottom, then “Add to Home Screen”.',
   'install.android': 'Tap the menu (⋮) at the top right, then “Install app” or “Add to home screen”.',
   'install.later': 'Later',
+  'growth.challenge': 'Create a challenge group',
+  'growth.challengeSub': 'For a university or a gym: up to 5,000 people in one group, with a ranking of the best. Hand out the code on flyers or in stories.',
+  'growth.challengePh': 'e.g. GAU 30 Days',
+  'growth.challengeCta': 'Create group',
+  'growth.challengeMade': '{name} is ready. Code: {code}',
+  'growth.challengeFailed': 'Couldn\'t create the group.',
+  'com.bigChat': 'In challenge groups only the ODDO team writes. For your own crew, create a group with friends.',
 };
