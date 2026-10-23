@@ -1,0 +1,212 @@
+// Content of the search pages next to the landing page: one page per topic and language.
+// Each topic needs the same keys in de, tr and en. Built by scripts/build-topics.mjs.
+
+export const UI = {
+  de: {
+    home: '/', cta: 'Platz auf der Warteliste sichern', ctaNote: 'Kostenlos. Die ersten 100 zahlen für Pro 4,99 $ im Monat, für immer.',
+    faq: 'Häufige Fragen', more: 'Mehr über ODDO', back: 'Zur Startseite',
+    footer: '© 2026 ODDO · One Day or Day One', privacy: 'Datenschutz', terms: 'AGB', imprint: 'Impressum',
+  },
+  tr: {
+    home: '/tr/', cta: 'Bekleme listesinde yerini ayırt', ctaNote: 'Ücretsiz. İlk 100 kişi Pro için ayda 4,99 $ öder, ömür boyu.',
+    faq: 'Sık sorulan sorular', more: 'ODDO hakkında daha fazlası', back: 'Ana sayfaya dön',
+    footer: '© 2026 ODDO · One Day or Day One', privacy: 'Gizlilik', terms: 'Koşullar', imprint: 'Künye',
+  },
+  en: {
+    home: '/en/', cta: 'Save your spot on the waitlist', ctaNote: 'Free. The first 100 pay $4.99 a month for Pro, forever.',
+    faq: 'Common questions', more: 'More about ODDO', back: 'Back to the home page',
+    footer: '© 2026 ODDO · One Day or Day One', privacy: 'Privacy', terms: 'Terms', imprint: 'Imprint',
+  },
+};
+
+export const TOPICS = [
+  {
+    id: 'photo',
+    de: {
+      path: '/kalorien-per-foto/',
+      link: 'Kalorien per Foto zählen',
+      title: 'Kalorien per Foto zählen – App mit Barcode-Scanner gratis | ODDO',
+      desc: 'Fotografier dein Essen und sieh in Sekunden Kalorien und Eiweiß. Mit kostenlosem Barcode-Scanner ohne Limit und Werten, die du jederzeit korrigieren kannst.',
+      eyebrow: 'Ernährung',
+      h1: 'Kalorien zählen per Foto. In Sekunden statt Minuten.',
+      lead: 'Die meisten hören nach drei Tagen auf, Kalorien zu zählen, weil das Abtippen nervt. Bei ODDO machst du ein Foto von deinem Teller und siehst sofort, wie viel von deinem Tagesbudget übrig ist.',
+      sections: [
+        ['So funktioniert es', 'Du fotografierst dein Essen. Die KI erkennt, was auf dem Teller liegt, und schätzt Kalorien und Eiweiß. Du bekommst einen Bereich statt einer Scheingenauigkeit und kannst die Portion mit einem Tipp anpassen. Für Gerichte, die du oft isst, reicht später „Nochmal essen“.'],
+        ['Barcode-Scanner gratis, für immer', 'Verpackte Lebensmittel scannst du einfach. Der Scanner ist in ODDO kostenlos und ohne Limit, und das bleibt so. Fehlt ein Produkt, fotografierst du die Nährwerttabelle, und es steht danach für alle bereit.'],
+        ['Kalorien und Eiweiß im Blick', 'Dein Tagesbudget und dein Eiweißziel kommen aus deinem persönlichen Plan. Training, Läufe und Radtouren werden mit eingerechnet. So siehst du jeden Tag auf einen Blick, wo du stehst.'],
+        ['Ehrlich zur Genauigkeit', 'Ein Foto ist eine gute Schätzung, keine Laborwaage. Für den Alltag reicht das, und es kostet dich Sekunden. Wenn du es genau willst, wiegst du ab oder trägst die Werte selbst ein.'],
+      ],
+      faq: [
+        ['Ist die Kalorien-App kostenlos?', 'Ja. Essen eintragen, Barcode-Scanner und 3 Foto-Schätzungen am Tag sind für immer gratis. Pro kostet 9,99 $ im Monat und bringt mehr Fotos pro Tag.'],
+        ['Wie genau ist das Foto?', 'Es ist eine Schätzung mit Spanne. Du kannst Portion und Werte jederzeit korrigieren, und korrigierte Gerichte merkt sich die App für das nächste Mal.'],
+        ['Funktioniert das auch mit türkischem oder selbst gekochtem Essen?', 'Ja. Die Erkennung ist nicht auf Fertigprodukte beschränkt. Bei Gerichten mit viel Öl oder Soße lohnt sich ein kurzer Blick auf die Portion.'],
+      ],
+    },
+    tr: {
+      path: '/tr/fotograf-ile-kalori-hesaplama/',
+      link: 'Fotoğraf ile kalori hesaplama',
+      title: 'Fotoğraf ile Kalori Hesaplama – Ücretsiz Barkod Okuyucu | ODDO',
+      desc: 'Yemeğinin fotoğrafını çek, kalori ve proteini saniyeler içinde gör. Sınırsız ücretsiz barkod okuyucu ve istediğin zaman düzeltebileceğin değerler.',
+      eyebrow: 'Beslenme',
+      h1: 'Fotoğrafla kalori hesapla. Dakikalar değil, saniyeler.',
+      lead: 'Çoğu kişi kalori saymayı üç gün sonra bırakır, çünkü tek tek yazmak yorar. ODDO ile tabağının fotoğrafını çekersin ve günlük bütçenden ne kadar kaldığını hemen görürsün.',
+      sections: [
+        ['Nasıl çalışır', 'Yemeğinin fotoğrafını çekersin. Yapay zekâ tabaktakini tanır, kalori ve proteini tahmin eder. Sahte bir kesinlik yerine bir aralık görürsün ve porsiyonu tek dokunuşla ayarlarsın. Sık yediğin yemekler için sonra „Tekrar ye“ yeterli.'],
+        ['Barkod okuyucu ücretsiz, ömür boyu', 'Paketli ürünleri okutman yeterli. Barkod okuyucu ODDO’da ücretsiz ve sınırsız, böyle de kalacak. Bir ürün eksikse besin tablosunun fotoğrafını çekersin ve herkes için kaydedilir.'],
+        ['Kalori ve protein kontrolünde', 'Günlük bütçen ve protein hedefin kişisel planından gelir. Antrenman, koşu ve bisiklet de hesaba katılır. Her gün nerede olduğunu tek bakışta görürsün.'],
+        ['Doğruluk konusunda dürüstüz', 'Fotoğraf iyi bir tahmindir, laboratuvar terazisi değil. Günlük hayat için yeterli ve sadece saniyeler sürer. Tam değer istersen tartarsın ya da değerleri kendin girersin.'],
+      ],
+      faq: [
+        ['Kalori uygulaması ücretsiz mi?', 'Evet. Yemek girme, barkod okuyucu ve günde 3 fotoğraf tahmini ömür boyu ücretsiz. Pro ayda 9,99 $ ve günde daha fazla fotoğraf sunar.'],
+        ['Fotoğraf ne kadar doğru?', 'Aralıklı bir tahmindir. Porsiyonu ve değerleri istediğin zaman düzeltebilirsin, düzelttiğin yemekleri uygulama bir dahaki sefere hatırlar.'],
+        ['Ev yemekleri ve Türk mutfağı ile de çalışır mı?', 'Evet. Tanıma sadece hazır ürünlerle sınırlı değil. Bol yağlı veya soslu yemeklerde porsiyona kısaca bakmak işe yarar.'],
+      ],
+    },
+    en: {
+      path: '/en/calorie-counter-photo/',
+      link: 'Count calories with a photo',
+      title: 'Calorie Counter by Photo – Free Barcode Scanner | ODDO',
+      desc: 'Snap your meal and see calories and protein in seconds. Free unlimited barcode scanner, and values you can correct any time.',
+      eyebrow: 'Food',
+      h1: 'Count calories with a photo. Seconds, not minutes.',
+      lead: 'Most people quit counting calories after three days because typing everything in is a chore. With ODDO you take a photo of your plate and instantly see how much of your daily budget is left.',
+      sections: [
+        ['How it works', 'You take a photo of your food. The AI recognises what is on the plate and estimates calories and protein. You get a range instead of fake precision and adjust the portion with one tap. For meals you eat often, “Eat again” is all it takes.'],
+        ['Free barcode scanner, forever', 'Packaged food is a quick scan. The scanner is free and unlimited in ODDO, and it stays that way. If a product is missing, photograph the nutrition label and it is saved for everyone.'],
+        ['Calories and protein at a glance', 'Your daily budget and protein goal come from your personal plan. Workouts, runs and rides are counted in. Every day you see where you stand at a glance.'],
+        ['Honest about accuracy', 'A photo is a good estimate, not a lab scale. For everyday life that is enough, and it takes seconds. When you want it exact, weigh it or enter the values yourself.'],
+      ],
+      faq: [
+        ['Is the calorie app free?', 'Yes. Logging food, the barcode scanner and 3 photo estimates a day are free forever. Pro costs $9.99 a month and adds more photos per day.'],
+        ['How accurate is the photo?', 'It is an estimate with a range. You can correct the portion and values any time, and the app remembers corrected meals for next time.'],
+        ['Does it work with home-cooked food?', 'Yes. Recognition is not limited to packaged products. For dishes with a lot of oil or sauce, a quick look at the portion helps.'],
+      ],
+    },
+  },
+  {
+    id: 'plan',
+    de: {
+      path: '/trainingsplan-app/',
+      link: 'Trainingsplan-App',
+      title: 'Trainingsplan-App – Persönlicher Plan für Gym, Zuhause & Calisthenics | ODDO',
+      desc: 'Beantworte 2 Minuten Fragen und bekomm deinen persönlichen Trainingsplan für Gym, Zuhause oder Calisthenics. Mit Sätzen, Gewichten und Steigerung jede Woche.',
+      eyebrow: 'Training',
+      h1: 'Dein Trainingsplan. Fertig in 2 Minuten.',
+      lead: 'Kein Zusammensuchen auf YouTube mehr. Du sagst ODDO dein Ziel, deine Zeit und wo du trainierst. Daraus entsteht ein Plan auf deiner Stufe, der mit dir mitwächst.',
+      sections: [
+        ['Gym, Zuhause oder Calisthenics', 'Du wählst am Anfang, wo du trainierst und was du hast. Der Plan nutzt nur das, was wirklich da ist: Hanteln im Gym, eine Matte zu Hause oder eine Stange im Park.'],
+        ['Auf deiner Stufe', 'Ein kurzer Einsteigertest setzt jede Übung auf dein Niveau, von Knie-Liegestützen bis zum ersten Klimmzug. Anfänger starten sicher, Fortgeschrittene langweilen sich nicht.'],
+        ['Jeder Satz zählt', 'Übungen, Sätze und Wiederholungen sind vorgegeben, mit Hinweisen zur Ausführung. Du trägst ein, was du geschafft hast. Schaffst du alle Sätze, sagt dir ODDO, wann du steigern kannst, zum Beispiel +2,5 kg bei Kniebeugen.'],
+        ['Training, Essen und Laufen zusammen', 'Dein Plan bringt dein Kalorienbudget und dein Eiweißziel gleich mit. Läufe und Radtouren zeichnest du in derselben App auf. Eine App statt fünf.'],
+      ],
+      faq: [
+        ['Ist der Trainingsplan kostenlos?', 'Ja. Plan und Training sind in ODDO für immer gratis. Pro bringt persönliche Tipps für jede neue Woche und mehr Essensfotos.'],
+        ['Ich bin Anfänger. Passt das für mich?', 'Genau dafür ist ODDO gemacht. Der Einsteigertest setzt jede Übung auf deine Stufe.'],
+        ['Wie oft muss ich trainieren?', 'Du gibst an, wie viele Tage und wie viel Zeit du hast. Der Plan richtet sich danach, nicht umgekehrt.'],
+      ],
+    },
+    tr: {
+      path: '/tr/antrenman-programi-uygulamasi/',
+      link: 'Antrenman programı uygulaması',
+      title: 'Antrenman Programı Uygulaması – Spor Salonu, Ev ve Calisthenics | ODDO',
+      desc: '2 dakikalık soruları yanıtla, spor salonu, ev veya calisthenics için kişisel antrenman programını al. Setler, ağırlıklar ve her hafta ilerleme.',
+      eyebrow: 'Antrenman',
+      h1: 'Antrenman programın. 2 dakikada hazır.',
+      lead: 'YouTube’da program aramaya son. ODDO’ya hedefini, zamanını ve nerede çalıştığını söylersin. Seviyene uygun ve seninle birlikte gelişen bir program hazırlanır.',
+      sections: [
+        ['Spor salonu, ev veya calisthenics', 'Başta nerede çalıştığını ve neyin olduğunu seçersin. Program sadece gerçekten elinde olanı kullanır: salonda dambıl, evde bir mat ya da parkta bir bar.'],
+        ['Senin seviyende', 'Kısa bir başlangıç testi her egzersizi seviyene göre ayarlar, dizüstü şınavdan ilk barfiksine kadar. Yeni başlayanlar güvenle başlar, ileri seviyedekiler sıkılmaz.'],
+        ['Her set önemli', 'Egzersizler, setler ve tekrarlar hazır, doğru yapılış için ipuçlarıyla. Yaptığını girersin. Tüm setleri tamamladığında ODDO ne zaman artırabileceğini söyler, örneğin squatta +2,5 kg.'],
+        ['Antrenman, beslenme ve koşu bir arada', 'Programın kalori bütçeni ve protein hedefini de getirir. Koşu ve bisiklet turlarını aynı uygulamada kaydedersin. Beş yerine tek uygulama.'],
+      ],
+      faq: [
+        ['Antrenman programı ücretsiz mi?', 'Evet. Program ve antrenman ODDO’da ömür boyu ücretsiz. Pro her yeni hafta için kişisel ipuçları ve daha fazla yemek fotoğrafı sunar.'],
+        ['Yeni başlayanım. Bana uygun mu?', 'ODDO tam da bunun için yapıldı. Başlangıç testi her egzersizi seviyene göre ayarlar.'],
+        ['Ne sıklıkla antrenman yapmalıyım?', 'Kaç gün ve ne kadar zamanın olduğunu sen belirlersin. Program sana uyar, sen programa değil.'],
+      ],
+    },
+    en: {
+      path: '/en/workout-plan-app/',
+      link: 'Workout plan app',
+      title: 'Workout Plan App – Personal Plan for Gym, Home & Calisthenics | ODDO',
+      desc: 'Answer 2 minutes of questions and get your personal workout plan for the gym, home or calisthenics. With sets, weights and progression every week.',
+      eyebrow: 'Training',
+      h1: 'Your workout plan. Ready in 2 minutes.',
+      lead: 'No more piecing plans together from YouTube. Tell ODDO your goal, your time and where you train. You get a plan at your level that grows with you.',
+      sections: [
+        ['Gym, home or calisthenics', 'At the start you choose where you train and what you have. The plan only uses what is really there: dumbbells at the gym, a mat at home or a bar in the park.'],
+        ['At your level', 'A short starter test sets every exercise to your level, from knee push-ups to your first pull-up. Beginners start safely, advanced lifters don’t get bored.'],
+        ['Every set counts', 'Exercises, sets and reps are laid out, with form cues. You log what you did. When you complete all sets, ODDO tells you when to progress, for example +2.5 kg on squats.'],
+        ['Training, food and running together', 'Your plan comes with your calorie budget and protein goal. Runs and rides are tracked in the same app. One app instead of five.'],
+      ],
+      faq: [
+        ['Is the workout plan free?', 'Yes. The plan and training are free forever in ODDO. Pro adds personal tips for every new week and more food photos.'],
+        ['I’m a beginner. Is this for me?', 'That is exactly who ODDO is built for. The starter test sets every exercise to your level.'],
+        ['How often do I need to train?', 'You say how many days and how much time you have. The plan fits you, not the other way round.'],
+      ],
+    },
+  },
+  {
+    id: 'alt',
+    de: {
+      path: '/myfitnesspal-alternative/',
+      link: 'MyFitnessPal-Alternative',
+      title: 'MyFitnessPal-Alternative mit kostenlosem Barcode-Scanner | ODDO',
+      desc: 'Du suchst eine Alternative zu MyFitnessPal oder Yazio? ODDO: Barcode-Scanner gratis ohne Limit, Kalorien per Foto, Trainingsplan dabei und Kündigen mit 2 Tippen.',
+      eyebrow: 'Vergleich',
+      h1: 'Die Alternative, die dich nicht reinlegt.',
+      lead: 'Viele wechseln ihre Kalorien-App, weil Funktionen plötzlich hinter einer Bezahlschranke landen, Werbung beim Eintragen stört oder das Kündigen kompliziert ist. ODDO macht es anders, und das versprechen wir schriftlich.',
+      sections: [
+        ['Barcode-Scanner gratis, für immer', 'Bei manchen Apps kostet der Scanner inzwischen extra. Bei ODDO ist er kostenlos und ohne Limit, und er wird nie ins Abo verschoben.'],
+        ['Kein Abo-Trick', 'Vor dem Ende eines Gratis-Zeitraums erinnern wir dich, per App und drei Tage vorher. Kündigen geht mit 2 Tippen direkt in der App, ohne Umwege und ohne Formular.'],
+        ['Keine Werbung. Nie.', 'Kein Banner, kein Video zwischen zwei Mahlzeiten. Du trägst ein und bist fertig.'],
+        ['Mehr als Kalorien', 'ODDO ist nicht nur ein Kalorienzähler. Dein Trainingsplan, Laufen und Rad mit GPS und dein Fortschritt mit Fotos sind in derselben App. Eine App statt fünf.'],
+      ],
+      faq: [
+        ['Was ist kostenlos?', 'Für immer gratis: Plan und Training, Essen eintragen, Barcode-Scanner, 3 Foto-Schätzungen am Tag, Laufen mit GPS, Gruppen und Community.'],
+        ['Was kostet Pro?', 'Pro kostet 9,99 $ im Monat oder 59,99 $ im Jahr. Die ersten 100 Gründer zahlen 4,99 $ im Monat, für immer.'],
+        ['Kann ich jederzeit kündigen?', 'Ja, mit 2 Tippen in der App unter „Dein Abo“. Wenn du nur eine Pause brauchst, kannst du das Abo auch einen Monat pausieren.'],
+      ],
+    },
+    tr: {
+      path: '/tr/myfitnesspal-alternatifi/',
+      link: 'MyFitnessPal alternatifi',
+      title: 'MyFitnessPal Alternatifi – Ücretsiz Barkod Okuyucu | ODDO',
+      desc: 'MyFitnessPal veya Yazio’ya alternatif mi arıyorsun? ODDO: sınırsız ücretsiz barkod okuyucu, fotoğrafla kalori, antrenman programı ve 2 dokunuşla iptal.',
+      eyebrow: 'Karşılaştırma',
+      h1: 'Seni kandırmayan alternatif.',
+      lead: 'Birçok kişi kalori uygulamasını değiştiriyor, çünkü özellikler bir anda ücretli oluyor, kayıt sırasında reklamlar çıkıyor ya da iptal etmek zor. ODDO farklı yapıyor ve bunu yazılı olarak söz veriyoruz.',
+      sections: [
+        ['Barkod okuyucu ücretsiz, ömür boyu', 'Bazı uygulamalarda okuyucu artık ücretli. ODDO’da ücretsiz ve sınırsız, asla aboneliğe taşınmayacak.'],
+        ['Abonelik tuzağı yok', 'Ücretsiz dönem bitmeden üç gün önce uygulamadan seni uyarırız. İptal, uygulamada 2 dokunuşla, dolambaçsız ve form doldurmadan.'],
+        ['Reklam yok. Asla.', 'Banner yok, iki öğün arasında video yok. Girersin ve bitti.'],
+        ['Kaloriden fazlası', 'ODDO sadece bir kalori sayacı değil. Antrenman programın, GPS ile koşu ve bisiklet, fotoğraflı ilerlemen aynı uygulamada. Beş yerine tek uygulama.'],
+      ],
+      faq: [
+        ['Neler ücretsiz?', 'Ömür boyu ücretsiz: program ve antrenman, yemek girme, barkod okuyucu, günde 3 fotoğraf tahmini, GPS ile koşu, gruplar ve topluluk.'],
+        ['Pro ne kadar?', 'Pro ayda 9,99 $ veya yılda 59,99 $. İlk 100 kurucu üye ayda 4,99 $ öder, ömür boyu.'],
+        ['İstediğim zaman iptal edebilir miyim?', 'Evet, uygulamada „Aboneliğin“ altında 2 dokunuşla. Sadece ara vermek istersen aboneliği 1 ay durdurabilirsin.'],
+      ],
+    },
+    en: {
+      path: '/en/myfitnesspal-alternative/',
+      link: 'MyFitnessPal alternative',
+      title: 'MyFitnessPal Alternative with a Free Barcode Scanner | ODDO',
+      desc: 'Looking for an alternative to MyFitnessPal or Yazio? ODDO: free unlimited barcode scanner, calories by photo, a workout plan included and cancel in 2 taps.',
+      eyebrow: 'Comparison',
+      h1: 'The alternative that doesn’t trick you.',
+      lead: 'Many people switch calorie apps because features suddenly move behind a paywall, ads get in the way of logging, or cancelling is a maze. ODDO does it differently, and we put that promise in writing.',
+      sections: [
+        ['Free barcode scanner, forever', 'In some apps the scanner now costs extra. In ODDO it is free and unlimited, and it will never move into the subscription.'],
+        ['No subscription tricks', 'We remind you three days before a free period ends, in the app. Cancelling takes 2 taps right in the app, no detours and no forms.'],
+        ['No ads. Ever.', 'No banners, no videos between two meals. You log and you are done.'],
+        ['More than calories', 'ODDO is not just a calorie counter. Your workout plan, running and cycling with GPS and your progress photos are in the same app. One app instead of five.'],
+      ],
+      faq: [
+        ['What is free?', 'Free forever: plan and training, food logging, barcode scanner, 3 photo estimates a day, running with GPS, groups and community.'],
+        ['How much is Pro?', 'Pro costs $9.99 a month or $59.99 a year. The first 100 founders pay $4.99 a month, forever.'],
+        ['Can I cancel any time?', 'Yes, with 2 taps in the app under “Your subscription”. If you just need a break, you can pause for a month instead.'],
+      ],
+    },
+  },
+];
