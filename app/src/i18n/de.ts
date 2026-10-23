@@ -1157,6 +1157,11 @@ export const de = {
   'growth.k': 'Einladungen pro neuem Nutzer: {k}',
   'growth.kText': 'Liegt der Wert über 1, bringt jeder Nutzer im Schnitt mehr als einen weiteren mit, und ODDO wächst von selbst.',
   'growth.top': 'Beste Einlader (30 Tage)',
+  'tour.remind.t': 'Wann soll ich dich erinnern?',
+  'tour.remind.s': 'Einmal am Tag, zu deiner Zeit. Wer erinnert wird, bleibt viel öfter dran. Du kannst die Zeit jederzeit in den Einstellungen ändern.',
+  'tour.remind.on': 'Erinnerung einschalten',
+  'tour.remind.no': 'Ohne Erinnerung',
+  'tour.remind.done': 'Ich erinnere dich jeden Tag um {hour}.',
 };
 
 export type Key = keyof typeof de;

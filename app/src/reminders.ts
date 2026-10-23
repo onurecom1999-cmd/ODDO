@@ -30,14 +30,15 @@ export async function setReminder(hour: number | null): Promise<boolean> {
 }
 
 const TRIAL_ID = 'trial-end';
-// A heads-up three days before the free Pro month ends, at 10:00. Asks for permission only when there is something to remind.
+// A heads-up three days before free Pro ends, at 10:00.
 export async function remindTrialEnd(freeUntil: string | null) {
   if (!remindersSupported) return;
   if (!freeUntil) { await Notifications.cancelScheduledNotificationAsync(TRIAL_ID).catch(() => {}); return; }
   const at = new Date(freeUntil);
   at.setDate(at.getDate() - 3); at.setHours(10, 0, 0, 0);
   if (at.getTime() <= Date.now()) return;
-  const perm = await Notifications.requestPermissionsAsync().catch(() => null);
+  // Only when notifications are already allowed: asking here would pop the system prompt on the first screen, without context.
+  const perm = await Notifications.getPermissionsAsync().catch(() => null);
   if (!perm?.granted) return;
   await Notifications.scheduleNotificationAsync({
     identifier: TRIAL_ID,

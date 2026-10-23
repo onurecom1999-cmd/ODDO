@@ -1158,4 +1158,9 @@ export const tr: Record<Key, string> = {
   'growth.k': 'Yeni kullanıcı başına davet: {k}',
   'growth.kText': '1\'in üzerinde her kullanıcı ortalama birden fazla kişi getirir ve ODDO kendi kendine büyür.',
   'growth.top': 'En çok davet edenler (30 gün)',
+  'tour.remind.t': 'Sana ne zaman hatırlatayım?',
+  'tour.remind.s': 'Günde bir kez, senin saatinde. Hatırlatılan kişiler çok daha sık devam eder. Saati istediğin zaman Ayarlar\'dan değiştirebilirsin.',
+  'tour.remind.on': 'Hatırlatmayı aç',
+  'tour.remind.no': 'Hatırlatma olmadan',
+  'tour.remind.done': 'Her gün saat {hour}\'de sana hatırlatacağım.',
 };

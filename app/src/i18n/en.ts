@@ -1158,4 +1158,9 @@ export const en: Record<Key, string> = {
   'growth.k': 'Invites per new user: {k}',
   'growth.kText': 'Above 1, each user brings in more than one more on average, and ODDO grows by itself.',
   'growth.top': 'Top inviters (30 days)',
+  'tour.remind.t': 'When should I remind you?',
+  'tour.remind.s': 'Once a day, at your time. People who get reminded stick with it far more often. You can change the time any time in Settings.',
+  'tour.remind.on': 'Turn on reminder',
+  'tour.remind.no': 'No reminder',
+  'tour.remind.done': 'I\'ll remind you every day at {hour}.',
 };
