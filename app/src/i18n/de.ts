@@ -1162,6 +1162,12 @@ export const de = {
   'tour.remind.on': 'Erinnerung einschalten',
   'tour.remind.no': 'Ohne Erinnerung',
   'tour.remind.done': 'Ich erinnere dich jeden Tag um {hour}.',
+  'install.title': 'ODDO auf deinen Startbildschirm',
+  'install.sub': 'Öffnet wie eine App, ohne Browser. So bleibst du leichter dran.',
+  'install.cta': 'Zum Startbildschirm hinzufügen',
+  'install.ios': 'Tippe unten in Safari auf Teilen (□↑) und dann auf „Zum Home-Bildschirm“.',
+  'install.android': 'Tippe oben rechts auf das Menü (⋮) und dann auf „App installieren“ oder „Zum Startbildschirm hinzufügen“.',
+  'install.later': 'Später',
 };
 
 export type Key = keyof typeof de;

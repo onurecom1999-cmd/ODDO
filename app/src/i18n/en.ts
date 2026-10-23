@@ -1163,4 +1163,10 @@ export const en: Record<Key, string> = {
   'tour.remind.on': 'Turn on reminder',
   'tour.remind.no': 'No reminder',
   'tour.remind.done': 'I\'ll remind you every day at {hour}.',
+  'install.title': 'Put ODDO on your home screen',
+  'install.sub': 'Opens like an app, without the browser. Makes it easier to stick with it.',
+  'install.cta': 'Add to home screen',
+  'install.ios': 'In Safari, tap Share (□↑) at the bottom, then “Add to Home Screen”.',
+  'install.android': 'Tap the menu (⋮) at the top right, then “Install app” or “Add to home screen”.',
+  'install.later': 'Later',
 };

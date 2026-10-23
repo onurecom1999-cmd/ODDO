@@ -1163,4 +1163,10 @@ export const tr: Record<Key, string> = {
   'tour.remind.on': 'Hatırlatmayı aç',
   'tour.remind.no': 'Hatırlatma olmadan',
   'tour.remind.done': 'Her gün saat {hour}\'de sana hatırlatacağım.',
+  'install.title': 'ODDO\'yu ana ekranına ekle',
+  'install.sub': 'Tarayıcı olmadan uygulama gibi açılır. Böylece devam etmek daha kolay.',
+  'install.cta': 'Ana ekrana ekle',
+  'install.ios': 'Safari\'de alttaki Paylaş\'a (□↑), sonra „Ana Ekrana Ekle“ye dokun.',
+  'install.android': 'Sağ üstteki menüye (⋮), sonra „Uygulamayı yükle“ veya „Ana ekrana ekle“ye dokun.',
+  'install.later': 'Sonra',
 };
