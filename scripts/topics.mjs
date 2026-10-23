@@ -164,7 +164,7 @@ export const TOPICS = [
       ],
       faq: [
         ['Was ist kostenlos?', 'Für immer gratis: Plan und Training, Essen eintragen, Barcode-Scanner, 3 Foto-Schätzungen am Tag, Laufen mit GPS, Gruppen und Community.'],
-        ['Was kostet Pro?', 'Pro kostet 9,99 $ im Monat. Die ersten 100 Gründer zahlen 4,99 $ im Monat, für immer.'],
+        ['Was kostet Pro?', 'Pro kostet 9,99 $ im Monat oder 59,99 $ im Jahr. Die ersten 100 Gründer zahlen 4,99 $ im Monat, für immer.'],
         ['Kann ich jederzeit kündigen?', 'Ja, mit 2 Tippen in der App unter „Dein Abo“. Wenn du nur eine Pause brauchst, kannst du das Abo auch einen Monat pausieren.'],
       ],
     },
@@ -184,7 +184,7 @@ export const TOPICS = [
       ],
       faq: [
         ['Neler ücretsiz?', 'Ömür boyu ücretsiz: program ve antrenman, yemek girme, barkod okuyucu, günde 3 fotoğraf tahmini, GPS ile koşu, gruplar ve topluluk.'],
-        ['Pro ne kadar?', 'Pro ayda 9,99 $. İlk 100 kurucu üye ayda 4,99 $ öder, ömür boyu.'],
+        ['Pro ne kadar?', 'Pro ayda 9,99 $ veya yılda 59,99 $. İlk 100 kurucu üye ayda 4,99 $ öder, ömür boyu.'],
         ['İstediğim zaman iptal edebilir miyim?', 'Evet, uygulamada „Aboneliğin“ altında 2 dokunuşla. Sadece ara vermek istersen aboneliği 1 ay durdurabilirsin.'],
       ],
     },
@@ -204,7 +204,7 @@ export const TOPICS = [
       ],
       faq: [
         ['What is free?', 'Free forever: plan and training, food logging, barcode scanner, 3 photo estimates a day, running with GPS, groups and community.'],
-        ['How much is Pro?', 'Pro costs $9.99 a month. The first 100 founders pay $4.99 a month, forever.'],
+        ['How much is Pro?', 'Pro costs $9.99 a month or $59.99 a year. The first 100 founders pay $4.99 a month, forever.'],
         ['Can I cancel any time?', 'Yes, with 2 taps in the app under “Your subscription”. If you just need a break, you can pause for a month instead.'],
       ],
     },

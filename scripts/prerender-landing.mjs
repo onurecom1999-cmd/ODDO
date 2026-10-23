@@ -8,7 +8,7 @@ const SITE = 'https://oddo-app.netlify.app';
 const PATH = { de: '/', tr: '/tr/', en: '/en/' };
 const LOCALE = { de: 'de_DE', tr: 'tr_TR', en: 'en_US' };
 const OG = { de: '/og.png', tr: '/og-tr.png', en: '/og-en.png' };
-const PRICE = { pro: '9.99', ultimate: '19.99' };
+const PRICE = { pro: '9.99', proYear: '59.99', ultimate: '19.99' };
 
 const dir = process.argv[2] || 'site';
 const src = readFileSync(`${dir}/index.html`, 'utf8');
@@ -49,6 +49,7 @@ function page(lang) {
         offers: [
           { '@type': 'Offer', name: 'ODDO Free', price: '0', priceCurrency: 'USD' },
           { '@type': 'Offer', name: 'ODDO Pro', price: PRICE.pro, priceCurrency: 'USD' },
+          { '@type': 'Offer', name: 'ODDO Pro (yearly)', price: PRICE.proYear, priceCurrency: 'USD' },
           { '@type': 'Offer', name: 'ODDO Ultimate', price: PRICE.ultimate, priceCurrency: 'USD' },
         ],
       },
