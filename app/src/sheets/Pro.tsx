@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Linking, Text, View } from 'react-native';
 import { getLang, Key, LOCALE, t } from '../i18n';
-import { best, changeSubscription, checkout, checkoutReady, founderOffer, liveSub, mySubscription, STORE_MANAGE, Subscription, Tier, useTier } from '../pro';
+import { best, changeSubscription, checkout, checkoutReady, founderOffer, liveSub, mySubscription, Plan, STORE_MANAGE, Subscription, Tier, useTier } from '../pro';
 import { storeBilling, StorePlan, storeBuy, storePrices, storeRestore } from '../store';
 import { colors, fonts } from '../theme';
 import { Badge, Bold, Button, Card, LinkButton, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
@@ -15,6 +15,8 @@ const PLANS: { id: Tier; price: number; perks: string[] }[] = [
   { id: 'pro', price: 9.99, perks: ['pro.pro1', 'pro.pro2', 'pro.pro3', 'pro.pro4'] },
   { id: 'ultimate', price: 19.99, perks: ['pro.ult1', 'pro.ult2', 'pro.ult3'] },
 ];
+// Pro for a year: half the monthly price.
+const YEAR = 59.99;
 
 export function ProSheet({ onClose, reason }: { onClose: () => void; reason?: string }) {
   const [tier, setTier] = useTier();
@@ -23,13 +25,13 @@ export function ProSheet({ onClose, reason }: { onClose: () => void; reason?: st
   // In the iPhone and Android apps the store sells the plans and sets the price; on the web Lemon Squeezy does.
   const [prices, setPrices] = useState<Partial<Record<StorePlan, string>>>({});
   useEffect(() => { if (storeBilling) storePrices().then(setPrices, () => {}); }, []);
-  const ready = (id: 'pro' | 'ultimate') => storeBilling ? !!prices[id] : checkoutReady(id);
+  const ready = (id: Plan) => storeBilling ? !!prices[id] : checkoutReady(id);
   const founder = storeBilling ? !!prices.founder : founderOffer;
-  const buy = async (id: 'pro' | 'ultimate', isFounder = false) => {
+  const buy = async (id: Plan, isFounder = false) => {
     setBusy(true);
     if (storeBilling) {
       const r = await storeBuy(isFounder ? 'founder' : id);
-      if (r === 'ok') { setTier(best(tier, id)); toast(t('pro.thanks')); }
+      if (r === 'ok') { setTier(best(tier, id === 'ultimate' ? 'ultimate' : 'pro')); toast(t('pro.thanks')); }
       else if (r !== 'cancelled') toast(t('pro.failed'));
     } else {
       const ok = await checkout(id, isFounder).catch(() => false);
@@ -71,8 +73,12 @@ export function ProSheet({ onClose, reason }: { onClose: () => void; reason?: st
               {p.perks.map(k => <Text key={k} style={{ fontFamily: fonts.medium, color: colors.text }}><Text style={{ color: colors.accent }}>✓ </Text>{t(k as Key)}</Text>)}
               {p.id === tier ? <Badge label={t('pro.current')} accent /> : p.id === 'free' ? null : (
                 <Button variant={p.id === 'pro' ? 'accent' : 'ghost'} label={ready(p.id as 'pro') ? t('pro.choose', { plan: t(`pro.${p.id}` as Key) }) : t('pro.soon')}
-                  onPress={() => buy(p.id as 'pro' | 'ultimate')} disabled={busy || !ready(p.id as 'pro')} />
+                  onPress={() => buy(p.id as Plan)} disabled={busy || !ready(p.id as Plan)} />
               )}
+              {p.id === 'pro' && tier === 'free' && ready('proYear') ? (
+                <Button variant="ghost" label={t('pro.year', { price: prices.proYear || usd(YEAR) })} onPress={() => buy('proYear')} disabled={busy} />
+              ) : null}
+              {p.id === 'pro' && tier === 'free' && ready('proYear') ? <Small style={{ textAlign: 'center' }}>{t('pro.yearSave', { month: usd(5) })}</Small> : null}
             </Stack>
           </Card>
         ))}

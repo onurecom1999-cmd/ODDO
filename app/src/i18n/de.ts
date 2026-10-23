@@ -478,7 +478,7 @@ export const de = {
   'pro.founderTitle': '{price} statt {was}, für immer',
   'pro.founderText': 'Nur für die ersten 100. Dazu das Gründer-Emblem und nach 30 Tagen am Stück 3 Monate geschenkt.',
   'pro.founderCta': 'Gründerplatz sichern',
-  'pro.legal': 'Monatlich kündbar. Die Bezahlung läuft sicher über Lemon Squeezy.',
+  'pro.legal': 'Jederzeit kündbar, zum Ende des bezahlten Zeitraums. Die Bezahlung läuft sicher über Lemon Squeezy.',
   'pro.upgradeFood': 'Deine 3 kostenlosen KI-Schätzungen für heute sind aufgebraucht. Mit Pro sind es bis zu 25 am Tag.',
   'pro.upgradeTips': 'Persönliche Coach-Tipps gibt es einmal am Tag kostenlos. Mit Pro bis zu fünf Auswertungen.',
   'pro.cta': 'ODDO Pro ansehen',
@@ -1128,6 +1128,8 @@ export const de = {
   'reveal.giftEyebrow': 'Geschenk zum Start',
   'reveal.giftTitle': '7 Tage ODDO Pro gratis',
   'reveal.giftText': 'Bis zu 25 Essensfotos am Tag und persönliche Tipps für deine Woche. Ohne Karte. Danach wird nichts abgebucht, Free läuft einfach weiter.',
+  'pro.year': 'Jährlich für {price}',
+  'pro.yearSave': 'Nur {month} im Monat, du sparst die Hälfte.',
 };
 
 export type Key = keyof typeof de;

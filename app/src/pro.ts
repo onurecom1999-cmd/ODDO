@@ -7,12 +7,14 @@ import { supabase } from './supabase';
 export type Tier = 'free' | 'pro' | 'ultimate';
 
 // Lemon Squeezy checkout links (public). Empty until the products exist.
-const CHECKOUT: Record<'pro' | 'ultimate', string> = {
+export type Plan = 'pro' | 'proYear' | 'ultimate';
+const CHECKOUT: Record<Plan, string> = {
   pro: process.env.EXPO_PUBLIC_CHECKOUT_PRO || '',
+  proYear: process.env.EXPO_PUBLIC_CHECKOUT_PRO_YEAR || '',
   ultimate: process.env.EXPO_PUBLIC_CHECKOUT_ULTIMATE || '',
 };
 const FOUNDER_CODE = process.env.EXPO_PUBLIC_FOUNDER_CODE || '';
-export const checkoutReady = (t: 'pro' | 'ultimate') => !!CHECKOUT[t];
+export const checkoutReady = (t: Plan) => !!CHECKOUT[t];
 export const founderOffer = !!FOUNDER_CODE;
 
 const RANK: Record<Tier, number> = { free: 0, pro: 1, ultimate: 2 };
@@ -62,7 +64,7 @@ export function useTier() {
 }
 
 // Opens the checkout with the account id attached, so the webhook knows whom to upgrade.
-export async function checkout(t: 'pro' | 'ultimate', founder = false): Promise<boolean> {
+export async function checkout(t: Plan, founder = false): Promise<boolean> {
   const id = await userId();
   if (!id || !CHECKOUT[t]) return false;
   const q = new URLSearchParams({ 'checkout[custom][user_id]': id });

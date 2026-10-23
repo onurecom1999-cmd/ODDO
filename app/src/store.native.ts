@@ -34,7 +34,7 @@ async function packages() {
 
 export async function storePrices(): Promise<Partial<Record<StorePlan, string>>> {
   const out: Partial<Record<StorePlan, string>> = {};
-  for (const p of await packages().catch(() => [])) if (['pro', 'ultimate', 'founder'].includes(p.identifier)) out[p.identifier as StorePlan] = p.product.priceString;
+  for (const p of await packages().catch(() => [])) if (['pro', 'proYear', 'ultimate', 'founder'].includes(p.identifier)) out[p.identifier as StorePlan] = p.product.priceString;
   return out;
 }
 

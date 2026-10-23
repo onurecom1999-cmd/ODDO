@@ -479,7 +479,7 @@ export const en: Record<Key, string> = {
   'pro.founderTitle': '{price} instead of {was}, forever',
   'pro.founderText': 'Only for the first 100. Plus the founder emblem and 3 months free after a 30-day streak.',
   'pro.founderCta': 'Claim a founder spot',
-  'pro.legal': 'Cancel monthly. Payments are handled securely by Lemon Squeezy.',
+  'pro.legal': 'Cancel any time, effective at the end of the paid period. Payments are handled securely by Lemon Squeezy.',
   'pro.upgradeFood': 'Your 3 free AI estimates for today are used up. Pro gives you up to 25 a day.',
   'pro.upgradeTips': 'Personal coach tips are free once a day. Pro gives you up to five reviews.',
   'pro.cta': 'See ODDO Pro',
@@ -1129,4 +1129,6 @@ export const en: Record<Key, string> = {
   'reveal.giftEyebrow': 'A gift to start',
   'reveal.giftTitle': '7 days of ODDO Pro, free',
   'reveal.giftText': 'Up to 25 food photos a day and personal tips for your week. No card needed. Nothing is charged afterwards, Free simply continues.',
+  'pro.year': 'Yearly for {price}',
+  'pro.yearSave': 'Just {month} a month, you save half.',
 };

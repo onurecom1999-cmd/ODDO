@@ -1,7 +1,7 @@
 // Store billing (App Store / Google Play) exists only in the native apps; the web app pays through Lemon Squeezy.
 import type { Tier } from './pro';
 
-export type StorePlan = 'pro' | 'ultimate' | 'founder';
+export type StorePlan = 'pro' | 'proYear' | 'ultimate' | 'founder';
 export type BuyResult = 'ok' | 'cancelled' | 'failed' | 'unavailable';
 
 export const storeBilling = false;

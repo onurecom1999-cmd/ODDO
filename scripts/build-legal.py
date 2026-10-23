@@ -209,10 +209,10 @@ Stand: {STAND}
 Onur Ünal, {ADDR}, {MAIL}
 
 ## Leistung
-ODDO ist eine App für Training, Ernährung und Gewohnheiten mit KI-Schätzungen und Community. Free ist kostenlos. Pro und Ultimate sind monatliche Abos mit zusätzlichen Funktionen, wie in der App beschrieben. Funktionen, die als „bald“ markiert sind, sind noch nicht enthalten.
+ODDO ist eine App für Training, Ernährung und Gewohnheiten mit KI-Schätzungen und Community. Free ist kostenlos. Pro und Ultimate sind Abos mit zusätzlichen Funktionen, wie in der App beschrieben; Pro gibt es monatlich oder jährlich. Neue Nutzer bekommen einmalig 7 Tage Pro gratis, ohne Zahlungsdaten und ohne automatische Verlängerung. Funktionen, die als „bald“ markiert sind, sind noch nicht enthalten.
 
 ## Kauf und Kündigung
-Abos verkauft und rechnet Lemon Squeezy als Verkäufer (Merchant of Record) ab; dabei gelten zusätzlich deren Bedingungen. Abos verlängern sich monatlich und sind jederzeit zum Ende des Abrechnungszeitraums kündbar, über den Link in der Bestätigungs-Mail. Der Gründerpreis gilt, solange das Abo ohne Unterbrechung läuft. Belohnungen wie geschenkte Monate gibt es nicht als Geld.
+Abos verkauft und rechnet Lemon Squeezy als Verkäufer (Merchant of Record) ab; dabei gelten zusätzlich deren Bedingungen. Abos verlängern sich um ihren Zeitraum (Monat oder Jahr) und sind jederzeit zum Ende des Abrechnungszeitraums kündbar, über den Link in der Bestätigungs-Mail. Der Gründerpreis gilt, solange das Abo ohne Unterbrechung läuft. Belohnungen wie geschenkte Monate gibt es nicht als Geld.
 
 ## Widerrufsrecht
 Verbraucher in der EU haben ein gesetzliches Widerrufsrecht von 14 Tagen. Wenn du ausdrücklich zustimmst, dass die digitale Leistung sofort beginnt, kann es vorzeitig erlöschen; Details nennt der Checkout von Lemon Squeezy.
@@ -237,10 +237,10 @@ Last updated: {STAND}
 Onur Ünal, {ADDR}, {MAIL}
 
 ## Service
-ODDO is an app for training, nutrition and habits with AI estimates and a community. Free costs nothing. Pro and Ultimate are monthly subscriptions with extra features as described in the app. Features marked "coming soon" are not yet included.
+ODDO is an app for training, nutrition and habits with AI estimates and a community. Free costs nothing. Pro and Ultimate are subscriptions with extra features as described in the app; Pro is available monthly or yearly. New users get 7 days of Pro once for free, without payment details and without automatic renewal. Features marked "coming soon" are not yet included.
 
 ## Purchase and cancellation
-Subscriptions are sold and billed by Lemon Squeezy as merchant of record; their terms apply in addition. Subscriptions renew monthly and can be cancelled at any time to the end of the billing period via the link in the confirmation email. The founder price applies as long as the subscription runs without interruption. Rewards such as free months are never paid out as money.
+Subscriptions are sold and billed by Lemon Squeezy as merchant of record; their terms apply in addition. Subscriptions renew for their period (month or year) and can be cancelled at any time to the end of the billing period via the link in the confirmation email. The founder price applies as long as the subscription runs without interruption. Rewards such as free months are never paid out as money.
 
 ## Right of withdrawal
 Consumers in the EU have a statutory 14-day right of withdrawal. If you expressly agree that the digital service starts immediately, it may end early; the Lemon Squeezy checkout gives details.
@@ -265,10 +265,10 @@ Güncelleme: {STAND}
 Onur Ünal, {ADDR}, {MAIL}
 
 ## Hizmet
-ODDO; antrenman, beslenme ve alışkanlıklar için YZ tahminleri ve topluluk içeren bir uygulamadır. Free ücretsizdir. Pro ve Ultimate, uygulamada açıklanan ek özelliklere sahip aylık aboneliklerdir. "Yakında" olarak işaretlenen özellikler henüz dahil değildir.
+ODDO; antrenman, beslenme ve alışkanlıklar için YZ tahminleri ve topluluk içeren bir uygulamadır. Free ücretsizdir. Pro ve Ultimate, uygulamada açıklanan ek özelliklere sahip aboneliklerdir; Pro aylık veya yıllık alınabilir. Yeni kullanıcılar bir kez 7 gün ücretsiz Pro alır; ödeme bilgisi gerekmez ve otomatik yenilenmez. "Yakında" olarak işaretlenen özellikler henüz dahil değildir.
 
 ## Satın alma ve iptal
-Abonelikler satıcı olarak Lemon Squeezy tarafından satılır ve faturalanır; ayrıca onların koşulları geçerlidir. Abonelikler aylık yenilenir ve onay e-postasındaki bağlantıyla istediğin zaman dönem sonuna kadar iptal edilebilir. Kurucu fiyatı abonelik kesintisiz devam ettiği sürece geçerlidir. Hediye aylar gibi ödüller para olarak ödenmez.
+Abonelikler satıcı olarak Lemon Squeezy tarafından satılır ve faturalanır; ayrıca onların koşulları geçerlidir. Abonelikler kendi dönemleri (ay veya yıl) kadar yenilenir ve onay e-postasındaki bağlantıyla istediğin zaman dönem sonuna kadar iptal edilebilir. Kurucu fiyatı abonelik kesintisiz devam ettiği sürece geçerlidir. Hediye aylar gibi ödüller para olarak ödenmez.
 
 ## Cayma hakkı
 AB'deki tüketicilerin yasal 14 günlük cayma hakkı vardır. Dijital hizmetin hemen başlamasını açıkça kabul edersen bu hak erken sona erebilir; ayrıntılar Lemon Squeezy ödeme sayfasındadır.

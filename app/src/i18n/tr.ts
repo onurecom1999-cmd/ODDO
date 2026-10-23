@@ -479,7 +479,7 @@ export const tr: Record<Key, string> = {
   'pro.founderTitle': '{was} yerine {price}, ömür boyu',
   'pro.founderText': 'Sadece ilk 100 kişiye. Ayrıca kurucu amblemi ve 30 gün üst üste sonrası 3 ay hediye.',
   'pro.founderCta': 'Kurucu yerini ayırt',
-  'pro.legal': 'Aylık iptal edilebilir. Ödeme güvenli şekilde Lemon Squeezy üzerinden yapılır.',
+  'pro.legal': 'İstediğin zaman iptal edebilirsin, ödenen dönemin sonunda geçerli olur. Ödeme güvenli şekilde Lemon Squeezy üzerinden yapılır.',
   'pro.upgradeFood': 'Bugünkü 3 ücretsiz YZ tahminin bitti. Pro ile günde 25\'e kadar.',
   'pro.upgradeTips': 'Kişisel koç ipuçları günde bir kez ücretsiz. Pro ile beşe kadar değerlendirme.',
   'pro.cta': 'ODDO Pro\'ya bak',
@@ -1129,4 +1129,6 @@ export const tr: Record<Key, string> = {
   'reveal.giftEyebrow': 'Başlangıç hediyesi',
   'reveal.giftTitle': '7 gün ODDO Pro ücretsiz',
   'reveal.giftText': 'Günde 25’e kadar yemek fotoğrafı ve haftan için kişisel ipuçları. Kart gerekmez. Sonrasında ücret alınmaz, Free devam eder.',
+  'pro.year': 'Yıllık {price}',
+  'pro.yearSave': 'Ayda sadece {month}, yarı yarıya tasarruf.',
 };
