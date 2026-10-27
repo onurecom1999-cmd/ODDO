@@ -1051,7 +1051,7 @@ end $$;
 -- ---------- clips: paid per 1,000 views ----------
 -- People submit the link; Onur checks it about 7 days after posting and enters the views. The payout then waits 30 days
 -- like any commission (a clip deleted before then is taken back). Rates in US cents per 1,000 views, like all payouts:
--- 110 (about 1 euro), 45 for Turkish audiences; +50 % when the app is shown in use; from 5,000 views; at most 33,000 per clip.
+-- 50, 20 for Turkish audiences; +50 % when the app is shown in use; from 5,000 views; at most 10,000 per clip.
 create table if not exists public.clips (
   id bigint generated always as identity primary key,
   user_id uuid not null references auth.users on delete cascade,
@@ -1108,11 +1108,11 @@ begin
   select * into c from clips where id = p_id for update;
   if c.id is null or c.status <> 'submitted' then raise exception 'not open'; end if;
   if p_ok and coalesce(p_views, 0) >= 5000 then
-    amt := floor(p_views / 1000.0 * (case when p_turkish then 45 else 110 end) * (case when p_app_use then 1.5 else 1 end));
-    amt := least(amt, 33000);
-    -- At most 110,000 cents (about 1,000 euros) per person and month; more needs a separate deal.
+    amt := floor(p_views / 1000.0 * (case when p_turkish then 20 else 50 end) * (case when p_app_use then 1.5 else 1 end));
+    amt := least(amt, 10000);
+    -- At most 50,000 cents (500 $) per person and month; more needs a separate deal.
     select coalesce(sum(amount_cents), 0) into month from clips where user_id = c.user_id and status = 'approved' and decided_at >= date_trunc('month', now());
-    amt := greatest(0, least(amt, 110000 - month));
+    amt := greatest(0, least(amt, 50000 - month));
   end if;
   update clips set status = case when p_ok and amt > 0 then 'approved' else 'rejected' end, views = p_views, turkish = coalesce(p_turkish, false),
          app_use = coalesce(p_app_use, false), amount_cents = amt, note = left(coalesce(p_note, ''), 200), decided_at = now()

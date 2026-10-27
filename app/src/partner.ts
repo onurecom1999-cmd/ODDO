@@ -41,7 +41,7 @@ export const myInvite = () => rpc<{ code: string }>('my_invite').then(r => r.cod
 export const redeemInvite = (code: string) => rpc<{ name: string }>('redeem_invite', { p_code: code });
 
 // Clips paid per 1,000 views. Kept in step with admin_rate_clip() in supabase/coach.sql (US cents).
-export const CLIP = { rate: 110, rateTr: 45, appUse: 1.5, minViews: 5000, maxClip: 33000, maxMonth: 110000 };
+export const CLIP = { rate: 50, rateTr: 20, appUse: 1.5, minViews: 5000, maxClip: 10000, maxMonth: 50000 };
 export type Clip = { id: number; url: string; status: 'submitted' | 'approved' | 'rejected'; views: number | null; cents: number; note: string; at: string };
 export type OpenClip = { id: number; url: string; name: string; at: string; month_cents: number };
 export const CLIP_URL = /^https:\/\/([a-z0-9-]+\.)*(tiktok\.com|instagram\.com|youtube\.com|youtu\.be)\//i;
