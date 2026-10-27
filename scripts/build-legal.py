@@ -309,8 +309,8 @@ Diese Vereinbarung gilt zwischen Onur Ünal, Betreiber von ODDO ({ADDR}), und di
 - Partner-Bonus: Wirbst du einen anderen Trainer oder ein Studio, erhältst du einmalig 50 €, sobald dort 10 Kunden zahlen.
 
 ## Clips
-- Für eigene Videos über ODDO auf TikTok, Instagram oder YouTube zahlen wir pro 1.000 Views: 1,10 $, bei überwiegend türkischem Publikum 0,45 $. Ist die App in Benutzung zu sehen, gibt es 50 % mehr.
-- Bezahlt wird ab 5.000 Views, höchstens 330 $ pro Clip und 1.100 $ pro Person und Monat. Für mehr schließen wir eine eigene Vereinbarung.
+- Für eigene Videos über ODDO auf TikTok, Instagram oder YouTube zahlen wir pro 1.000 Views: 0,50 $, bei überwiegend türkischem Publikum 0,20 $. Ist die App in Benutzung zu sehen, gibt es 50 % mehr.
+- Bezahlt wird ab 5.000 Views, höchstens 100 $ pro Clip und 500 $ pro Person und Monat. Für mehr schließen wir eine eigene Vereinbarung.
 - Du reichst den Link in der App ein. Wir zählen die Views etwa 7 Tage nach dem Posten. Der Clip muss mindestens 30 Tage online bleiben, sonst wird der Betrag wieder abgezogen.
 - Gekaufte Views, Bots, fremde oder kopierte Videos und irreführende Aussagen werden nicht bezahlt. Kennzeichne den Clip als Werbung, wenn das Recht deines Landes es verlangt.
 - Wir dürfen eingereichte Clips mit Namensnennung auf ODDO-Kanälen teilen.
@@ -359,8 +359,8 @@ This agreement is between Onur Ünal, operator of ODDO ({ADDR}), and you ("partn
 - Partner bonus: if you bring in another trainer or gym, you get a one-time 50 € once 10 of their clients pay.
 
 ## Clips
-- For your own videos about ODDO on TikTok, Instagram or YouTube we pay per 1,000 views: 1.10 $, or 0.45 $ for a mainly Turkish audience. If the app is shown in use, you get 50 % more.
-- We pay from 5,000 views, at most 330 $ per clip and 1,100 $ per person and month. For more we make a separate agreement.
+- For your own videos about ODDO on TikTok, Instagram or YouTube we pay per 1,000 views: 0.50 $, or 0.20 $ for a mainly Turkish audience. If the app is shown in use, you get 50 % more.
+- We pay from 5,000 views, at most 100 $ per clip and 500 $ per person and month. For more we make a separate agreement.
 - You submit the link in the app. We count the views about 7 days after posting. The clip must stay online for at least 30 days, otherwise the amount is deducted again.
 - Bought views, bots, other people's or copied videos and misleading claims are not paid. Mark the clip as an ad where the law of your country requires it.
 - We may share submitted clips on ODDO channels, crediting you.
@@ -409,8 +409,8 @@ Bu sözleşme, ODDO işletmecisi Onur Ünal ({ADDR}) ile sen ("ortak") arasında
 - Ortak bonusu: başka bir antrenör veya salon getirirsen, orada 10 danışan ödediğinde bir kerelik 50 € alırsın.
 
 ## Videolar
-- TikTok, Instagram veya YouTube'da ODDO hakkındaki kendi videoların için 1.000 izlenme başına öderiz: 1,10 $, ağırlıklı olarak Türk izleyicide 0,45 $. Uygulama kullanılırken gösterilirse %50 daha fazla.
-- 5.000 izlenmeden itibaren, video başına en fazla 330 $ ve kişi başına ayda en fazla 1.100 $ öderiz. Daha fazlası için ayrı bir anlaşma yaparız.
+- TikTok, Instagram veya YouTube'da ODDO hakkındaki kendi videoların için 1.000 izlenme başına öderiz: 0,50 $, ağırlıklı olarak Türk izleyicide 0,20 $. Uygulama kullanılırken gösterilirse %50 daha fazla.
+- 5.000 izlenmeden itibaren, video başına en fazla 100 $ ve kişi başına ayda en fazla 500 $ öderiz. Daha fazlası için ayrı bir anlaşma yaparız.
 - Linki uygulamada gönderirsin. İzlenmeleri paylaşımdan yaklaşık 7 gün sonra sayarız. Video en az 30 gün yayında kalmalı, aksi halde tutar geri düşülür.
 - Satın alınmış izlenmeler, botlar, başkasının veya kopyalanmış videolar ve yanıltıcı iddialar ödenmez. Ülkenin hukuku gerektiriyorsa videoyu reklam olarak işaretle.
 - Gönderilen videoları adını belirterek ODDO kanallarında paylaşabiliriz.
