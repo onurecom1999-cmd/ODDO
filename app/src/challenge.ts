@@ -26,6 +26,10 @@ export const createChallenge = (name: string, start: string, days = 30) =>
 export type ChallengeStats = { name: string; start: string; days: number; people: number; joined_1: number; teams: number; full: number; friend_teams: number; perfect_today: number };
 export const challengeStats = () => rpc<ChallengeStats | null>('admin_challenge_stats');
 
+// My result in a challenge that ended in the last 14 days.
+export type ChallengeResult = { id: string; name: string; days: number; perfect: number; place: number; team_size: number; team: string | null; next: string | null };
+export const challengeResult = () => rpc<ChallengeResult | null>('challenge_result');
+
 export const TEAM_RE = /^[A-Z2-9]{6}$/;
 export const teamUrl = (code: string) => `https://oddo-app.netlify.app/app/?c=${code}`;
 

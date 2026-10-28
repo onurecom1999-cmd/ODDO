@@ -1420,3 +1420,27 @@ begin
 end $$;
 revoke execute on function public.admin_challenge_stats() from public, anon;
 grant execute on function public.admin_challenge_stats() to authenticated;
+
+-- After the last day: my result in the challenge that ended within the last 14 days, with my place in the team.
+create or replace function public.challenge_result() returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare c challenges; e challenge_entries; mine int; place int; size int;
+begin
+  select ch.* into c from challenges ch join challenge_entries en on en.challenge_id = ch.id and en.user_id = auth.uid()
+  where ch.start_date + ch.days <= current_date and ch.start_date + ch.days > current_date - 14
+  order by ch.start_date desc limit 1;
+  if c.id is null then return null; end if;
+  select * into e from challenge_entries where challenge_id = c.id and user_id = auth.uid();
+  with t as (
+    select m.user_id, (select count(*) from activity_days a where a.user_id = m.user_id and a.perfect and a.day between c.start_date and c.start_date + c.days - 1) as perfect
+    from group_members m where m.group_id = e.group_id
+    union select auth.uid(), (select count(*) from activity_days a where a.user_id = auth.uid() and a.perfect and a.day between c.start_date and c.start_date + c.days - 1)
+  )
+  select (select perfect from t where user_id = auth.uid()), count(*) filter (where perfect > (select perfect from t where user_id = auth.uid())) + 1, count(*)
+  into mine, place, size from t;
+  return jsonb_build_object('id', c.id, 'name', c.name, 'days', c.days, 'perfect', mine, 'place', place, 'team_size', size,
+    'team', (select name from groups where id = e.group_id),
+    'next', (select start_date from challenges where start_date > current_date order by start_date limit 1));
+end $$;
+revoke execute on function public.challenge_result() from public, anon;
+grant execute on function public.challenge_result() to authenticated;

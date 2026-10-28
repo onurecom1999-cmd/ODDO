@@ -31,9 +31,11 @@ export async function challengeImage(s: StoryText): Promise<Blob | null> {
   g.fillStyle = colors.muted; g.fillText(s.sub, 90, top - 60);
   g.fillStyle = colors.accent; roundRect(g, 90, top, W - 180, 330, 40); g.fill();
   g.fillStyle = colors.ink; g.font = '40px Inter_800ExtraBold'; g.fillText(s.line, 140, top + 90);
-  g.font = '150px Anton_400Regular'; g.fillText(s.code.split('').join(' '), 140, top + 260);
+  let big = 150; g.font = `${big}px Anton_400Regular`;
+  while (g.measureText(s.big).width > W - 280 && big > 60) { big -= 6; g.font = `${big}px Anton_400Regular`; }
+  g.fillText(s.big, 140, top + 260);
   g.fillStyle = colors.text; g.font = '38px Inter_600SemiBold'; g.textAlign = 'center';
-  g.fillText('oddo-app.netlify.app/app/?c=' + s.code, W / 2, H - 140);
+  g.fillText(s.url, W / 2, H - 140);
   return new Promise(r => cv.toBlob(b => r(b), 'image/png'));
 }
 function roundRect(g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {

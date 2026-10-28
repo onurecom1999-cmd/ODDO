@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Platform, Pressable, Share, Text, View } from 'react-native';
 import { getLang, LOCALE, t } from '../i18n';
-import { Challenge, challengeDay, challengeInfo, ChallengeStats, challengeStats, clearTeamCode, createChallenge, joinChallenge, pendingTeamCode, TEAM_RE, teamUrl } from '../challenge';
+import { Challenge, challengeDay, challengeInfo, ChallengeResult, challengeResult, ChallengeStats, challengeStats, clearTeamCode, createChallenge, joinChallenge, pendingTeamCode, TEAM_RE, teamUrl } from '../challenge';
 import { send } from '../community';
 import { remindChallengeStart } from '../reminders';
+import { useTier } from '../pro';
 import { useApp } from '../state';
 import { colors, fonts } from '../theme';
 import { challengeImage } from './challengeImage';
@@ -15,6 +16,61 @@ const err = (e: unknown) => {
   return t(/team not found/.test(m) ? 'ch.err.code' : /team full/.test(m) ? 'ch.err.full' : /closed/.test(m) ? 'ch.err.closed' : 'ch.err.failed');
 };
 export const teamText = (code: string) => t('ch.shareText', { code, url: teamUrl(code) });
+
+// Web: share the image where the browser can share files, else download it. Returns the toast to show.
+async function shareImage(blob: Blob, name: string, text: string) {
+  const file = new File([blob], name, { type: 'image/png' });
+  const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
+  if (nav.canShare?.({ files: [file] })) {
+    try { await nav.share({ files: [file], text }); } catch (e) { if ((e as Error)?.name !== 'AbortError') return t('ch.err.failed'); }
+    return '';
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  return t('ch.story.saved');
+}
+
+const DONE_KEY = 'oddo.challengeDone';
+// After the last day, for 14 days: my perfect days, my place in the team, sharing it, and keeping going with Pro.
+export function ChallengeResultCard({ onPro }: { onPro: () => void }) {
+  const { S } = useApp();
+  const toast = useToast();
+  const [tier] = useTier();
+  const [r, setR] = useState<ChallengeResult | null>(null);
+  const [hidden, setHidden] = useState(() => { try { return globalThis.localStorage?.getItem(DONE_KEY) ?? ''; } catch { return ''; } });
+  useEffect(() => { if (!S.example) challengeResult().then(setR, () => {}); }, [S.example]);
+  if (!r || hidden === r.id) return null;
+  const all = r.perfect >= r.days, good = r.perfect >= Math.ceil(r.days * 0.7);
+  const title = t('ch.done.title', { n: r.perfect, days: r.days });
+  const story = async () => {
+    const blob = await challengeImage({
+      kicker: r.name, title, sub: r.team ? t('ch.done.place', { place: r.place, size: r.team_size, team: r.team }) : '',
+      line: t('ch.done.line'), big: 'ONE DAY OR DAY ONE', url: 'oddo-app.netlify.app',
+    }).catch(() => null);
+    if (!blob) { Share.share({ message: t('ch.done.shareText', { n: r.perfect, days: r.days }) }).catch(() => {}); return; }
+    const msg = await shareImage(blob, 'oddo-day-one-result.png', t('ch.done.shareText', { n: r.perfect, days: r.days }));
+    if (msg) toast(msg);
+  };
+  const close = () => { setHidden(r.id); try { globalThis.localStorage?.setItem(DONE_KEY, r.id); } catch {} };
+  return (
+    <Card style={{ gap: 12, borderColor: colors.accent }}>
+      <Row style={{ justifyContent: 'space-between' }}>
+        <Eyebrow style={{ color: colors.accent }}>{r.name}</Eyebrow>
+        <Pressable accessibilityRole="button" accessibilityLabel="×" onPress={close} hitSlop={10}><Text style={{ color: colors.muted, fontSize: 22 }}>×</Text></Pressable>
+      </Row>
+      <H2 style={{ fontSize: 28 }}>{title}</H2>
+      <Small>{t(all ? 'ch.done.all' : good ? 'ch.done.good' : 'ch.done.ok')}{r.team ? ' ' + t('ch.done.place', { place: r.place, size: r.team_size, team: r.team }) : ''}</Small>
+      <Button label={t('ch.done.share')} onPress={story} />
+      {tier === 'free' ? (
+        <>
+          <Muted>{t('ch.done.proText')}</Muted>
+          <Button variant="ghost" label={t('ch.done.pro')} onPress={onPro} />
+        </>
+      ) : null}
+      {r.next ? <Small>{t('ch.done.next', { date: dateText(challengeDay({ start: r.next, days: 1 }).startDate) })}</Small> : null}
+    </Card>
+  );
+}
 
 // On Today: the challenge with its countdown, or my team's day once it runs. Hidden when there is none.
 export function ChallengeCard() {
@@ -91,18 +147,11 @@ function ChallengeSheet({ c, onChanged, onClose }: { c: Challenge; onChanged: ()
   const story = async (code: string) => {
     const blob = await challengeImage({
       kicker: c.name, title: day ? t('ch.dayOf', { n: day, days: c.days }) : t('ch.story.title'),
-      sub: t('ch.story.sub', { days: c.days, date: dateText(startDate) }), line: t('ch.story.line'), code,
+      sub: t('ch.story.sub', { days: c.days, date: dateText(startDate) }), line: t('ch.story.line'),
+      big: code.split('').join(' '), url: teamUrl(code).replace('https://', ''),
     }).catch(() => null);
     if (!blob) { share(code); return; }
-    const file = new File([blob], `oddo-day-one-${code}.png`, { type: 'image/png' });
-    const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
-    if (nav.canShare?.({ files: [file] })) {
-      try { await nav.share({ files: [file], text: teamText(code) }); } catch (e) { if ((e as Error)?.name !== 'AbortError') toast(t('ch.err.failed')); }
-    } else {
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-      toast(t('ch.story.saved'));
-    }
+    toast(await shareImage(blob, `oddo-day-one-${code}.png`, teamText(code)));
   };
   const codeOk = TEAM_RE.test(code.trim().toUpperCase());
   return (

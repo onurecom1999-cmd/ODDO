@@ -1247,6 +1247,17 @@ export const de = {
   'ch.admin.full': "voll",
   'ch.admin.friendTeams': "Freundes-Teams",
   'ch.admin.perfectToday': "Heute perfekt",
+  'ch.done.title': "{n} von {days} Tagen",
+  'ch.done.all': "Alle Tage perfekt. Das schaffen die wenigsten.",
+  'ch.done.good': "Stark durchgezogen.",
+  'ch.done.ok': "Jeder perfekte Tag zählt. Nächstes Mal mehr.",
+  'ch.done.place': "Platz {place} von {size} in {team}.",
+  'ch.done.line': "Geschafft mit ODDO",
+  'ch.done.share': "Ergebnis als Story teilen",
+  'ch.done.shareText': "{n} von {days} Tagen geschafft in der ODDO Day One Challenge. Bist du nächstes Mal dabei? https://oddo-app.netlify.app",
+  'ch.done.proText': "Die Challenge ist vorbei, dein Plan läuft weiter. Mit Pro bekommst du mehr Essensfotos pro Tag und jede Woche persönliche Tipps.",
+  'ch.done.pro': "Mit Pro weitermachen",
+  'ch.done.next': "Nächste Challenge startet am {date}.",
 };
 
 export type Key = keyof typeof de;
