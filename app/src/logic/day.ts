@@ -61,14 +61,29 @@ export function dayScore(S: AppState, key: string) {
   return { done, all, perfect: done === all };
 }
 
-// Perfect days in a row, ending today (or yesterday while today is still open).
-export function streak(S: AppState) {
-  let d = new Date(), n = 0;
-  if (!dayScore(S, dayKey(d)).perfect) d = addDays(d, -1);
+// Perfect days in a row, ending today (or yesterday while today is still open). One missed day per week
+// is bridged by the streak shield, as long as the day before it was perfect: two misses in a row end the run.
+export const SHIELD_DAYS = 7;
+export function streakInfo(S: AppState) {
+  const ok = (d: Date) => dayScore(S, dayKey(d)).perfect;
+  let d = new Date(), i = 0, n = 0, shieldAt = -1;
+  if (!ok(d)) { d = addDays(d, -1); i = 1; }
   const start = S.startedAt ? dayKey(new Date(S.startedAt)) : dayKey();
-  while (dayKey(d) >= start && dayScore(S, dayKey(d)).perfect) { n++; d = addDays(d, -1); }
-  return n;
+  let lastShield = -Infinity;
+  while (dayKey(d) >= start) {
+    if (ok(d)) n++;
+    else {
+      const prev = addDays(d, -1);
+      if (i - lastShield < SHIELD_DAYS || dayKey(prev) < start || !ok(prev)) break;
+      lastShield = i;
+      if (shieldAt < 0) shieldAt = i;
+    }
+    d = addDays(d, -1); i++;
+  }
+  // The shield is ready again once the last bridged day is a full week back.
+  return { n, savedRecently: shieldAt >= 0 && shieldAt <= 1, shieldUsed: shieldAt >= 0 && shieldAt < SHIELD_DAYS, shieldDaysLeft: shieldAt >= 0 ? Math.max(0, SHIELD_DAYS - shieldAt) : 0 };
 }
+export function streak(S: AppState) { return streakInfo(S).n; }
 
 export function dayNumber(S: AppState, key = dayKey()) {
   if (!S.startedAt) return 1;

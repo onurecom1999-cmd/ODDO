@@ -52,7 +52,11 @@ export const openClips = () => rpc<OpenClip[]>('admin_clips');
 export type Growth = {
   users_1: number; users_7: number; users_30: number; users_all: number; friends_30: number; partners_30: number;
   trials_30: number; paying: number; founder_left: number; clip_views_30: number; top: { name: string; n: number }[];
+  ret_1?: Share; ret_7?: Share; ret_30?: Share; week1?: Share; trial_paid?: Share;
+  creators?: { name: string; cost: number; users: number; paying: number }[];
 };
+// n out of base people, for a rate on the growth page.
+export type Share = { n: number; base: number };
 export const adminGrowth = () => rpc<Growth>('admin_growth');
 // A big group for a campus or gym challenge; returns its join code.
 export const adminChallenge = (name: string, max: number) => rpc<{ invite_code: string; name: string }>('admin_challenge', { p_name: name.trim().slice(0, 30), p_max: max });

@@ -29,6 +29,7 @@ export function ProSheet({ onClose, reason }: { onClose: () => void; reason?: st
   // The count shows once the first places are taken; at 0 the founder offer disappears.
   const [left, setLeft] = useState<number | null>(null);
   useEffect(() => { founderLeft().then(setLeft, () => {}); }, []);
+  const yearFirst = tier === 'free' && ready('proYear');
   const founder = (storeBilling ? !!prices.founder : founderOffer) && left !== 0;
   const buy = async (id: Plan, isFounder = false) => {
     setBusy(true);
@@ -75,14 +76,19 @@ export function ProSheet({ onClose, reason }: { onClose: () => void; reason?: st
                 </View>
               </Row>
               {p.perks.map(k => <Text key={k} style={{ fontFamily: fonts.medium, color: colors.text }}><Text style={{ color: colors.accent }}>✓ </Text>{t(k as Key)}</Text>)}
-              {p.id === tier ? <Badge label={t('pro.current')} accent /> : p.id === 'free' ? null : (
+              {p.id === tier ? <Badge label={t('pro.current')} accent /> : p.id === 'free' ? null : p.id === 'pro' && yearFirst ? (
+                // Two thirds of fitness subscriptions sold are yearly, and yearly payers stay about three times as
+                // often, so the yearly plan is the first choice and the monthly one sits under it.
+                <Stack gap={8}>
+                  <Badge label={t('pro.yearBest')} accent />
+                  <Button label={t('pro.year', { price: prices.proYear || usd(YEAR) })} onPress={() => buy('proYear')} disabled={busy} />
+                  <Small style={{ textAlign: 'center' }}>{t('pro.yearSave', { month: usd(5) })}</Small>
+                  <Button variant="ghost" label={t('pro.monthly', { price: prices.pro || usd(p.price) })} onPress={() => buy('pro')} disabled={busy || !ready('pro')} />
+                </Stack>
+              ) : (
                 <Button variant={p.id === 'pro' ? 'accent' : 'ghost'} label={ready(p.id as 'pro') ? t('pro.choose', { plan: t(`pro.${p.id}` as Key) }) : t('pro.soon')}
                   onPress={() => buy(p.id as Plan)} disabled={busy || !ready(p.id as Plan)} />
               )}
-              {p.id === 'pro' && tier === 'free' && ready('proYear') ? (
-                <Button variant="ghost" label={t('pro.year', { price: prices.proYear || usd(YEAR) })} onPress={() => buy('proYear')} disabled={busy} />
-              ) : null}
-              {p.id === 'pro' && tier === 'free' && ready('proYear') ? <Small style={{ textAlign: 'center' }}>{t('pro.yearSave', { month: usd(5) })}</Small> : null}
             </Stack>
           </Card>
         ))}

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 import { fmt, Key, LOCALE, getLang, t } from '../i18n';
-import { dayKey, dayNumber, dayScore, dayStatus, emblemKey, isTrainingDay, routineState, sessionFor, streak, cardioBonus } from '../logic/day';
+import { dayKey, dayNumber, dayScore, dayStatus, emblemKey, isTrainingDay, routineState, sessionFor, streakInfo, cardioBonus } from '../logic/day';
 import { routineSteps, routineSub, routineTitle, sessionTitle } from '../logic/names';
 import { WHEN } from '../logic/routines';
 import { dayLog, useApp } from '../state';
@@ -26,7 +26,7 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
   const trainDay = isTrainingDay(S);
   const { session } = sessionFor(S, key);
   const score = dayScore(S, key);
-  const n = streak(S);
+  const run = streakInfo(S), n = run.n;
   const cb = cardioBonus(st.l);
 
   const items = [
@@ -85,6 +85,13 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
 
       <StudioCard refresh={studioTick} />
 
+      {!score.perfect && run.savedRecently && n > 0 ? (
+        <Card style={{ gap: 4 }}>
+          <Eyebrow>{t('today.shieldTitle')}</Eyebrow>
+          <Small>{t('today.shieldSaved', { n })}</Small>
+        </Card>
+      ) : null}
+
       {score.perfect ? (
         <Card style={{ borderColor: colors.accent, gap: 14 }}>
           <Row style={{ gap: 14 }}>
@@ -95,6 +102,7 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
               <Small>{n === 1 ? t('today.inARow1') : t('today.inARow', { n })}</Small>
             </View>
           </Row>
+          {n >= 2 ? <Small style={{ color: colors.muted }}>{run.shieldUsed ? t('today.shieldUsed', { n: run.shieldDaysLeft }) : t('today.shieldReady')}</Small> : null}
           <Button label={t('reward.cta')} onPress={() => onOpen('reward')} />
         </Card>
       ) : next ? (

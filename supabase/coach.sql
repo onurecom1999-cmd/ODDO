@@ -1193,6 +1193,37 @@ language sql stable security definer set search_path = public as $$
 $$;
 grant execute on function public.founder_left() to anon, authenticated;
 
+-- One row per person and day on which they used the app, filled from the profile sync, so Onur can see who
+-- comes back on day 1, 7 and 30 and who manages 3 perfect days in their first week. Nobody reads it directly.
+create table if not exists public.activity_days (
+  user_id uuid not null references auth.users on delete cascade,
+  day date not null,
+  perfect boolean not null default false,
+  primary key (user_id, day)
+);
+alter table public.activity_days enable row level security;
+create or replace function public.on_profile_day() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if new.today_date is not null then
+    insert into activity_days (user_id, day, perfect) values (new.id, new.today_date, new.today_all > 0 and new.today_done >= new.today_all)
+    on conflict (user_id, day) do update set perfect = activity_days.perfect or excluded.perfect;
+  end if;
+  return new;
+end $$;
+drop trigger if exists profile_day on public.profiles;
+create trigger profile_day after insert or update of today_date, today_done, today_all on public.profiles
+  for each row execute function public.on_profile_day();
+
+-- Share of people who came back on day d after signing up, among those who signed up long enough ago (30 days of cohorts).
+create or replace function public.retention(d int) returns jsonb
+language sql stable security definer set search_path = public, auth as $$
+  select jsonb_build_object('n', count(*) filter (where exists (
+      select 1 from activity_days a where a.user_id = u.id and a.day = (u.created_at::date + d))), 'base', count(*))
+  from auth.users u where u.created_at::date between current_date - (d + 30) and current_date - (d + 1)
+$$;
+revoke execute on function public.retention(int) from public, anon, authenticated;
+
 -- Onur's growth numbers: new accounts, where they came from, trials, paying people and the best inviters.
 create or replace function public.admin_growth() returns jsonb
 language plpgsql stable security definer set search_path = public, auth as $$
@@ -1209,6 +1240,24 @@ begin
     'paying', (select count(*) from public.subscriptions s where public.sub_live(s)),
     'founder_left', public.founder_left(),
     'clip_views_30', (select coalesce(sum(views), 0) from public.clips where status = 'approved' and decided_at > now() - interval '30 days'),
+    'ret_1', public.retention(1),
+    'ret_7', public.retention(7),
+    'ret_30', public.retention(30),
+    -- The one number: of the people who signed up 8 to 37 days ago, how many had 3 perfect days in their first week.
+    'week1', (select jsonb_build_object('n', count(*) filter (where (
+        select count(*) from public.activity_days a where a.user_id = u.id and a.perfect
+          and a.day between u.created_at::date and u.created_at::date + 6) >= 3), 'base', count(*))
+      from auth.users u where u.created_at::date between current_date - 37 and current_date - 8),
+    -- Pro weeks that ended in the last 60 days and became a paid plan.
+    'trial_paid', (select jsonb_build_object('n', count(*) filter (where exists (select 1 from public.subscriptions s where s.user_id = t.user_id)), 'base', count(*))
+      from public.pro_trials t where t.until between now() - interval '60 days' and now()),
+    -- Every creator's code at work: what their clips cost, how many people came with their code and how many pay.
+    'creators', (select coalesce(jsonb_agg(x order by x.cost desc), '[]') from (
+      select coalesce(nullif(p.name, ''), '?') as name, c.cost,
+        (select count(*) from public.referrals r where r.partner_id = c.user_id) as users,
+        (select count(*) from public.referrals r join public.subscriptions s on s.user_id = r.user_id where r.partner_id = c.user_id and public.sub_live(s)) as paying
+      from (select user_id, sum(amount_cents) as cost from public.clips where status = 'approved' group by user_id) c
+      left join public.profiles p on p.id = c.user_id order by c.cost desc limit 10) x),
     'top', (select coalesce(jsonb_agg(x), '[]') from (
       select coalesce(nullif(p.name, ''), '?') as name, count(*) as n from public.referrals r left join public.profiles p on p.id = r.partner_id
       where r.created_at > now() - interval '30 days' group by r.partner_id, p.name order by n desc limit 5) x));

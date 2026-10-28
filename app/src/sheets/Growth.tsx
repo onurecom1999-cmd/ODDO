@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { fmt, t } from '../i18n';
-import { adminChallenge, adminGrowth, Growth } from '../partner';
+import { adminChallenge, adminGrowth, Growth, Share } from '../partner';
 import { colors, fonts } from '../theme';
 import { Bold, Button, Card, Field, Muted, Small, Stack, Stat, useToast } from '../ui/kit';
 
 // The goal on Onur's growth page.
 const GOAL = 50000;
+// Before paid ads: at least this share of new people manage 3 perfect days in week 1, and this share is back on day 7.
+const WEEK1_GOAL = 0.4, DAY7_GOAL = 0.2;
+const pct = (x?: Share) => (x && x.base ? `${Math.round((x.n / x.base) * 100)} %` : '–');
+const rate = (x?: Share) => (x && x.base ? x.n / x.base : 0);
+const usd = (cents: number) => `${fmt(cents / 100, cents % 100 ? 2 : 0)} $`;
 
 // Onur's growth page: how many people come, from where, and how many pay.
 export function AdminGrowth() {
@@ -26,6 +31,21 @@ export function AdminGrowth() {
         </View>
         <Small>{t('growth.goal')}</Small>
       </Card>
+      <Card style={{ gap: 8, borderColor: rate(g.week1) >= WEEK1_GOAL ? colors.accent : colors.line }}>
+        <Small>{t('growth.oneNumber')}</Small>
+        <Text style={{ fontFamily: fonts.display, fontSize: 40, color: colors.text }}>{pct(g.week1)}</Text>
+        <Muted>{t('growth.week1Text', { n: g.week1?.n ?? 0, base: g.week1?.base ?? 0 })}</Muted>
+      </Card>
+      <Card style={{ paddingVertical: 6 }}>
+        <Stat first label={t('growth.ret1')} value={pct(g.ret_1)} />
+        <Stat label={t('growth.ret7')} value={pct(g.ret_7)} />
+        <Stat label={t('growth.ret30')} value={pct(g.ret_30)} />
+        <Stat label={t('growth.trialPaid')} value={pct(g.trial_paid)} />
+      </Card>
+      <Card style={{ gap: 6 }}>
+        <Bold>{rate(g.week1) >= WEEK1_GOAL && rate(g.ret_7) >= DAY7_GOAL ? t('growth.adsYes') : t('growth.adsNo')}</Bold>
+        <Muted>{t('growth.adsText')}</Muted>
+      </Card>
       <Card style={{ paddingVertical: 6 }}>
         <Stat first label={t('growth.today')} value={fmt(g.users_1)} />
         <Stat label={t('growth.week')} value={fmt(g.users_7)} />
@@ -41,6 +61,15 @@ export function AdminGrowth() {
         <Bold>{t('growth.k', { k: fmt(k, 2) })}</Bold>
         <Muted>{t('growth.kText')}</Muted>
       </Card>
+      {g.creators?.length ? (
+        <Card style={{ gap: 8 }}>
+          <Bold>{t('growth.creators')}</Bold>
+          {g.creators.map((c, i) => (
+            <Muted key={i}>{c.name} · {usd(c.cost)} · {t('growth.creatorLine', { users: c.users, paying: c.paying, per: c.users ? usd(Math.round(c.cost / c.users)) : '–' })}</Muted>
+          ))}
+          <Small>{t('growth.creatorsText')}</Small>
+        </Card>
+      ) : null}
       <ChallengeCard />
       {g.top.length ? (
         <Card style={{ gap: 8 }}>
