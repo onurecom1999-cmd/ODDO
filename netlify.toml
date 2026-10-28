@@ -9,3 +9,15 @@
   from = "/app"
   to = "/app/"
   status = 301
+
+# Expo puts a content hash in every bundle and asset file name, so browsers may keep them for a year
+# instead of asking the server again on each visit.
+[[headers]]
+  for = "/app/_expo/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/app/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

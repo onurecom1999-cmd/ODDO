@@ -1,11 +1,10 @@
-import { Anton_400Regular } from '@expo-google-fonts/anton';
-import { Caveat_600SemiBold } from '@expo-google-fonts/caveat';
-import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold, useFonts } from '@expo-google-fonts/inter';
+import { useFonts } from 'expo-font';
 import * as StoreReview from 'expo-store-review';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, ScrollViewInstance, Text, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { fontFiles } from './src/fontFiles';
 import { detectLang, Key, setLang, t } from './src/i18n';
 import { dayKey, dayScore, streak } from './src/logic/day';
 import { exampleState } from './src/logic/example';
@@ -43,9 +42,12 @@ const TOUR = 2;
 const SHARE_AT = [1, 3, 7, 14, 30, 60, 100, 365];
 
 export default function App() {
-  const [fontsLoaded, fontError] = useFonts({ Anton_400Regular, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold, Caveat_600SemiBold });
-  // A font that fails to load falls back to the system font instead of blocking the app.
-  const loaded = fontsLoaded || !!fontError;
+  const [fontsLoaded, fontError] = useFonts(fontFiles);
+  // A font that fails to load, or takes longer than 2.5 s on a slow connection, falls back to the system
+  // font instead of blocking the app; the real font swaps in once it arrives.
+  const [fontWait, setFontWait] = useState(true);
+  useEffect(() => { const id = setTimeout(() => setFontWait(false), 2500); return () => clearTimeout(id); }, []);
+  const loaded = fontsLoaded || !!fontError || !fontWait;
   const [initial, setInitial] = useState<AppState | null>(null);
   useEffect(() => {
     loadState().then(s => { setLang(s.lang ?? detectLang()); setInitial(s); });

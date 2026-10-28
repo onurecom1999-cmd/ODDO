@@ -126,7 +126,8 @@ export function ChatSheet({ other, title, asCoach, onClose }: { other: string; t
   const load = useCallback(() => chat(other).then(setMsgs, e => { setMsgs(m => m ?? []); toast(errText(e)); }), [other, toast]);
   useEffect(() => {
     load();
-    const id = setInterval(() => chat(other).then(setMsgs, () => {}), 8000);
+    // No polling while the browser tab is in the background: it would only use data and battery.
+    const id = setInterval(() => { if (typeof document === 'undefined' || !document.hidden) chat(other).then(setMsgs, () => {}); }, 8000);
     return () => clearInterval(id);
   }, [load, other]);
   const go = async () => {
