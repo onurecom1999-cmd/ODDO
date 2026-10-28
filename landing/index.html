@@ -956,6 +956,22 @@
     const LANG_PATH = { de: "/", tr: "/tr/", en: "/en/" };
     let lang = PAGE_LANG;
 
+    // Where the visitor came from, first touch only: ?s= (or utm_source) of the link, flyer or post, else the site that sent them.
+    // The app on the same site reads the same key and saves it with the account.
+    try {
+      if (!localStorage.getItem("oddo.source")) {
+        const q = new URLSearchParams(location.search), s = (q.get("s") || q.get("utm_source") || "").trim().toLowerCase();
+        let src = /^[a-z0-9][a-z0-9_-]{0,39}$/.test(s) ? s : null;
+        if (!src && document.referrer) {
+          const host = new URL(document.referrer).hostname;
+          const sites = [[/instagram/, "instagram"], [/tiktok/, "tiktok"], [/youtube|youtu\.be/, "youtube"], [/facebook|fb\.com/, "facebook"],
+            [/(^|\.)t\.co$|twitter|(^|\.)x\.com$/, "x"], [/google\./, "google"], [/bing\./, "bing"], [/whatsapp|wa\.me/, "whatsapp"]];
+          if (host && host !== location.hostname) src = (sites.find(([re]) => re.test(host)) || [0, "web"])[1];
+        }
+        if (src) localStorage.setItem("oddo.source", src);
+      }
+    } catch (e) {}
+
     // Launch day: set to true. Shows "start in your browser" and the store note.
     const APP_LIVE = false;
     document.body.classList.toggle("app-live", APP_LIVE);
