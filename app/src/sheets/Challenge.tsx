@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Pressable, Share, Text, View } from 'react-native';
+import { Platform, Pressable, Share, Text, View } from 'react-native';
 import { getLang, LOCALE, t } from '../i18n';
 import { Challenge, challengeDay, challengeInfo, clearTeamCode, createChallenge, joinChallenge, pendingTeamCode, TEAM_RE, teamUrl } from '../challenge';
 import { useApp } from '../state';
 import { colors, fonts } from '../theme';
+import { challengeImage } from './challengeImage';
 import { Bar, Body, Bold, Button, Card, Eyebrow, Field, H2, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
 
 const dateText = (d: Date) => d.toLocaleDateString(LOCALE[getLang()], { weekday: 'short', day: 'numeric', month: 'long' });
@@ -75,6 +76,23 @@ function ChallengeSheet({ c, onChanged, onClose }: { c: Challenge; onChanged: ()
     setBusy(false);
   };
   const share = (x: string) => Share.share({ message: teamText(x) }).catch(() => {});
+  // Web: a story image with the team code, shared to Instagram or TikTok, or saved where sharing files is not possible.
+  const story = async (code: string) => {
+    const blob = await challengeImage({
+      kicker: c.name, title: day ? t('ch.dayOf', { n: day, days: c.days }) : t('ch.story.title'),
+      sub: t('ch.story.sub', { days: c.days, date: dateText(startDate) }), line: t('ch.story.line'), code,
+    }).catch(() => null);
+    if (!blob) { share(code); return; }
+    const file = new File([blob], `oddo-day-one-${code}.png`, { type: 'image/png' });
+    const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
+    if (nav.canShare?.({ files: [file] })) {
+      try { await nav.share({ files: [file], text: teamText(code) }); } catch (e) { if ((e as Error)?.name !== 'AbortError') toast(t('ch.err.failed')); }
+    } else {
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      toast(t('ch.story.saved'));
+    }
+  };
   const codeOk = TEAM_RE.test(code.trim().toUpperCase());
   return (
     <Sheet visible title={c.name} onClose={onClose}>
@@ -106,6 +124,7 @@ function ChallengeSheet({ c, onChanged, onClose }: { c: Challenge; onChanged: ()
               <Muted>{c.team.open ? t('ch.fillOpen') : t('ch.fillFriends')}</Muted>
               <Text selectable style={{ fontFamily: fonts.display, fontSize: 32, letterSpacing: 4, color: colors.text, textAlign: 'center' }}>{c.team.code}</Text>
               <Button label={t('ch.invite')} onPress={() => share(c.team!.code)} />
+              {Platform.OS === 'web' ? <Button variant="ghost" label={t('ch.story')} onPress={() => story(c.team!.code)} /> : null}
             </>
           ) : null}
           <Small>{t('ch.chatHint')}</Small>

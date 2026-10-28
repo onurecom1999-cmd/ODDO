@@ -1234,4 +1234,9 @@ export const tr: Record<Key, string> = {
   'ch.admin.cta': 'Challenge oluştur',
   'ch.admin.made': '{name} oluşturuldu.',
   'ch.admin.failed': 'Challenge oluşturulamadı.',
+  'ch.story': "Hikâye olarak paylaş",
+  'ch.story.title': "Ben varım",
+  'ch.story.sub': "{days} gün · 5 kişilik takım · başlangıç {date}",
+  'ch.story.line': "Takımıma gel. Kod:",
+  'ch.story.saved': "Görsel kaydedildi. Şimdi hikâye olarak paylaş.",
 };

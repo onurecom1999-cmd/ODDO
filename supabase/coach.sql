@@ -1348,7 +1348,8 @@ begin
   end if;
   if g.id is null then
     loop
-      select string_agg(substr('ABCDEFGHJKMNPQRSTUVWXYZ23456789', (floor(random() * 31) + 1)::int, 1), '') into code from generate_series(1, 6);
+      -- No vowels, so no code spells a word people would not want to post.
+      select string_agg(substr('BCDFGHJKMNPQRSTVWXZ23456789', (floor(random() * 27) + 1)::int, 1), '') into code from generate_series(1, 6);
       exit when not exists (select 1 from groups where invite_code = code);
     end loop;
     insert into groups (name, invite_code, created_by, max_members, challenge_id, open_team)

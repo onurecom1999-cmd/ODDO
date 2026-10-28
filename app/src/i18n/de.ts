@@ -1233,6 +1233,11 @@ export const de = {
   'ch.admin.cta': 'Challenge anlegen',
   'ch.admin.made': '{name} ist angelegt.',
   'ch.admin.failed': 'Die Challenge konnte nicht angelegt werden.',
+  'ch.story': "Als Story teilen",
+  'ch.story.title': "Ich bin dabei",
+  'ch.story.sub': "{days} Tage · 5er-Team · Start {date}",
+  'ch.story.line': "Komm in mein Team. Code:",
+  'ch.story.saved': "Bild gespeichert. Jetzt als Story posten.",
 };
 
 export type Key = keyof typeof de;

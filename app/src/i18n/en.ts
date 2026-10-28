@@ -1234,4 +1234,9 @@ export const en: Record<Key, string> = {
   'ch.admin.cta': 'Create challenge',
   'ch.admin.made': '{name} is created.',
   'ch.admin.failed': 'The challenge could not be created.',
+  'ch.story': "Share as story",
+  'ch.story.title': "I’m in",
+  'ch.story.sub': "{days} days · team of 5 · starts {date}",
+  'ch.story.line': "Join my team. Code:",
+  'ch.story.saved': "Image saved. Now post it as a story.",
 };
