@@ -3,7 +3,7 @@
 import html, re, sys
 OUT = sys.argv[1]
 ADDR = 'Semih Sancar Caddesi 17, Girne Merkez, Girne, North Cyprus (KKTC)'
-MAIL = '[E-MAIL]'
+MAIL = 'oddosportsapp@gmail.com'
 STAND = '19.10.2026'
 
 def md(text):
