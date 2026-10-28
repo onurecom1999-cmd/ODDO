@@ -12,6 +12,7 @@ import { Bar, Body, Card, CheckRow, Emblem, Eyebrow, H1, H2, LinkButton, Muted, 
 import { Icon, IconName } from '../ui/icons';
 import { CoachBanner } from '../sheets/Coach';
 import { StudioCard } from '../sheets/Studio';
+import { ChallengeCard } from '../sheets/Challenge';
 import { TrialCard } from '../ui/TrialCard';
 import { InstallCard } from '../ui/InstallCard';
 
@@ -84,6 +85,8 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
       </Row>
 
       <StudioCard refresh={studioTick} />
+
+      {S.example ? null : <ChallengeCard />}
 
       {!score.perfect && run.savedRecently && n > 0 ? (
         <Card style={{ gap: 4 }}>

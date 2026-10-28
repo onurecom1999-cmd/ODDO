@@ -1282,3 +1282,120 @@ begin
 end $$;
 revoke execute on function public.admin_challenge(text, int) from public, anon;
 grant execute on function public.admin_challenge(text, int) to authenticated;
+
+
+-- ---------- Day One Challenge ----------
+-- A free 30-day challenge with a fixed start. Everyone plays in a team of 5: friends join one team by its code,
+-- people who come alone are put into an open team, people who speak the same language first.
+create table if not exists public.challenges (
+  id uuid primary key default gen_random_uuid(),
+  name text not null check (char_length(name) between 1 and 40),
+  start_date date not null,
+  days int not null default 30 check (days between 7 and 90),
+  team_size int not null default 5 check (team_size between 2 and 10),
+  created_at timestamptz not null default now()
+);
+alter table public.challenges enable row level security;
+drop policy if exists "challenges: read" on public.challenges;
+create policy "challenges: read" on public.challenges for select to authenticated using (true);
+-- A team is a normal group (chat, ranking), tied to its challenge. Open teams take in people who come alone.
+alter table public.groups add column if not exists challenge_id uuid references public.challenges on delete set null;
+alter table public.groups add column if not exists open_team boolean not null default false;
+create index if not exists groups_challenge on public.groups (challenge_id) where challenge_id is not null;
+create table if not exists public.challenge_entries (
+  challenge_id uuid not null references public.challenges on delete cascade,
+  user_id uuid not null default auth.uid() references auth.users on delete cascade,
+  group_id uuid references public.groups on delete set null,
+  joined_at timestamptz not null default now(),
+  primary key (challenge_id, user_id)
+);
+alter table public.challenge_entries enable row level security;
+
+-- The challenge running now or starting next.
+create or replace function public.current_challenge() returns public.challenges
+language sql stable security definer set search_path = public as $$
+  select * from challenges where start_date + days > current_date order by start_date limit 1
+$$;
+
+-- Joining: with a team code (a friend's team), as a new friend team (p_team), or alone (an open team is picked).
+-- Possible until 2 days after the start. Joining again with a code moves you to that team.
+create or replace function public.join_challenge(p_challenge uuid, p_code text default null, p_team boolean default false)
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare c challenges; g groups; e challenge_entries; code text; my_lang text;
+begin
+  if auth.uid() is null then raise exception 'not signed in'; end if;
+  select * into c from challenges where id = p_challenge;
+  if c.id is null then raise exception 'challenge not found'; end if;
+  if current_date > c.start_date + 2 then raise exception 'challenge closed'; end if;
+  perform pg_advisory_xact_lock(hashtext(c.id::text));
+  select * into e from challenge_entries where challenge_id = c.id and user_id = auth.uid();
+  if nullif(trim(p_code), '') is not null then
+    select * into g from groups where invite_code = upper(trim(p_code)) and challenge_id = c.id;
+    if g.id is null then raise exception 'team not found'; end if;
+    if g.id is distinct from e.group_id and (select count(*) from group_members where group_id = g.id) >= c.team_size then raise exception 'team full'; end if;
+  elsif e.group_id is not null and not p_team then
+    select * into g from groups where id = e.group_id;
+    return jsonb_build_object('team', g.name, 'code', g.invite_code, 'open', g.open_team);
+  elsif not p_team then
+    select lang into my_lang from profiles where id = auth.uid();
+    select gr.* into g from groups gr
+    where gr.challenge_id = c.id and gr.open_team and (select count(*) from group_members m where m.group_id = gr.id) < c.team_size
+      -- Before the start, teams stay in one language; afterwards a free place anywhere beats playing alone.
+      and (c.start_date <= current_date or not exists (select 1 from group_members m join profiles p on p.id = m.user_id where m.group_id = gr.id and p.lang <> my_lang))
+    order by (select count(*) from group_members m join profiles p on p.id = m.user_id where m.group_id = gr.id and p.lang = my_lang) desc,
+      (select count(*) from group_members m where m.group_id = gr.id) desc, gr.created_at
+    limit 1;
+  end if;
+  if g.id is null then
+    loop
+      select string_agg(substr('ABCDEFGHJKMNPQRSTUVWXYZ23456789', (floor(random() * 31) + 1)::int, 1), '') into code from generate_series(1, 6);
+      exit when not exists (select 1 from groups where invite_code = code);
+    end loop;
+    insert into groups (name, invite_code, created_by, max_members, challenge_id, open_team)
+    values ('Day One #' || ((select count(*) from groups where challenge_id = c.id) + 1), code, case when p_team then auth.uid() end, c.team_size, c.id, not p_team)
+    returning * into g;
+  end if;
+  if e.group_id is not null and e.group_id <> g.id then
+    delete from group_members where group_id = e.group_id and user_id = auth.uid();
+  end if;
+  insert into group_members (group_id, user_id) values (g.id, auth.uid()) on conflict do nothing;
+  insert into challenge_entries (challenge_id, user_id, group_id) values (c.id, auth.uid(), g.id)
+  on conflict (challenge_id, user_id) do update set group_id = excluded.group_id;
+  return jsonb_build_object('team', g.name, 'code', g.invite_code, 'open', g.open_team);
+end $$;
+
+-- Everything the app shows: the challenge, how many play, and my team with each member's perfect days so far.
+create or replace function public.challenge_info() returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare c challenges; e challenge_entries; g groups;
+begin
+  select * into c from public.current_challenge();
+  if c.id is null then return null; end if;
+  select * into e from challenge_entries where challenge_id = c.id and user_id = auth.uid();
+  -- Someone who left the team group plays on alone until they join a team again.
+  select * into g from groups where id = e.group_id and exists (select 1 from group_members where group_id = e.group_id and user_id = auth.uid());
+  return jsonb_build_object(
+    'id', c.id, 'name', c.name, 'start', c.start_date, 'days', c.days, 'team_size', c.team_size,
+    'open', current_date <= c.start_date + 2,
+    'people', (select count(*) from challenge_entries where challenge_id = c.id),
+    'joined', e.user_id is not null,
+    'team', case when g.id is null then null else jsonb_build_object('id', g.id, 'name', g.name, 'code', g.invite_code, 'open', g.open_team,
+      'members', (select coalesce(jsonb_agg(x order by x.perfect desc, x.name), '[]') from (
+        select m.user_id = auth.uid() as me, coalesce(nullif(p.name, ''), '?') as name,
+          (select count(*) from activity_days a where a.user_id = m.user_id and a.perfect and a.day between c.start_date and least(current_date, c.start_date + c.days - 1)) as perfect,
+          (p.today_date = current_date and p.today_all > 0 and p.today_done >= p.today_all) as today
+        from group_members m join profiles p on p.id = m.user_id where m.group_id = g.id) x)) end);
+end $$;
+
+create or replace function public.admin_create_challenge(p_name text, p_start date, p_days int default 30) returns public.challenges
+language plpgsql security definer set search_path = public as $$
+declare c challenges;
+begin
+  if not public.is_admin() then raise exception 'not admin'; end if;
+  insert into challenges (name, start_date, days) values (trim(p_name), p_start, p_days) returning * into c;
+  return c;
+end $$;
+
+revoke execute on function public.current_challenge(), public.join_challenge(uuid, text, boolean), public.challenge_info(),
+  public.admin_create_challenge(text, date, int) from public, anon;
+grant execute on function public.join_challenge(uuid, text, boolean), public.challenge_info(), public.admin_create_challenge(text, date, int) to authenticated;

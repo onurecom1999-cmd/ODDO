@@ -3,6 +3,7 @@ import { ActivityIndicator, Text, View } from 'react-native';
 import { fmt, t } from '../i18n';
 import { adminChallenge, adminGrowth, Growth, Share } from '../partner';
 import { colors, fonts } from '../theme';
+import { AdminChallenge } from './Challenge';
 import { Bold, Button, Card, Field, Muted, Small, Stack, Stat, useToast } from '../ui/kit';
 
 // The goal on Onur's growth page.
@@ -70,6 +71,7 @@ export function AdminGrowth() {
           <Small>{t('growth.creatorsText')}</Small>
         </Card>
       ) : null}
+      <AdminChallenge />
       <ChallengeCard />
       {g.top.length ? (
         <Card style={{ gap: 8 }}>
