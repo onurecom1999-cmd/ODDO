@@ -1258,6 +1258,10 @@ export const de = {
   'ch.done.proText': "Die Challenge ist vorbei, dein Plan läuft weiter. Mit Pro bekommst du mehr Essensfotos pro Tag und jede Woche persönliche Tipps.",
   'ch.done.pro': "Mit Pro weitermachen",
   'ch.done.next': "Nächste Challenge startet am {date}.",
+  'growth.sources': "Woher die Leute kommen (90 Tage)",
+  'growth.sourcesHead': "Neu · hatten einen perfekten Tag · in der Challenge · zahlen",
+  'growth.direct': "direkt / unbekannt",
+  'growth.sourcesText': "Zählt, wer bleibt, nicht wer kommt. Mehr Zeit dorthin, wo viele einen perfekten Tag schaffen und zahlen.",
 };
 
 export type Key = keyof typeof de;

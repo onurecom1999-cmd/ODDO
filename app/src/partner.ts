@@ -58,6 +58,9 @@ export type Growth = {
 // n out of base people, for a rate on the growth page.
 export type Share = { n: number; base: number };
 export const adminGrowth = () => rpc<Growth>('admin_growth');
+// New people per source (last 90 days): the ?s= of links and flyers, or the site that sent them.
+export type SourceRow = { source: string; users: number; active: number; challenge: number; paying: number };
+export const adminSources = () => rpc<SourceRow[]>('admin_sources');
 // A big group for a campus or gym challenge; returns its join code.
 export const adminChallenge = (name: string, max: number) => rpc<{ invite_code: string; name: string }>('admin_challenge', { p_name: name.trim().slice(0, 30), p_max: max });
 export const rateClip = (id: number, views: number, turkish: boolean, appUse: boolean, ok: boolean, note = '') =>

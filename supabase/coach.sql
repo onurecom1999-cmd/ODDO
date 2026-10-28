@@ -1444,3 +1444,37 @@ begin
 end $$;
 revoke execute on function public.challenge_result() from public, anon;
 grant execute on function public.challenge_result() to authenticated;
+
+-- ---------- where people come from ----------
+-- First touch only: the ?s= of the link, flyer or post someone came through (or the site that sent them).
+create table if not exists public.signup_sources (
+  user_id uuid primary key references auth.users on delete cascade,
+  source text not null check (source ~ '^[a-z0-9][a-z0-9_-]{0,39}$'),
+  created_at timestamptz not null default now()
+);
+alter table public.signup_sources enable row level security;
+
+create or replace function public.set_source(p_source text) returns void
+language sql security definer set search_path = public as $$
+  insert into signup_sources (user_id, source)
+  select auth.uid(), lower(trim(p_source))
+  where auth.uid() is not null and lower(trim(p_source)) ~ '^[a-z0-9][a-z0-9_-]{0,39}$'
+  on conflict (user_id) do nothing
+$$;
+
+-- Per source over the last 90 days: new people, how many had a perfect day, joined a challenge, and pay.
+create or replace function public.admin_sources() returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if not public.is_admin() then raise exception 'not admin'; end if;
+  return (select coalesce(jsonb_agg(x order by x.users desc), '[]') from (
+    select coalesce(s.source, 'direct') as source, count(*) as users,
+      count(*) filter (where exists (select 1 from activity_days a where a.user_id = u.id and a.perfect)) as active,
+      count(*) filter (where exists (select 1 from challenge_entries e where e.user_id = u.id)) as challenge,
+      count(*) filter (where exists (select 1 from subscriptions p where p.user_id = u.id)) as paying
+    from auth.users u left join signup_sources s on s.user_id = u.id
+    where u.created_at > now() - interval '90 days'
+    group by 1 limit 30) x);
+end $$;
+revoke execute on function public.set_source(text), public.admin_sources() from public, anon;
+grant execute on function public.set_source(text), public.admin_sources() to authenticated;

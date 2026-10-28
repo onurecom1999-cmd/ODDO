@@ -1259,4 +1259,8 @@ export const en: Record<Key, string> = {
   'ch.done.proText': "The challenge is over, your plan goes on. Pro gives you more meal photos per day and personal tips every week.",
   'ch.done.pro': "Keep going with Pro",
   'ch.done.next': "Next challenge starts {date}.",
+  'growth.sources': "Where people come from (90 days)",
+  'growth.sourcesHead': "New · had a perfect day · in the challenge · paying",
+  'growth.direct': "direct / unknown",
+  'growth.sourcesText': "What counts is who stays, not who arrives. Put more time where many have a perfect day and pay.",
 };

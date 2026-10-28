@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { fmt, t } from '../i18n';
-import { adminChallenge, adminGrowth, Growth, Share } from '../partner';
+import { adminChallenge, adminGrowth, adminSources, Growth, Share, SourceRow } from '../partner';
 import { colors, fonts } from '../theme';
 import { AdminChallenge } from './Challenge';
 import { Bold, Button, Card, Field, Muted, Small, Stack, Stat, useToast } from '../ui/kit';
@@ -71,6 +71,7 @@ export function AdminGrowth() {
           <Small>{t('growth.creatorsText')}</Small>
         </Card>
       ) : null}
+      <SourcesCard />
       <AdminChallenge />
       <ChallengeCard />
       {g.top.length ? (
@@ -101,6 +102,27 @@ function ChallengeCard() {
       <Field value={name} onChangeText={setName} placeholder={t('growth.challengePh')} maxLength={30} />
       <Button small label={busy ? '…' : t('growth.challengeCta')} disabled={busy || !name.trim()} onPress={create} />
       {made ? <Text style={{ fontFamily: fonts.bold, fontSize: 16, color: colors.accent }}>{t('growth.challengeMade', { name: made.name, code: made.invite_code })}</Text> : null}
+    </Card>
+  );
+}
+
+// Which link, flyer or channel brings people who stay: put time and money where these numbers are best.
+function SourcesCard() {
+  const [rows, setRows] = useState<SourceRow[] | null>(null);
+  useEffect(() => { adminSources().then(setRows, () => setRows([])); }, []);
+  if (!rows?.length) return null;
+  const p = (n: number, of: number) => (of ? `${Math.round((n / of) * 100)} %` : '–');
+  return (
+    <Card style={{ gap: 10 }}>
+      <Bold>{t('growth.sources')}</Bold>
+      <Small>{t('growth.sourcesHead')}</Small>
+      {rows.map(r => (
+        <View key={r.source} style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8, borderTopWidth: 1, borderTopColor: colors.line, paddingTop: 8 }}>
+          <Bold style={{ flex: 1 }}>{r.source === 'direct' ? t('growth.direct') : r.source}</Bold>
+          <Muted>{fmt(r.users)} · {p(r.active, r.users)} · {p(r.challenge, r.users)} · {fmt(r.paying)}</Muted>
+        </View>
+      ))}
+      <Small>{t('growth.sourcesText')}</Small>
     </Card>
   );
 }

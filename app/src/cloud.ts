@@ -1,5 +1,6 @@
 import { dayKey, dayScore, streak } from './logic/day';
 import type { AppState } from './logic/types';
+import { sendSource } from './source';
 import { supabase } from './supabase';
 
 // Accounts start anonymous: no sign-up wall before day 1. Email can be linked later to keep the data.
@@ -50,7 +51,7 @@ async function push(S: AppState) {
   const sig = JSON.stringify(row);
   if (sig === lastProfile) return;
   const { error } = await supabase.from('profiles').upsert(row);
-  if (!error) lastProfile = sig;
+  if (!error) { lastProfile = sig; sendSource(); }
 }
 
 // After signing in on a new device: the saved state, if there is one.

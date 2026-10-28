@@ -1259,4 +1259,8 @@ export const tr: Record<Key, string> = {
   'ch.done.proText': "Challenge bitti, planın devam ediyor. Pro ile günde daha fazla yemek fotoğrafı ve her hafta kişisel ipuçları alırsın.",
   'ch.done.pro': "Pro ile devam et",
   'ch.done.next': "Sonraki challenge {date} tarihinde başlıyor.",
+  'growth.sources': "Kullanıcılar nereden geliyor (90 gün)",
+  'growth.sourcesHead': "Yeni · mükemmel bir günü oldu · challenge’da · ödüyor",
+  'growth.direct': "doğrudan / bilinmiyor",
+  'growth.sourcesText': "Önemli olan kimin geldiği değil, kimin kaldığı. Zamanını çoğunun mükemmel gün yaşayıp ödediği yere ver.",
 };
