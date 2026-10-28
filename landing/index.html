@@ -136,6 +136,15 @@
     .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-top: 32px; }
     html { overflow-x: clip; }
     .hero-note { font-size: 13px; color: var(--dim); }
+    /* Day One Challenge strip above the hero headline; hidden once sign-up is over. */
+    .ch { display: flex; align-items: center; gap: 14px; background: var(--surface); border: 1px solid var(--accent); border-radius: 20px; padding: 14px 18px; margin-bottom: 28px; max-width: 560px; color: inherit; text-decoration: none; }
+    .ch:hover { background: var(--surface-2); }
+    .ch .n { font-family: Anton, Impact, sans-serif; font-size: 40px; line-height: 1; color: var(--accent); min-width: 54px; text-align: center; }
+    .ch .n i { display: block; font-family: Inter, sans-serif; font-style: normal; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; margin-top: 4px; }
+    .ch small { display: block; font-size: 12px; font-weight: 800; letter-spacing: .12em; color: var(--accent); }
+    .ch b { display: block; font-size: 16px; font-weight: 800; line-height: 1.3; }
+    .ch .go { margin-left: auto; font-size: 22px; color: var(--accent); }
+    .ch[hidden] { display: none; }
     /* Shown from launch day on (APP_LIVE in the script). */
     .app-only { display: none !important; }
     body.app-live .app-only { display: inline-flex !important; }
@@ -305,6 +314,11 @@
   <header class="hero">
     <div class="wrap hero-grid">
       <div>
+        <a href="#pact" class="ch" id="challenge" hidden>
+          <span class="n"><span id="ch-n"></span><i id="ch-u"></i></span>
+          <span><small data-i18n="ch_kicker"></small><b id="ch-text"></b></span>
+          <span class="go">→</span>
+        </a>
         <div class="pill"><span class="dot"></span><span data-i18n="pill"></span></div>
         <h1 class="flip display" aria-label="One day or Day One">
           <span class="line oneday">One day</span>
@@ -510,6 +524,12 @@
   <script>
     const texts = {
       de: {
+        ch_day: "Tag",
+        ch_days: "Tage",
+        ch_kicker: "Day One Challenge",
+        ch_soon: "Start am 10. November: 30 Tage im 5er-Team, kostenlos.",
+        ch_tomorrow: "Morgen geht’s los: 30 Tage im 5er-Team.",
+        ch_now: "Die Challenge läuft. Steig noch heute ein.",
         seo_title: "ODDO – Fitness-App mit Trainingsplan & Kalorien per Foto",
         seo_desc: "Persönlicher Trainingsplan, Kalorien per Foto und Barcode, Laufen mit GPS und Fortschritt in einer App. Ehrliche Preise, kündbar mit zwei Taps. Starte heute deinen Day One.",
         og_title: "ODDO – Die Fitness-App, die dich nicht reinlegt",
@@ -646,6 +666,12 @@
         imprint: "Impressum"
       },
       tr: {
+        ch_day: "gün",
+        ch_days: "gün",
+        ch_kicker: "Day One Challenge",
+        ch_soon: "10 Kasım’da başlıyor: 5 kişilik takımla 30 gün, ücretsiz.",
+        ch_tomorrow: "Yarın başlıyor: 5 kişilik takımla 30 gün.",
+        ch_now: "Challenge başladı. Bugün hâlâ katılabilirsin.",
         seo_title: "ODDO – Antrenman Planı ve Fotoğrafla Kalori Uygulaması",
         seo_desc: "Kişisel antrenman planı, fotoğraf ve barkodla kalori takibi, GPS ile koşu ve ilerleme tek uygulamada. Türkçe, dürüst fiyat, iki dokunuşla iptal. Day One bugün.",
         og_title: "ODDO – Seni kandırmayan fitness uygulaması",
@@ -782,6 +808,12 @@
         imprint: "Künye"
       },
       en: {
+        ch_day: "day",
+        ch_days: "days",
+        ch_kicker: "Day One Challenge",
+        ch_soon: "Starts November 10: 30 days in a team of 5, free.",
+        ch_tomorrow: "Starts tomorrow: 30 days in a team of 5.",
+        ch_now: "The challenge is on. Join today, there’s still time.",
         seo_title: "ODDO – Workout Plan & Photo Calorie Tracker in One App",
         seo_desc: "Personal workout plan, calories by photo and barcode, GPS runs and progress in one app. Honest pricing, cancel in two taps. Start your Day One today.",
         og_title: "ODDO – The fitness app that doesn't trick you",
@@ -927,15 +959,30 @@
     // Launch day: set to true. Shows "start in your browser" and the store note.
     const APP_LIVE = false;
     document.body.classList.toggle("app-live", APP_LIVE);
-    // A friend's invite code in the address (?r=ABC1234) travels along into the app.
+    // A friend's invite code (?r=ABC1234) or challenge team code (?c=BCD234) in the address travels along into the app.
     const REF = new URLSearchParams(location.search).get("r");
-    const APP_URL = "/app/" + (REF && /^[A-Za-z0-9]{6,7}$/.test(REF) ? "?r=" + REF.toUpperCase() : "");
+    const TEAM = new URLSearchParams(location.search).get("c");
+    const APP_URL = "/app/" + (REF && /^[A-Za-z0-9]{6,7}$/.test(REF) ? "?r=" + REF.toUpperCase() : TEAM && /^[A-Za-z0-9]{6}$/.test(TEAM) ? "?c=" + TEAM.toUpperCase() : "");
     document.querySelectorAll('a[href="/app/"]').forEach(a => { a.href = APP_URL; });
     // From launch day on, the main buttons lead straight into the app instead of the waitlist.
     if (APP_LIVE) document.querySelectorAll("[data-live]").forEach(a => {
       a.href = APP_URL;
       (a.querySelector("[data-i18n]") || a).dataset.i18n = a.dataset.live;
     });
+
+    // The Day One Challenge: counts down to the start and stays up until sign-up closes 2 days later.
+    const CHALLENGE_START = new Date(2026, 10, 10);
+    function showChallenge() {
+      const el = document.getElementById("challenge"), t = texts[lang];
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const days = Math.round((CHALLENGE_START - today) / 86400000);
+      el.hidden = days < -2;
+      if (el.hidden) return;
+      if (APP_LIVE) el.href = APP_URL;
+      document.getElementById("ch-n").textContent = days > 0 ? days : "GO";
+      document.getElementById("ch-u").textContent = days > 1 ? t.ch_days : days === 1 ? t.ch_day : "";
+      document.getElementById("ch-text").textContent = days > 1 ? t.ch_soon : days === 1 ? t.ch_tomorrow : t.ch_now;
+    }
 
     function setLang(next) {
       lang = next;
@@ -947,6 +994,7 @@
       document.querySelectorAll(".lang button").forEach(b => b.classList.toggle("active", b.dataset.lang === lang));
       document.querySelectorAll("[data-legal]").forEach(a => { a.href = `/${a.dataset.legal}.html#${lang}`; });
       syncName();
+      showChallenge();
       try { localStorage.setItem("oddo-lang", lang); } catch (e) {}
     }
 
