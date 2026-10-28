@@ -1239,4 +1239,13 @@ export const en: Record<Key, string> = {
   'ch.story.sub': "{days} days · team of 5 · starts {date}",
   'ch.story.line': "Join my team. Code:",
   'ch.story.saved': "Image saved. Now post it as a story.",
+  'ch.nudge': "Nudge",
+  'ch.nudgeText': "{name}, your team is waiting for you. Finish your day! 💪",
+  'ch.nudged': "{name} got a nudge.",
+  'ch.push': "Today is Day One. Your team starts now, make your first day perfect.",
+  'ch.admin.people': "Joined (last 24 h)",
+  'ch.admin.teams': "Teams",
+  'ch.admin.full': "full",
+  'ch.admin.friendTeams': "Friend teams",
+  'ch.admin.perfectToday': "Perfect today",
 };

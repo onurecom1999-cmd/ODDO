@@ -1382,7 +1382,7 @@ begin
     'joined', e.user_id is not null,
     'team', case when g.id is null then null else jsonb_build_object('id', g.id, 'name', g.name, 'code', g.invite_code, 'open', g.open_team,
       'members', (select coalesce(jsonb_agg(x order by x.perfect desc, x.name), '[]') from (
-        select m.user_id = auth.uid() as me, coalesce(nullif(p.name, ''), '?') as name,
+        select m.user_id as id, m.user_id = auth.uid() as me, coalesce(nullif(p.name, ''), '?') as name,
           (select count(*) from activity_days a where a.user_id = m.user_id and a.perfect and a.day between c.start_date and least(current_date, c.start_date + c.days - 1)) as perfect,
           (p.today_date = current_date and p.today_all > 0 and p.today_done >= p.today_all) as today
         from group_members m join profiles p on p.id = m.user_id where m.group_id = g.id) x)) end);
@@ -1400,3 +1400,23 @@ end $$;
 revoke execute on function public.current_challenge(), public.join_challenge(uuid, text, boolean), public.challenge_info(),
   public.admin_create_challenge(text, date, int) from public, anon;
 grant execute on function public.join_challenge(uuid, text, boolean), public.challenge_info(), public.admin_create_challenge(text, date, int) to authenticated;
+
+-- Onur's numbers for the current challenge: who joined, how full the teams are, and how many made today perfect.
+create or replace function public.admin_challenge_stats() returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare c challenges;
+begin
+  if not public.is_admin() then raise exception 'not admin'; end if;
+  select * into c from public.current_challenge();
+  if c.id is null then return null; end if;
+  return jsonb_build_object('name', c.name, 'start', c.start_date, 'days', c.days,
+    'people', (select count(*) from challenge_entries where challenge_id = c.id),
+    'joined_1', (select count(*) from challenge_entries where challenge_id = c.id and joined_at > now() - interval '1 day'),
+    'teams', (select count(*) from groups where challenge_id = c.id),
+    'full', (select count(*) from groups g where challenge_id = c.id and (select count(*) from group_members m where m.group_id = g.id) >= c.team_size),
+    'friend_teams', (select count(*) from groups where challenge_id = c.id and not open_team),
+    'perfect_today', (select count(*) from challenge_entries e join profiles p on p.id = e.user_id
+      where e.challenge_id = c.id and p.today_date = current_date and p.today_all > 0 and p.today_done >= p.today_all));
+end $$;
+revoke execute on function public.admin_challenge_stats() from public, anon;
+grant execute on function public.admin_challenge_stats() to authenticated;

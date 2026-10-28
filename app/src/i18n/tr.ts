@@ -1239,4 +1239,13 @@ export const tr: Record<Key, string> = {
   'ch.story.sub': "{days} gün · 5 kişilik takım · başlangıç {date}",
   'ch.story.line': "Takımıma gel. Kod:",
   'ch.story.saved': "Görsel kaydedildi. Şimdi hikâye olarak paylaş.",
+  'ch.nudge': "Dürt",
+  'ch.nudgeText': "{name}, takımın seni bekliyor. Gününü tamamla! 💪",
+  'ch.nudged': "{name} dürtüldü.",
+  'ch.push': "Bugün Day One. Takımın başlıyor, ilk gününü mükemmel yap.",
+  'ch.admin.people': "Katılan (son 24 saat)",
+  'ch.admin.teams': "Takımlar",
+  'ch.admin.full': "dolu",
+  'ch.admin.friendTeams': "Arkadaş takımları",
+  'ch.admin.perfectToday': "Bugün mükemmel",
 };

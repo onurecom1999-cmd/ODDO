@@ -1238,6 +1238,15 @@ export const de = {
   'ch.story.sub': "{days} Tage · 5er-Team · Start {date}",
   'ch.story.line': "Komm in mein Team. Code:",
   'ch.story.saved': "Bild gespeichert. Jetzt als Story posten.",
+  'ch.nudge': "Anstupsen",
+  'ch.nudgeText': "{name}, dein Team wartet auf dich. Mach deinen Tag noch voll! 💪",
+  'ch.nudged': "{name} wurde angestupst.",
+  'ch.push': "Heute ist Day One. Dein Team startet jetzt, mach deinen ersten Tag perfekt.",
+  'ch.admin.people': "Dabei (letzte 24 h)",
+  'ch.admin.teams': "Teams",
+  'ch.admin.full': "voll",
+  'ch.admin.friendTeams': "Freundes-Teams",
+  'ch.admin.perfectToday': "Heute perfekt",
 };
 
 export type Key = keyof typeof de;

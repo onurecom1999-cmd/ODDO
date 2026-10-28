@@ -14,7 +14,7 @@ export async function setReminder(hour: number | null): Promise<boolean> {
   if (!remindersSupported) return false;
   // Everything scheduled except the free-month reminder; older versions scheduled the daily one without a name.
   const all = await Notifications.getAllScheduledNotificationsAsync().catch(() => []);
-  await Promise.all(all.filter(n => n.identifier !== TRIAL_ID).map(n => Notifications.cancelScheduledNotificationAsync(n.identifier).catch(() => {})));
+  await Promise.all(all.filter(n => n.identifier !== TRIAL_ID && n.identifier !== CHALLENGE_ID).map(n => Notifications.cancelScheduledNotificationAsync(n.identifier).catch(() => {})));
   if (hour == null) return true;
   const perm = await Notifications.requestPermissionsAsync().catch(() => null);
   if (!perm?.granted) return false;
@@ -43,6 +43,22 @@ export async function remindTrialEnd(freeUntil: string | null) {
   await Notifications.scheduleNotificationAsync({
     identifier: TRIAL_ID,
     content: { title: 'ODDO Pro', body: t('trial.push', { date: new Date(freeUntil).toLocaleDateString(undefined, { day: 'numeric', month: 'long' }) }) },
+    trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: at },
+  }).catch(() => {});
+}
+
+const CHALLENGE_ID = 'challenge-start';
+// On the challenge's first day at 8:00: "Today is Day One". Asked for right after joining, so the system prompt has its context.
+export async function remindChallengeStart(start: string) {
+  if (!remindersSupported) return;
+  const [y, m, d] = start.split('-').map(Number);
+  const at = new Date(y, m - 1, d, 8, 0, 0);
+  if (at.getTime() <= Date.now()) return;
+  const perm = await Notifications.requestPermissionsAsync().catch(() => null);
+  if (!perm?.granted) return;
+  await Notifications.scheduleNotificationAsync({
+    identifier: CHALLENGE_ID,
+    content: { title: 'ODDO', body: t('ch.push') },
     trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: at },
   }).catch(() => {});
 }

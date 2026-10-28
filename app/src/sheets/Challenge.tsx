@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Platform, Pressable, Share, Text, View } from 'react-native';
 import { getLang, LOCALE, t } from '../i18n';
-import { Challenge, challengeDay, challengeInfo, clearTeamCode, createChallenge, joinChallenge, pendingTeamCode, TEAM_RE, teamUrl } from '../challenge';
+import { Challenge, challengeDay, challengeInfo, ChallengeStats, challengeStats, clearTeamCode, createChallenge, joinChallenge, pendingTeamCode, TEAM_RE, teamUrl } from '../challenge';
+import { send } from '../community';
+import { remindChallengeStart } from '../reminders';
 import { useApp } from '../state';
 import { colors, fonts } from '../theme';
 import { challengeImage } from './challengeImage';
-import { Bar, Body, Bold, Button, Card, Eyebrow, Field, H2, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
+import { Bar, Body, Bold, Button, Card, Eyebrow, Field, H2, LinkButton, Muted, Row, Sheet, Small, Stack, Stat, useToast } from '../ui/kit';
 
 const dateText = (d: Date) => d.toLocaleDateString(LOCALE[getLang()], { weekday: 'short', day: 'numeric', month: 'long' });
 const err = (e: unknown) => {
@@ -72,10 +74,19 @@ function ChallengeSheet({ c, onChanged, onClose }: { c: Challenge; onChanged: ()
       clearTeamCode(); setCode('');
       toast(t(how.team ? 'ch.teamMade' : 'ch.joined', { team: r.team }));
       onChanged();
+      remindChallengeStart(c.start);
     } catch (e) { toast(err(e)); }
     setBusy(false);
   };
   const share = (x: string) => Share.share({ message: teamText(x) }).catch(() => {});
+  // Once it runs: a nudge in the team chat for whoever has not finished today.
+  const [nudged, setNudged] = useState<string[]>([]);
+  const nudge = async (id: string, name: string) => {
+    if (!c.team) return;
+    setNudged(n => [...n, id]);
+    try { await send(c.team.id, t('ch.nudgeText', { name }), 'nudge', id); toast(t('ch.nudged', { name })); }
+    catch { setNudged(n => n.filter(x => x !== id)); toast(t('ch.err.failed')); }
+  };
   // Web: a story image with the team code, shared to Instagram or TikTok, or saved where sharing files is not possible.
   const story = async (code: string) => {
     const blob = await challengeImage({
@@ -116,7 +127,10 @@ function ChallengeSheet({ c, onChanged, onClose }: { c: Challenge; onChanged: ()
           {c.team.members.map((m, i) => (
             <Row key={i} style={{ justifyContent: 'space-between' }}>
               <Body style={{ fontFamily: m.me ? fonts.bold : fonts.body }}>{m.today ? '✓ ' : ''}{m.me ? t('ch.you', { name: m.name }) : m.name}</Body>
-              <Small>{t('ch.perfect', { n: m.perfect })}</Small>
+              <Row style={{ gap: 12 }}>
+                {day && !m.me && !m.today && !nudged.includes(m.id) ? <LinkButton label={t('ch.nudge')} onPress={() => nudge(m.id, m.name)} /> : null}
+                <Small>{t('ch.perfect', { n: m.perfect })}</Small>
+              </Row>
             </Row>
           ))}
           {c.open && c.team.members.length < c.team_size ? (
@@ -162,6 +176,8 @@ export function AdminChallenge() {
   const [date, setDate] = useState('10.11.2026');
   const [busy, setBusy] = useState(false);
   const [made, setMade] = useState<string | null>(null);
+  const [stats, setStats] = useState<ChallengeStats | null>(null);
+  useEffect(() => { challengeStats().then(setStats, () => {}); }, [made]);
   const iso = isoDate(date);
   const create = async () => {
     if (!iso) return;
@@ -170,6 +186,16 @@ export function AdminChallenge() {
     setBusy(false);
   };
   return (
+    <>
+    {stats ? (
+      <Card style={{ paddingVertical: 6 }}>
+        <Stat first label={stats.name} value={challengeDay(stats).day ? t('ch.dayOf', { n: challengeDay(stats).day, days: stats.days }) : t('ch.startsIn', { n: challengeDay(stats).until })} />
+        <Stat label={t('ch.admin.people')} value={`${stats.people} (+${stats.joined_1})`} />
+        <Stat label={t('ch.admin.teams')} value={`${stats.teams} · ${stats.full} ${t('ch.admin.full')}`} />
+        <Stat label={t('ch.admin.friendTeams')} value={String(stats.friend_teams)} />
+        <Stat label={t('ch.admin.perfectToday')} value={stats.people ? `${stats.perfect_today} · ${Math.round((stats.perfect_today / stats.people) * 100)} %` : '–'} />
+      </Card>
+    ) : null}
     <Card style={{ gap: 10 }}>
       <Bold>{t('ch.admin.title')}</Bold>
       <Muted>{t('ch.admin.sub')}</Muted>
@@ -178,5 +204,6 @@ export function AdminChallenge() {
       <Button small label={busy ? '…' : t('ch.admin.cta')} disabled={busy || !name.trim() || !iso} onPress={create} />
       {made ? <Text style={{ fontFamily: fonts.bold, fontSize: 16, color: colors.accent }}>{t('ch.admin.made', { name: made })}</Text> : null}
     </Card>
+    </>
   );
 }
