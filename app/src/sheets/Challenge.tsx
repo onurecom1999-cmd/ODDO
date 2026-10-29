@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Platform, Pressable, Share, Text, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Platform, Pressable, Share, Text, View, ViewInstance } from 'react-native';
 import { getLang, LOCALE, t } from '../i18n';
 import { Challenge, challengeDay, challengeInfo, ChallengeResult, challengeResult, ChallengeStats, challengeStats, clearTeamCode, createChallenge, joinChallenge, pendingTeamCode, TEAM_RE, teamUrl } from '../challenge';
 import { send } from '../community';
@@ -7,7 +7,10 @@ import { remindChallengeStart } from '../reminders';
 import { useTier } from '../pro';
 import { useApp } from '../state';
 import { colors, fonts } from '../theme';
-import { challengeImage } from './challengeImage';
+import * as Sharing from 'expo-sharing';
+import { captureRef } from 'react-native-view-shot';
+import { challengeImage, StoryText } from './challengeImage';
+import { StoryView } from './StoryView';
 import { Bar, Body, Bold, Button, Card, Eyebrow, Field, H2, LinkButton, Muted, Row, Sheet, Small, Stack, Stat, useToast } from '../ui/kit';
 
 const dateText = (d: Date) => d.toLocaleDateString(LOCALE[getLang()], { weekday: 'short', day: 'numeric', month: 'long' });
@@ -30,6 +33,31 @@ async function shareImage(blob: Blob, name: string, text: string) {
   return t('ch.story.saved');
 }
 
+// A story image to share: drawn on a canvas on the web, captured from an off-screen view in the apps. Shares the
+// plain text when no image can be made. Returns the toast to show ('' for none); render `node` in the screen.
+function useStory() {
+  const ref = useRef<ViewInstance>(null);
+  const [s, setS] = useState<StoryText | null>(null);
+  const node = s ? <StoryView ref={ref} s={s} /> : null;
+  const share = async (st: StoryText, name: string, text: string) => {
+    if (Platform.OS === 'web') {
+      const blob = await challengeImage(st).catch(() => null);
+      if (blob) return shareImage(blob, name, text);
+    } else {
+      setS(st);
+      await new Promise(r => setTimeout(r, 400));
+      try {
+        const uri = await captureRef(ref, { format: 'png', width: 1080, height: 1920 });
+        await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: name });
+        return '';
+      } catch {} finally { setS(null); }
+    }
+    Share.share({ message: text }).catch(() => {});
+    return '';
+  };
+  return { node, share };
+}
+
 const DONE_KEY = 'oddo.challengeDone';
 // After the last day, for 14 days: my perfect days, my place in the team, sharing it, and keeping going with Pro.
 export function ChallengeResultCard({ onPro }: { onPro: () => void }) {
@@ -38,22 +66,22 @@ export function ChallengeResultCard({ onPro }: { onPro: () => void }) {
   const [tier] = useTier();
   const [r, setR] = useState<ChallengeResult | null>(null);
   const [hidden, setHidden] = useState(() => { try { return globalThis.localStorage?.getItem(DONE_KEY) ?? ''; } catch { return ''; } });
+  const pic = useStory();
   useEffect(() => { if (!S.example) challengeResult().then(setR, () => {}); }, [S.example]);
   if (!r || hidden === r.id) return null;
   const all = r.perfect >= r.days, good = r.perfect >= Math.ceil(r.days * 0.7);
   const title = t('ch.done.title', { n: r.perfect, days: r.days });
   const story = async () => {
-    const blob = await challengeImage({
+    const msg = await pic.share({
       kicker: r.name, title, sub: r.team ? t('ch.done.place', { place: r.place, size: r.team_size, team: r.team }) : '',
       line: t('ch.done.line'), big: 'ONE DAY OR DAY ONE', url: 'oddo-app.netlify.app',
-    }).catch(() => null);
-    if (!blob) { Share.share({ message: t('ch.done.shareText', { n: r.perfect, days: r.days }) }).catch(() => {}); return; }
-    const msg = await shareImage(blob, 'oddo-day-one-result.png', t('ch.done.shareText', { n: r.perfect, days: r.days }));
+    }, 'oddo-day-one-result.png', t('ch.done.shareText', { n: r.perfect, days: r.days }));
     if (msg) toast(msg);
   };
   const close = () => { setHidden(r.id); try { globalThis.localStorage?.setItem(DONE_KEY, r.id); } catch {} };
   return (
     <Card style={{ gap: 12, borderColor: colors.accent }}>
+      {pic.node}
       <Row style={{ justifyContent: 'space-between' }}>
         <Eyebrow style={{ color: colors.accent }}>{r.name}</Eyebrow>
         <Pressable accessibilityRole="button" accessibilityLabel="×" onPress={close} hitSlop={10}><Text style={{ color: colors.muted, fontSize: 22 }}>×</Text></Pressable>
@@ -143,19 +171,20 @@ function ChallengeSheet({ c, onChanged, onClose }: { c: Challenge; onChanged: ()
     try { await send(c.team.id, t('ch.nudgeText', { name }), 'nudge', id); toast(t('ch.nudged', { name })); }
     catch { setNudged(n => n.filter(x => x !== id)); toast(t('ch.err.failed')); }
   };
-  // Web: a story image with the team code, shared to Instagram or TikTok, or saved where sharing files is not possible.
+  // A story image with the team code, shared to Instagram or TikTok, or saved where sharing files is not possible.
+  const pic = useStory();
   const story = async (code: string) => {
-    const blob = await challengeImage({
+    const msg = await pic.share({
       kicker: c.name, title: day ? t('ch.dayOf', { n: day, days: c.days }) : t('ch.story.title'),
       sub: t('ch.story.sub', { days: c.days, date: dateText(startDate) }), line: t('ch.story.line'),
       big: code.split('').join(' '), url: teamUrl(code).replace('https://', ''),
-    }).catch(() => null);
-    if (!blob) { share(code); return; }
-    toast(await shareImage(blob, `oddo-day-one-${code}.png`, teamText(code)));
+    }, `oddo-day-one-${code}.png`, teamText(code));
+    if (msg) toast(msg);
   };
   const codeOk = TEAM_RE.test(code.trim().toUpperCase());
   return (
     <Sheet visible title={c.name} onClose={onClose}>
+      {pic.node}
       <H2>{day ? t('ch.dayOf', { n: day, days: c.days }) : t('ch.title', { days: c.days })}</H2>
       <Muted>{t('ch.rules', { days: c.days, size: c.team_size, date: dateText(startDate) })}</Muted>
       <Card style={{ gap: 8 }}>
@@ -187,7 +216,7 @@ function ChallengeSheet({ c, onChanged, onClose }: { c: Challenge; onChanged: ()
               <Muted>{c.team.open ? t('ch.fillOpen') : t('ch.fillFriends')}</Muted>
               <Text selectable style={{ fontFamily: fonts.display, fontSize: 32, letterSpacing: 4, color: colors.text, textAlign: 'center' }}>{c.team.code}</Text>
               <Button label={t('ch.invite')} onPress={() => share(c.team!.code)} />
-              {Platform.OS === 'web' ? <Button variant="ghost" label={t('ch.story')} onPress={() => story(c.team!.code)} /> : null}
+              <Button variant="ghost" label={t('ch.story')} onPress={() => story(c.team!.code)} />
             </>
           ) : null}
           <Small>{t('ch.chatHint')}</Small>
