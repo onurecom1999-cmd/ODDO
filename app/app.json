@@ -7,8 +7,11 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "app.oddo.coach"
+      "supportsTablet": false,
+      "bundleIdentifier": "app.oddo.coach",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -41,8 +44,17 @@
         "expo-image-picker",
         {
           "photosPermission": "ODDO uses your photos for meal estimates, progress photos and your day card.",
-          "cameraPermission": "ODDO uses the camera to estimate meals and take progress photos.",
+          "cameraPermission": "ODDO uses the camera to scan food barcodes and gym check-in codes, estimate meals and take progress photos.",
           "microphonePermission": false
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "ODDO uses the camera to scan food barcodes and gym check-in codes, estimate meals and take progress photos.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "barcodeScannerEnabled": true
         }
       ],
       [
