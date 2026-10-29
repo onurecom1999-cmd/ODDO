@@ -107,12 +107,13 @@ export function EarnSheet({ onClose }: { onClose: () => void }) {
         )}
 
         <View style={{ gap: 10 }}>
+          {/* "For good" names the lasting share; a founding partner's higher share for six months shows under Details. */}
           {(['earn.step1', 'earn.step2', 'earn.step3'] as Key[]).map((k, i) => (
             <Row key={k} style={{ gap: 12, alignItems: 'flex-start' }}>
               <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={{ fontFamily: fonts.heavy, fontSize: 13, color: colors.ink }}>{i + 1}</Text>
               </View>
-              <Body style={{ flex: 1 }}>{t(k, { rate: pct(e?.rate ?? LEVELS[0].rate) })}</Body>
+              <Body style={{ flex: 1 }}>{t(k, { rate: pct(e && !e.founding ? e.rate : LEVELS[0].rate) })}</Body>
             </Row>
           ))}
         </View>
