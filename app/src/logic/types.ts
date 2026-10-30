@@ -56,6 +56,8 @@ export type AppState = {
   asked?: boolean;
   // Set once the person saw the screen at the end of their free Pro week.
   weekOverSeen?: boolean;
+  // Foods and products the person picked from the search or the scanner, newest first, to pick again with one tap.
+  foods?: { code: string; name: string; brand: string; kcal100: number; protein100: number; serving: number | null; unit?: string; source: 'oddo' | 'off' | 'generic' }[];
   // Streak milestones at which the day card already opened by itself.
   shareAsked?: number[];
   // Set once the app asked for a store rating.

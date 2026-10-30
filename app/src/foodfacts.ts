@@ -1,10 +1,11 @@
 import { userId } from './cloud';
 import { getLang } from './i18n';
 import { supabase } from './supabase';
+import type { Unit } from './logic/generic';
 
 // Packaged food by barcode: first ODDO's own list (products people added), then Open Food Facts,
 // the free, open database with millions of products worldwide.
-export type Product = { code: string; name: string; brand: string; kcal100: number; protein100: number; serving: number | null; source: 'oddo' | 'off' | 'generic' };
+export type Product = { code: string; name: string; brand: string; kcal100: number; protein100: number; serving: number | null; unit?: Unit; source: 'oddo' | 'off' | 'generic' };
 
 type Row = { code: string; name: string; brand: string; kcal100: number; protein100: number; serving: number | null };
 const fromRow = (r: Row): Product => ({ code: r.code, name: r.name, brand: r.brand, kcal100: Number(r.kcal100), protein100: Number(r.protein100), serving: r.serving, source: 'oddo' });
