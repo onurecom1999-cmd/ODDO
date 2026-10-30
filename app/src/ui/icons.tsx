@@ -1,7 +1,7 @@
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { colors } from '../theme';
 
-export type IconName = 'today' | 'move' | 'community' | 'me' | 'food' | 'train' | 'run' | 'video' | 'settings' | 'studio' | 'coach' | 'code' | 'bell' | 'globe' | 'star' | 'shield' | 'calendar' | 'flame' | 'list' | 'briefcase' | 'gift';
+export type IconName = 'today' | 'move' | 'community' | 'me' | 'food' | 'train' | 'run' | 'video' | 'settings' | 'studio' | 'coach' | 'code' | 'bell' | 'globe' | 'star' | 'shield' | 'calendar' | 'flame' | 'list' | 'briefcase' | 'gift' | 'search';
 
 // Simple line icons drawn in the app's own style, so no icon font is needed.
 export function Icon({ name, size = 24, color = colors.text, width = 2 }: { name: IconName; size?: number; color?: string; width?: number }) {
@@ -27,6 +27,7 @@ export function Icon({ name, size = 24, color = colors.text, width = 2 }: { name
       {name === 'flame' ? <Path d="M12 21c-3.9 0-6.5-2.6-6.5-6.2 0-3.4 2.4-5.4 3.6-8.3.4 1.9 1.5 3 2.7 3.6C12 7 13 4.6 14.5 3c.6 3.2 4 5.8 4 11.3 0 3.9-2.6 6.7-6.5 6.7z" {...p} /> : null}
       {name === 'list' ? <Path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01" {...p} /> : null}
       {name === 'briefcase' ? <><Rect x={3} y={7} width={18} height={13} rx={2.5} {...p} /><Path d="M9 7V5h6v2M3 12.5h18" {...p} /></> : null}
+      {name === 'search' ? <><Circle cx={10.5} cy={10.5} r={6.5} {...p} /><Path d="M15.5 15.5L21 21" {...p} /></> : null}
       {name === 'gift' ? <><Rect x={3.5} y={8} width={17} height={5} rx={1.5} {...p} /><Path d="M5 13v7.5h14V13M12 8v12.5M12 8c-1.5-3.5-5.5-4-5.5-1.5S10 8 12 8zM12 8c1.5-3.5 5.5-4 5.5-1.5S14 8 12 8z" {...p} /></> : null}
       {name === 'settings' ? <><Circle cx={12} cy={12} r={3} {...p} /><Path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" {...p} /></> : null}
     </Svg>

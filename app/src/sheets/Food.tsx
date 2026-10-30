@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { AiError, estimatePhoto, estimateText, FoodEstimate, readLabel } from '../ai';
 import { fmt, getLang, l3, LOCALE, t } from '../i18n';
 import { dayKey, dayStatus } from '../logic/day';
 import { QUICK, recentMeals } from '../logic/foods';
-import { lookupBarcode, Product, saveProduct } from '../foodfacts';
+import { lookupBarcode, Product, saveProduct, searchProducts } from '../foodfacts';
+import { searchGeneric } from '../logic/generic';
 import { Scanner } from '../ui/Scanner';
 import type { Meal } from '../logic/types';
 import { pickPhoto, shrink } from '../media';
@@ -13,7 +14,7 @@ import { colors, fonts } from '../theme';
 import { Icon, IconName } from '../ui/icons';
 import { Bold, Button, Card, Chip, Chips, Eyebrow, Field, H2, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
 
-export type FoodMode = 'photo' | 'barcode' | 'describe' | 'quick';
+export type FoodMode = 'photo' | 'search' | 'barcode' | 'describe' | 'quick';
 const PORTIONS = [0.5, 0.75, 1, 1.25, 1.5];
 
 function errorText(e: unknown) {
@@ -87,6 +88,7 @@ export function FoodSheet({ mode, onClose, onPro }: { mode: FoodMode; onClose: (
   );
 
   if (mode === 'barcode') return <BarcodeSheet onClose={onClose} add={add} />;
+  if (mode === 'search') return <SearchSheet onClose={onClose} add={add} />;
   const title = mode === 'photo' ? t('food.titlePhoto') : mode === 'describe' ? t('food.titleDescribe') : t('food.titleQuick');
   return (
     <Sheet visible title={title} onClose={onClose}>
@@ -142,7 +144,6 @@ function BarcodeSheet({ onClose, add }: { onClose: () => void; add: (m: Meal) =>
   const [p, setP] = useState<Product | null>(null);
   const [miss, setMiss] = useState('');
   const [unknown, setUnknown] = useState(false);
-  const [grams, setGrams] = useState('100');
   const [nw, setNw] = useState({ name: '', brand: '', kcal: '', protein: '', serving: '' });
   const [reading, setReading] = useState(false);
   const look = async (c: string) => {
@@ -151,7 +152,7 @@ function BarcodeSheet({ onClose, add }: { onClose: () => void; add: (m: Meal) =>
     setCode(d); setBusy(true); setMiss(''); setP(null); setUnknown(false);
     try {
       const r = await lookupBarcode(d);
-      if (r) { setP(r); setGrams(String(r.serving ?? 100)); } else { setMiss(t('food.bc.notFound')); setUnknown(true); setNw({ name: '', brand: '', kcal: '', protein: '', serving: '' }); }
+      if (r) setP(r); else { setMiss(t('food.bc.notFound')); setUnknown(true); setNw({ name: '', brand: '', kcal: '', protein: '', serving: '' }); }
     } catch { setMiss(t('food.bc.offline')); }
     setBusy(false);
   };
@@ -173,11 +174,9 @@ function BarcodeSheet({ onClose, add }: { onClose: () => void; add: (m: Meal) =>
     const serving = Math.round(num(nw.serving)) || null;
     const saved = await saveProduct({ code, name: nw.name.trim(), brand: nw.brand.trim(), kcal100: Math.round(num(nw.kcal)), protein100: Math.min(100, Math.max(0, num(nw.protein) || 0)), serving: serving && serving <= 2000 ? serving : null });
     setBusy(false); setUnknown(false); setMiss('');
-    setP(saved); setGrams(String(saved.serving ?? 100));
+    setP(saved);
     toast(t('food.bc.saved'));
   };
-  const g = Math.max(0, Number(grams.replace(',', '.')) || 0);
-  const amounts = p ? [...new Set([p.serving, 50, 100, 150, 200].filter((x): x is number => !!x))].sort((a, b) => a - b) : [];
   return (
     <Sheet visible title={t('food.titleBarcode')} onClose={onClose}>
       <Stack gap={14}>
@@ -206,28 +205,82 @@ function BarcodeSheet({ onClose, add }: { onClose: () => void; add: (m: Meal) =>
             ) : null}
           </>
         ) : (
+          <ProductView p={p} add={add} again={t('food.bc.again')} onAgain={() => { setP(null); setCode(''); setUnknown(false); setMiss(''); }} />
+        )}
+      </Stack>
+    </Sheet>
+  );
+}
+
+// A product or basic food: pick the amount (its usual portion, or grams), see calories and protein, add.
+function ProductView({ p, add, again, onAgain }: { p: Product; add: (m: Meal) => void; again: string; onAgain: () => void }) {
+  const [grams, setGrams] = useState(String(p.serving ?? 100));
+  const g = Math.max(0, Number(grams.replace(',', '.')) || 0);
+  const amounts = [...new Set([p.serving, 50, 100, 150, 200].filter((x): x is number => !!x))].sort((a, b) => a - b);
+  return (
+    <>
+      <View style={{ gap: 4 }}>
+        <Eyebrow>{p.brand || t(p.source === 'generic' ? 'food.search.basics' : 'food.bc.product')}</Eyebrow>
+        <H2>{p.name}</H2>
+        <Small>{t('food.bc.per100', { kcal: fmt(p.kcal100), protein: fmt(p.protein100, 1) })}</Small>
+      </View>
+      <Stack gap={8}>
+        <Bold>{t('food.bc.amount')}</Bold>
+        <Chips>{amounts.map(a => <Chip key={a} label={`${a} g`} on={g === a} onPress={() => setGrams(String(a))} />)}</Chips>
+        <Field label={t('food.bc.grams')} value={grams} onChangeText={setGrams} keyboardType="number-pad" maxLength={5} />
+      </Stack>
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        {[[p.kcal100 * g / 100, t('kcal')], [p.protein100 * g / 100, t('today.protein')]].map(([v, l], i) => (
+          <View key={i} style={{ flex: 1, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line, borderRadius: 14, paddingVertical: 12, alignItems: 'center' }}>
+            <Text style={{ fontFamily: fonts.display, fontSize: 26, color: colors.text }}>{fmt(Number(v))}</Text>
+            <Small>{l as string}</Small>
+          </View>
+        ))}
+      </View>
+      <Button label={t('add')} disabled={g <= 0} onPress={() => add({ name: p.brand ? `${p.name} (${p.brand})` : p.name, kcal: Math.round(p.kcal100 * g / 100), protein: Math.round(p.protein100 * g / 100), est: p.source === 'generic' || undefined })} />
+      <Button small variant="ghost" label={again} onPress={onAgain} />
+      <Small>{t(p.source === 'oddo' ? 'food.bc.sourceOddo' : p.source === 'generic' ? 'food.search.sourceGeneric' : 'food.bc.source')}</Small>
+    </>
+  );
+}
+
+// Food by name: basic foods (fruit, bread, dishes) show while typing; products from ODDO and Open Food Facts follow
+// once the person stops typing for a moment.
+function SearchSheet({ onClose, add }: { onClose: () => void; add: (m: Meal) => void }) {
+  const lang = getLang();
+  const [q, setQ] = useState('');
+  const [p, setP] = useState<Product | null>(null);
+  const [world, setWorld] = useState<Product[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const basics = useMemo(() => searchGeneric(q, lang).map((g): Product => (
+    { code: `g:${g.id}`, name: g.name[lang], brand: '', kcal100: g.kcal100, protein100: g.protein100, serving: g.serving, source: 'generic' })), [q, lang]);
+  useEffect(() => {
+    const w = q.trim();
+    setWorld([]); setFailed(false);
+    if (w.length < 3) return;
+    let dead = false;
+    const timer = setTimeout(async () => {
+      setBusy(true);
+      try { const r = await searchProducts(w); if (!dead) setWorld(r); } catch { if (!dead) setFailed(true); }
+      if (!dead) setBusy(false);
+    }, 900);
+    return () => { dead = true; clearTimeout(timer); setBusy(false); };
+  }, [q]);
+  const row = (x: Product) => (
+    <Chip key={x.code} block label={x.name} sub={`${x.brand ? `${x.brand} · ` : ''}${t('food.search.per100', { kcal: fmt(x.kcal100), protein: fmt(x.protein100, 1) })}`} onPress={() => setP(x)} />
+  );
+  return (
+    <Sheet visible title={t('food.titleSearch')} onClose={onClose}>
+      <Stack gap={14}>
+        {p ? <ProductView p={p} add={add} again={t('food.search.back')} onAgain={() => setP(null)} /> : (
           <>
-            <View style={{ gap: 4 }}>
-              <Eyebrow>{p.brand || t('food.bc.product')}</Eyebrow>
-              <H2>{p.name}</H2>
-              <Small>{t('food.bc.per100', { kcal: fmt(p.kcal100), protein: fmt(p.protein100, 1) })}</Small>
-            </View>
-            <Stack gap={8}>
-              <Bold>{t('food.bc.amount')}</Bold>
-              <Chips>{amounts.map(a => <Chip key={a} label={`${a} g`} on={g === a} onPress={() => setGrams(String(a))} />)}</Chips>
-              <Field label={t('food.bc.grams')} value={grams} onChangeText={setGrams} keyboardType="number-pad" maxLength={5} />
-            </Stack>
-            <View style={{ flexDirection: 'row', gap: 8 }}>
-              {[[p.kcal100 * g / 100, t('kcal')], [p.protein100 * g / 100, t('today.protein')]].map(([v, l], i) => (
-                <View key={i} style={{ flex: 1, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line, borderRadius: 14, paddingVertical: 12, alignItems: 'center' }}>
-                  <Text style={{ fontFamily: fonts.display, fontSize: 26, color: colors.text }}>{fmt(Number(v))}</Text>
-                  <Small>{l as string}</Small>
-                </View>
-              ))}
-            </View>
-            <Button label={t('add')} disabled={g <= 0} onPress={() => add({ name: p.brand ? `${p.name} (${p.brand})` : p.name, kcal: Math.round(p.kcal100 * g / 100), protein: Math.round(p.protein100 * g / 100) })} />
-            <Button small variant="ghost" label={t('food.bc.again')} onPress={() => { setP(null); setCode(''); setUnknown(false); setMiss(''); }} />
-            <Small>{t(p.source === 'oddo' ? 'food.bc.sourceOddo' : 'food.bc.source')}</Small>
+            <Field label={t('food.search.label')} value={q} onChangeText={setQ} placeholder={t('food.search.ph')} autoFocus maxLength={60} />
+            {basics.length ? <Stack gap={8}><Eyebrow>{t('food.search.basics')}</Eyebrow>{basics.map(row)}</Stack> : null}
+            {world.length ? <Stack gap={8}><Eyebrow>{t('food.search.world')}</Eyebrow>{world.map(row)}</Stack> : null}
+            {busy ? <Row><ActivityIndicator color={colors.accent} /><Muted>{t('food.search.searching')}</Muted></Row> : null}
+            {failed ? <Muted>{t('food.search.offline')}</Muted> : null}
+            {q.trim().length >= 3 && !busy && !failed && !basics.length && !world.length ? <Muted>{t('food.search.none')}</Muted> : null}
           </>
         )}
       </Stack>
@@ -242,11 +295,12 @@ export function FoodPick({ onClose, onPick }: { onClose: () => void; onPick: (m:
   const recent = recentMeals(S.log);
   const opts: { m: FoodMode; icon: IconName; sub: string }[] = [
     { m: 'photo', icon: 'food', sub: t('food.pick.photo') },
+    { m: 'search', icon: 'search', sub: t('food.pick.search') },
     { m: 'barcode', icon: 'code', sub: t('food.pick.barcode') },
     { m: 'describe', icon: 'list', sub: t('food.pick.describe') },
     { m: 'quick', icon: 'flame', sub: t('food.pick.quick') },
   ];
-  const title = (m: FoodMode) => t(m === 'photo' ? 'food.titlePhoto' : m === 'barcode' ? 'food.titleBarcode' : m === 'describe' ? 'food.titleDescribe' : 'food.titleQuick');
+  const title = (m: FoodMode) => t(m === 'photo' ? 'food.titlePhoto' : m === 'search' ? 'food.titleSearch' : m === 'barcode' ? 'food.titleBarcode' : m === 'describe' ? 'food.titleDescribe' : 'food.titleQuick');
   return (
     <Sheet visible title={t('today.addMeal')} onClose={onClose}>
       <Stack gap={12}>
