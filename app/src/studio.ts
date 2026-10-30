@@ -25,7 +25,8 @@ async function rpc<T>(fn: string, args?: Record<string, unknown>): Promise<T> {
   return data as T;
 }
 
-export const studioHome = () => rpc<MyStudio[]>('studio_home');
+// An empty list rather than nothing when the person belongs to no studio.
+export const studioHome = () => rpc<MyStudio[] | null>('studio_home').then(l => l || []);
 export const joinStudio = (code: string) => rpc<{ id: string; name: string }>('join_studio', { p_code: code.trim().toUpperCase() });
 export const leaveStudio = (id: string) => rpc<void>('leave_studio', { p_studio: id });
 export const myPass = () => rpc<{ code: string; expires_at: string }>('my_pass');

@@ -74,7 +74,7 @@ await click(T('example.cta')); await pg.waitForTimeout(800);
 // Own data instead of the example banner; today is a training day; half the sets done.
 await pg.evaluate(lang => {
   const S = JSON.parse(localStorage.getItem('oddo-coach-v1'));
-  S.example = false; S.lang = lang;
+  S.example = false; S.lang = lang; S.tour = 9; S.toured = true; S.asked = true; S.weekOverSeen = true; S.shareAsked = [1, 3, 7, 14, 30, 60, 100, 365];
   const d = new Date().getDay(); if (!S.plan.schedule.includes(d)) S.plan.schedule = [...S.plan.schedule, d].sort();
   const k = x => `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`;
   const past = Object.keys(S.log).sort(); const src = S.log[past[past.length - 1]] || S.log[past[0]];
@@ -93,10 +93,21 @@ await pg.keyboard.press('Escape').catch(() => {});
 await pg.reload(); await pg.waitForTimeout(2000);
 
 // Food by description (AI mocked)
-await click(T('food.describeShort'));
+await click(T('today.qFood')); await pg.waitForTimeout(600); await click(T('food.titleDescribe'));
 await pg.locator('textarea').fill(FOOD.q);
 await click(T('food.estimate')); await pg.waitForTimeout(1200);
 await shot('3-food');
+await pg.reload(); await pg.waitForTimeout(2000);
+
+// Food search: basic foods and products from Open Food Facts (mocked, without brands)
+const SEARCH = { de: ['brot', [['Dinkel-Vollkornbrot', 237, 9.5], ['Toastbrötchen', 270, 9]]], en: ['bread', [['Sourdough bread', 250, 9], ['Multigrain toast', 265, 10]]], tr: ['ekmek', [['Köy ekmeği', 255, 8.5], ['Kepekli tost ekmeği', 245, 10]]] }[lang];
+await ctx.route('**/search.openfoodfacts.org/**', r => r.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' },
+  body: JSON.stringify({ hits: SEARCH[1].map(([n, k, p], i) => ({ code: String(4000000000000 + i), product_name: n, nutriments: { 'energy-kcal_100g': k, proteins_100g: p } })) }) }));
+await click(T('today.qFood')); await pg.waitForTimeout(600);
+await click(T('food.titleSearch')); await pg.waitForTimeout(600);
+await pg.getByPlaceholder(T('food.search.ph')).fill(SEARCH[0]); await pg.waitForTimeout(2200);
+await pg.locator('input').first().blur();
+await shot('9-search');
 await pg.reload(); await pg.waitForTimeout(2000);
 
 // Live GPS run
@@ -133,7 +144,7 @@ await pg.reload(); await pg.waitForTimeout(2000);
 
 // Trainer area
 await pg.getByRole('button', { name: T('set.title') }).first().click(); await pg.waitForTimeout(700);
-await click(T('coach.openArea')); await pg.waitForTimeout(1500);
+await click(T('set.bizRow')); await pg.waitForTimeout(700); await click(T('biz.coachT')); await pg.waitForTimeout(1500);
 await shot('8-coach');
 console.log(lang, 'errors:', errs.slice(0, 5));
 await b.close();

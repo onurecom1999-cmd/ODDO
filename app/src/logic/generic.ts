@@ -447,7 +447,8 @@ export const GENERIC: Generic[] = LIST.map(([id, de, en, tr, kcal100, protein100
 // Lower case without accents, so "kofte" finds "Köfte" and "cilek" finds "Çilek".
 export const plain = (s: string) => s.toLocaleLowerCase('tr').replace(/ı/g, 'i').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ß/g, 'ss');
 
-// Everyday foods matching the words typed, best first: a name starting with the words beats one that only contains them.
+// Everyday foods matching the words typed, best first: the word itself ("Beyaz ekmek") beats the end of a compound
+// ("Vollkornbrot"), which beats a word starting with it, which beats a match anywhere; shorter names first among equals.
 // All three languages are searched, so a Turkish name typed in the German app is found too.
 export function searchGeneric(q: string, lang: 'de' | 'en' | 'tr', max = 8): Generic[] {
   const words = plain(q).split(/\s+/).filter(Boolean);
@@ -456,7 +457,9 @@ export function searchGeneric(q: string, lang: 'de' | 'en' | 'tr', max = 8): Gen
   for (const g of GENERIC) {
     const own = plain(g.name[lang]), all = `${own} ${plain(g.name.de)} ${plain(g.name.en)} ${plain(g.name.tr)}`;
     if (!words.every(w => all.includes(w))) continue;
-    scored.push({ g, s: (own.startsWith(words[0]) ? 0 : own.includes(words[0]) ? 1 : 2) * 100 + own.length });
+    const parts = own.split(/[^a-z0-9]+/), w = words[0];
+    const rank = parts.includes(w) ? 0 : parts.some(x => x.endsWith(w)) ? 1 : parts.some(x => x.startsWith(w)) ? 2 : own.includes(w) ? 3 : 4;
+    scored.push({ g, s: rank * 100 + own.length });
   }
   return scored.sort((a, b) => a.s - b.s).slice(0, max).map(x => x.g);
 }

@@ -9,6 +9,7 @@ const ANTON = font('anton/400Regular/Anton_400Regular.ttf'), INTER = font('inter
 const SHOTS = [
   ['1-today', { de: ['Ein Plan.', 'Jeden Tag.', 'Kalorien, Training und Routinen auf einen Blick'], en: ['One plan.', 'Every day.', 'Calories, training and routines at a glance'], tr: ['Tek plan.', 'Her gün.', 'Kalori, antrenman ve rutinler tek bakışta'] }],
   ['3-food', { de: ['Foto oder', 'ein Satz.', 'ODDO schätzt Kalorien und Eiweiß in Sekunden'], en: ['A photo or', 'one sentence.', 'ODDO estimates calories and protein in seconds'], tr: ['Bir fotoğraf', 'ya da bir cümle.', 'ODDO kalori ve proteini saniyeler içinde tahmin eder'] }],
+  ['9-search', { de: ['Millionen', 'Lebensmittel.', 'Suchen, scannen, Portion wählen'], en: ['Millions', 'of foods.', 'Search, scan, pick a portion'], tr: ['Milyonlarca', 'yiyecek.', 'Ara, tara, porsiyonu seç'] }],
   ['2-train', { de: ['Jeder Satz', 'zählt.', 'Wiederholungen und kg in Sekunden eintragen'], en: ['Every set', 'counts.', 'Log reps and kg in seconds'], tr: ['Her set', 'sayılır.', 'Tekrar ve kiloyu saniyeler içinde gir'] }],
   ['4-run', { de: ['Laufen und', 'Radeln mit GPS.', 'Strecke, Tempo und Kalorien live'], en: ['Run and ride', 'with GPS.', 'Route, pace and calories live'], tr: ['GPS ile koş,', 'pedal çevir.', 'Rota, tempo ve kalori canlı'] }],
   ['5-group', { de: ['Mit deiner Crew', 'dranbleiben.', 'Gruppen, Rangliste, Anstupsen und Chat'], en: ['Stick with', 'your crew.', 'Groups, rankings, nudges and chat'], tr: ['Ekibinle', 'devam et.', 'Gruplar, sıralama, dürtme ve sohbet'] }],
