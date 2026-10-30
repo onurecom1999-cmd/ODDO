@@ -1,0 +1,40 @@
+# Builds the iPhone and Android apps on Expo (EAS) when started by hand:
+# GitHub > Actions > "App build" > Run workflow.
+# Needs the repository secret EXPO_TOKEN (expo.dev > Account settings > Access tokens).
+name: App build
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: android, ios or all
+        default: android
+        required: true
+      profile:
+        description: preview (test APK) or production (store build)
+        default: production
+        required: true
+      submit:
+        description: Upload to the stores after building (yes/no)
+        default: "no"
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - run: npm ci
+      - run: eas build --platform ${{ inputs.platform }} --profile ${{ inputs.profile }} --non-interactive --no-wait ${{ inputs.submit == 'yes' && '--auto-submit' || '' }}
