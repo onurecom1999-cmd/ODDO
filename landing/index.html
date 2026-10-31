@@ -136,12 +136,37 @@
     .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-top: 32px; }
     html { overflow-x: clip; }
     .hero-note { font-size: 13px; color: var(--dim); }
+    /* Day One Challenge strip above the hero headline; hidden once sign-up is over. */
+    .ch { display: flex; align-items: center; gap: 14px; background: var(--surface); border: 1px solid var(--accent); border-radius: 20px; padding: 14px 18px; margin-bottom: 28px; max-width: 560px; color: inherit; text-decoration: none; }
+    .ch:hover { background: var(--surface-2); }
+    .ch .n { font-family: Anton, Impact, sans-serif; font-size: 40px; line-height: 1; color: var(--accent); min-width: 54px; text-align: center; }
+    .ch .n i { display: block; font-family: Inter, sans-serif; font-style: normal; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; margin-top: 4px; }
+    .ch small { display: block; font-size: 12px; font-weight: 800; letter-spacing: .12em; color: var(--accent); }
+    .ch b { display: block; font-size: 16px; font-weight: 800; line-height: 1.3; }
+    .ch .go { margin-left: auto; font-size: 22px; color: var(--accent); }
+    .ch[hidden] { display: none; }
     /* Shown from launch day on (APP_LIVE in the script). */
     .app-only { display: none !important; }
     body.app-live .app-only { display: inline-flex !important; }
     body.app-live p.app-only { display: block !important; }
     body.app-live .hide-live { display: none !important; }
-    .stores { margin-top: 14px; font-size: 13px; color: var(--muted); }
+    /* App Store, Google Play and the web app. "Bald" until the links in STORES are filled in. */
+    .get { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+    .store { position: relative; display: inline-flex; align-items: center; gap: 10px; background: #000; color: #fff; border: 1px solid #3a3a3a; border-radius: 12px; padding: 9px 18px 9px 12px; min-width: 160px; transition: transform .15s ease, border-color .15s ease; }
+    .store:hover { transform: translateY(-2px); border-color: var(--accent); }
+    .store svg { width: 26px; height: 26px; flex: none; }
+    .store small { display: block; font-size: 11px; line-height: 1.15; color: #cfcfcf; }
+    .store b { display: block; font-size: 18px; font-weight: 600; line-height: 1.15; letter-spacing: -.01em; white-space: nowrap; }
+    .store .soon { position: absolute; top: -9px; right: -7px; background: var(--accent); color: var(--accent-ink); font-style: normal; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; transform: rotate(4deg); }
+    .store.web { background: var(--surface); }
+    .store.mine { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(212,255,58,.14); }
+    .store.live .soon { display: none; }
+    .get-note { margin-top: 12px; font-size: 14px; color: var(--muted); min-height: 21px; max-width: 520px; }
+    .get-note.pop { color: var(--accent); font-weight: 600; }
+    @media (max-width: 520px) { .store { flex: 1 1 140px; min-width: 0; padding-right: 10px; } }
+    .final .get { justify-content: center; margin-top: 56px; }
+    .final .get-note { margin: 12px auto 0; }
+    .get-title { margin-top: 72px; font-size: 13px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
     footer .legal { display: flex; gap: 18px; flex-wrap: wrap; }
     footer .legal a { color: var(--dim); }
     footer .topics { display: flex; gap: 18px; flex-wrap: wrap; }
@@ -255,11 +280,53 @@
     .stamp small { display: block; font-size: 13px; letter-spacing: .12em; }
     .paper.signed .stamp { animation: stamp .45s cubic-bezier(.3,1.6,.6,1) forwards; }
     @keyframes stamp { to { opacity: .9; transform: rotate(-14deg) scale(1); } }
-    .welcome { display: none; margin-top: 18px; font-weight: 600; text-align: center; }
-    .paper.signed .welcome { display: block; }
-    .paper.signed form { display: none; }
-    .paper.signed { padding-bottom: 120px; }
-    .paper.signed .welcome { text-align: left; max-width: 60%; }
+    .paper form { transition: opacity .3s; }
+    .paper.signed form { opacity: .35; pointer-events: none; }
+    .paper.signed { animation: thud .35s .3s; }
+    @keyframes thud { 30% { transform: rotate(-1.2deg) translateY(6px) scale(.985); } 60% { transform: rotate(-1.6deg) translateY(-2px); } }
+    .paper.away { transition: transform .55s cubic-bezier(.6,0,.8,.4), opacity .45s; transform: rotate(-9deg) translateY(-40px) scale(.86); opacity: 0; }
+
+    /* After signing: the founder pass, next steps and sharing. */
+    .pact-section.signed .pact-copy, .pact-section.signed .paper { display: none; }
+    .after[hidden], .pass[hidden] { display: none; }
+    .after .display { font-size: clamp(48px, 7vw, 84px); overflow-wrap: break-word; }
+    .after.in > * { animation: rise .6s cubic-bezier(.2,.8,.2,1) both; }
+    .after.in > *:nth-child(2) { animation-delay: .08s; } .after.in > *:nth-child(3) { animation-delay: .16s; }
+    .after.in > *:nth-child(4) { animation-delay: .24s; } .after.in > *:nth-child(n+5) { animation-delay: .32s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(24px); } }
+    .next { list-style: none; margin: 28px 0 26px; display: grid; gap: 10px; max-width: 540px; }
+    .next li { display: grid; grid-template-columns: 104px 1fr; gap: 14px; align-items: baseline; padding: 14px 16px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
+    .next li[hidden] { display: none; }
+    .next b { font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+    .next span { color: var(--text); font-weight: 500; }
+    @media (max-width: 420px) { .next li { grid-template-columns: 1fr; gap: 4px; } }
+    .after-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .after-actions .btn { padding: 15px 22px; font-size: 15px; }
+    .redo { margin-top: 18px; background: none; border: none; color: var(--dim); font: inherit; font-size: 13px; text-decoration: underline; cursor: pointer; }
+    .pass {
+      position: relative; overflow: hidden; border-radius: 26px; padding: 30px 30px 26px; color: var(--text); max-width: 460px; width: 100%; justify-self: center;
+      background: radial-gradient(120% 90% at 100% 0%, rgba(212,255,58,.28), transparent 55%), linear-gradient(160deg, #1d1f17, #0d0d0d 60%);
+      border: 1px solid rgba(212,255,58,.45); box-shadow: 0 40px 90px -40px rgba(212,255,58,.45), 0 30px 60px -30px #000;
+    }
+    .pass.in { animation: pass-in .9s cubic-bezier(.2,1.25,.4,1) both; }
+    @keyframes pass-in { from { opacity: 0; transform: perspective(900px) translateY(70px) rotateX(38deg) scale(.86); } }
+    .pass-shine { position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.22) 50%, transparent 65%); transform: translateX(-120%); pointer-events: none; }
+    .pass.in .pass-shine { animation: shine 1.3s .6s ease-out; }
+    @keyframes shine { to { transform: translateX(120%); } }
+    .pass-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .pass-top .logo { font-size: 24px; }
+    .pass-kicker { font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--accent-ink); background: var(--accent); padding: 5px 10px; border-radius: 999px; }
+    .pass-sig { font-family: Caveat, cursive; font-size: clamp(54px, 13vw, 76px); line-height: 1; margin: 34px 0 6px; color: #fff; overflow-wrap: break-word; }
+    .pass-line { color: var(--muted); font-weight: 500; }
+    .pass-rows { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 28px; padding-top: 18px; border-top: 1px dashed rgba(255,255,255,.18); }
+    .pass-rows small { display: block; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
+    .pass-rows b { display: block; font-size: 16px; font-weight: 800; margin-top: 4px; }
+    .pass-ch { margin-top: 18px; display: flex; align-items: center; gap: 12px; background: rgba(212,255,58,.1); border-radius: 14px; padding: 12px 14px; }
+    .pass-ch[hidden] { display: none; }
+    .pass-ch .n { font-family: Anton, Impact, sans-serif; font-size: 34px; line-height: 1; color: var(--accent); min-width: 44px; text-align: center; }
+    .pass-ch span { font-size: 14px; font-weight: 600; line-height: 1.3; }
+    @media (max-width: 900px) { .pact-section.signed .pass { order: -1; } }
+    #confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; }
 
     /* FAQ */
     details { border-top: 1px solid var(--border); padding: 22px 0; }
@@ -305,6 +372,11 @@
   <header class="hero">
     <div class="wrap hero-grid">
       <div>
+        <a href="#pact" class="ch" id="challenge" hidden>
+          <span class="n"><span id="ch-n"></span><i id="ch-u"></i></span>
+          <span><small data-i18n="ch_kicker"></small><b id="ch-text"></b></span>
+          <span class="go">→</span>
+        </a>
         <div class="pill"><span class="dot"></span><span data-i18n="pill"></span></div>
         <h1 class="flip display" aria-label="One day or Day One">
           <span class="line oneday">One day</span>
@@ -317,7 +389,12 @@
           <a href="/app/" class="btn btn-ghost app-only hide-live" data-i18n="try_web"></a>
           <span class="hero-note" data-i18n="hero_note"></span>
         </div>
-        <p class="stores app-only" data-i18n="stores"></p>
+        <div class="get" data-stores>
+          <a class="store" data-store="ios" href="#pact"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.15 6.9c-.95 0-2.42-1.08-3.96-1.04-2.04.03-3.91 1.18-4.96 3.01-2.12 3.68-.55 9.1 1.52 12.09 1.01 1.45 2.2 3.09 3.79 3.04 1.52-.07 2.09-.99 3.93-.99 1.83 0 2.35.99 3.96.95 1.64-.03 2.68-1.48 3.68-2.95 1.15-1.69 1.63-3.33 1.66-3.42-.04-.01-3.18-1.22-3.22-4.86-.03-3.04 2.48-4.49 2.6-4.56-1.43-2.09-3.63-2.32-4.39-2.38-2-.16-3.68 1.09-4.61 1.09zm3.38-3.07c.84-1.01 1.4-2.43 1.25-3.83-1.21.05-2.66.8-3.53 1.82-.78.9-1.46 2.34-1.27 3.71 1.34.1 2.71-.69 3.55-1.7"/></svg><span><small data-i18n="st_ios"></small><b>App Store</b></span><i class="soon" data-i18n="soon"></i></a>
+          <a class="store" data-store="android" href="#pact"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M3.6 1.8 13.4 12l-9.8 10.2c-.4-.2-.6-.6-.6-1.1V2.9c0-.5.2-.9.6-1.1z"/><path fill="#34A853" d="M3.6 1.8 16.6 8.8 13.4 12z"/><path fill="#EA4335" d="M3.6 22.2 13.4 12l3.2 3.2z"/><path fill="#FBBC04" d="m16.6 8.8 3.8 2.1c.8.5.8 1.7 0 2.2l-3.8 2.1-3.2-3.2z"/></svg><span><small data-i18n="st_android"></small><b>Google Play</b></span><i class="soon" data-i18n="soon"></i></a>
+          <a class="store web" data-store="web" href="#pact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5c2.6 2.7 3.9 5.9 3.9 9.5s-1.3 6.8-3.9 9.5c-2.6-2.7-3.9-5.9-3.9-9.5S9.4 5.2 12 2.5z"/></svg><span><small data-i18n="st_web"></small><b data-i18n="st_web_b"></b></span><i class="soon" data-i18n="soon"></i></a>
+        </div>
+        <p class="get-note" data-get-note></p>
       </div>
 
       <div class="phone-wrap" aria-hidden="true">
@@ -444,7 +521,7 @@
 
   <section class="pact-section" id="pact">
     <div class="wrap pact-grid">
-      <div>
+      <div class="pact-copy">
         <div class="eyebrow reveal" data-i18n="pact_eyebrow"></div>
         <h2 class="display reveal" data-i18n-html="pact_title"></h2>
         <p class="hero-lead reveal" style="margin-top:24px" data-i18n="pact_lead"></p>
@@ -464,7 +541,34 @@
           <p class="fine" data-i18n="fine"></p>
         </form>
         <div class="stamp"><span data-i18n="stamp"></span><small>DAY ONE</small></div>
-        <p class="welcome" data-i18n="welcome"></p>
+      </div>
+      <div class="after" id="after" hidden>
+        <div class="eyebrow" data-i18n="after_eyebrow"></div>
+        <h2 class="display" id="after-title"></h2>
+        <ol class="next">
+          <li><b data-i18n="next1_t"></b><span data-i18n="next1"></span></li>
+          <li><b data-i18n="next2_t"></b><span data-i18n="next2" data-live="next2_live"></span></li>
+          <li id="next3"><b data-i18n="next3_t"></b><span data-i18n="next3"></span></li>
+        </ol>
+        <div class="after-actions">
+          <a href="/app/" class="btn app-only"><span data-i18n="open_app"></span><span class="arrow">→</span></a>
+          <button class="btn" id="share-story" type="button" data-i18n="share_story"></button>
+          <a class="btn btn-ghost" id="share-wa" target="_blank" rel="noopener" data-i18n="share_wa"></a>
+          <button class="btn btn-ghost" id="share-link" type="button" data-i18n="share_link"></button>
+        </div>
+        <p class="get-note" id="share-note"></p>
+        <button class="redo" id="redo" type="button" data-i18n="redo"></button>
+      </div>
+      <div class="pass" id="pass" hidden>
+        <div class="pass-shine"></div>
+        <div class="pass-top"><span class="logo">ODD<span class="accent">O</span></span><span class="pass-kicker" data-i18n="pass_kicker"></span></div>
+        <div class="pass-sig" id="pass-sig"></div>
+        <div class="pass-line" data-i18n="pass_line"></div>
+        <div class="pass-rows">
+          <div><small data-i18n="pass_day"></small><b id="pass-date"></b></div>
+          <div><small data-i18n="pass_access"></small><b data-i18n="pass_founder"></b></div>
+        </div>
+        <div class="pass-ch" id="pass-ch"><span class="n" id="pass-ch-n"></span><span id="pass-ch-t"></span></div>
       </div>
     </div>
   </section>
@@ -491,6 +595,13 @@
         <a href="#pact" class="btn" data-live="now"><span data-i18n="now"></span><span class="arrow">→</span></a>
       </div>
       <p class="nope" id="nope"></p>
+      <p class="get-title reveal" data-i18n="get_title"></p>
+      <div class="get reveal" data-stores>
+        <a class="store" data-store="ios" href="#pact"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.15 6.9c-.95 0-2.42-1.08-3.96-1.04-2.04.03-3.91 1.18-4.96 3.01-2.12 3.68-.55 9.1 1.52 12.09 1.01 1.45 2.2 3.09 3.79 3.04 1.52-.07 2.09-.99 3.93-.99 1.83 0 2.35.99 3.96.95 1.64-.03 2.68-1.48 3.68-2.95 1.15-1.69 1.63-3.33 1.66-3.42-.04-.01-3.18-1.22-3.22-4.86-.03-3.04 2.48-4.49 2.6-4.56-1.43-2.09-3.63-2.32-4.39-2.38-2-.16-3.68 1.09-4.61 1.09zm3.38-3.07c.84-1.01 1.4-2.43 1.25-3.83-1.21.05-2.66.8-3.53 1.82-.78.9-1.46 2.34-1.27 3.71 1.34.1 2.71-.69 3.55-1.7"/></svg><span><small data-i18n="st_ios"></small><b>App Store</b></span><i class="soon" data-i18n="soon"></i></a>
+        <a class="store" data-store="android" href="#pact"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M3.6 1.8 13.4 12l-9.8 10.2c-.4-.2-.6-.6-.6-1.1V2.9c0-.5.2-.9.6-1.1z"/><path fill="#34A853" d="M3.6 1.8 16.6 8.8 13.4 12z"/><path fill="#EA4335" d="M3.6 22.2 13.4 12l3.2 3.2z"/><path fill="#FBBC04" d="m16.6 8.8 3.8 2.1c.8.5.8 1.7 0 2.2l-3.8 2.1-3.2-3.2z"/></svg><span><small data-i18n="st_android"></small><b>Google Play</b></span><i class="soon" data-i18n="soon"></i></a>
+        <a class="store web" data-store="web" href="#pact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5c2.6 2.7 3.9 5.9 3.9 9.5s-1.3 6.8-3.9 9.5c-2.6-2.7-3.9-5.9-3.9-9.5S9.4 5.2 12 2.5z"/></svg><span><small data-i18n="st_web"></small><b data-i18n="st_web_b"></b></span><i class="soon" data-i18n="soon"></i></a>
+      </div>
+      <p class="get-note" data-get-note></p>
     </div>
   </section>
 
@@ -510,6 +621,12 @@
   <script>
     const texts = {
       de: {
+        ch_day: "Tag",
+        ch_days: "Tage",
+        ch_kicker: "Day One Challenge",
+        ch_soon: "Start am 10. November: 30 Tage im 5er-Team, kostenlos.",
+        ch_tomorrow: "Morgen geht’s los: 30 Tage im 5er-Team.",
+        ch_now: "Die Challenge läuft. Steig noch heute ein.",
         seo_title: "ODDO – Fitness-App mit Trainingsplan & Kalorien per Foto",
         seo_desc: "Persönlicher Trainingsplan, Kalorien per Foto und Barcode, Laufen mit GPS und Fortschritt in einer App. Ehrliche Preise, kündbar mit zwei Taps. Starte heute deinen Day One.",
         og_title: "ODDO – Die Fitness-App, die dich nicht reinlegt",
@@ -627,7 +744,47 @@
         sign_cta: "Unterschreiben und Platz sichern",
         fine: "Noch nichts bezahlen. Wir melden uns vor dem Start mit allen Infos.",
         stamp: "Besiegelt",
-        welcome: "Du bist dabei. Check deine Mails, wir melden uns vor dem Start.",
+        soon: "Bald",
+        st_ios: "Bald im",
+        st_android: "Bald bei",
+        st_web: "Ohne Download",
+        st_web_b: "Web-App",
+        st_ios_live: "Laden im",
+        st_android_live: "Jetzt bei",
+        st_web_live: "Sofort starten",
+        get_note: "iPhone, Android und Browser: Die Apps sind gerade bei Apple und Google in Prüfung.",
+        get_soon: "Gleich geschafft: Unterschreib unten und du bekommst den Link als Erstes.",
+        get_signed: "Du stehst auf der Liste. Wir schicken dir den Link, sobald die App da ist.",
+        get_title: "Überall dabei: iPhone, Android, Browser",
+        sign_busy: "Wird besiegelt …",
+        after_eyebrow: "Besiegelt. Dein Day One.",
+        after_title: "Willkommen, {n}.",
+        next1_t: "Jetzt",
+        next1: "Nimm jemanden mit. Zu zweit hält man durch.",
+        next2_t: "Zum Start",
+        next2: "Wir schreiben dir mit deinem Zugang und dem Gründerpreis.",
+        next2_live: "Die App ist da: Öffne sie und hol dir 7 Tage Pro gratis.",
+        next3_t: "10. Nov",
+        next3: "Day One Challenge: 30 Tage im 5er-Team, kostenlos.",
+        open_app: "App öffnen",
+        share_story: "Als Story teilen",
+        share_wa: "Per WhatsApp",
+        share_link: "Link kopieren",
+        copied: "Link kopiert. Schick ihn an jemanden, der auch „irgendwann“ sagt.",
+        saved: "Bild gespeichert. Poste es in deiner Story.",
+        share_text: "Ich hab unterschrieben: Schluss mit „irgendwann“. Ab jetzt Day One mit ODDO. Machst du mit?",
+        redo: "Nicht du? Neu unterschreiben",
+        pass_kicker: "Gründer-Pass",
+        pass_line: "hat aufgehört mit „irgendwann“.",
+        pass_day: "Day One",
+        pass_access: "Zugang",
+        pass_founder: "Gründer",
+        pass_ch: "Tage bis zur Day One Challenge",
+        pass_ch1: "Tag bis zur Day One Challenge",
+        pass_ch0: "Die Day One Challenge läuft",
+        story_kicker: "Ich habe unterschrieben",
+        story_title: ["Schluss mit", "irgendwann."],
+        story_cta: "Mach mit:",
         faq_eyebrow: "Fragen",
         fq1: "Ich bin Anfänger. Ist das was für mich?", fa1: "Genau dafür ist ODDO gemacht. Ein kurzer Einsteigertest setzt jede Übung auf deine Stufe, von Knie-Liegestützen bis zum ersten Klimmzug.",
         fq2: "Gym, Zuhause oder Calisthenics?", fa2: "Alles drei. Du wählst am Anfang, und dein Plan nutzt nur, was du wirklich hast.",
@@ -646,6 +803,12 @@
         imprint: "Impressum"
       },
       tr: {
+        ch_day: "gün",
+        ch_days: "gün",
+        ch_kicker: "Day One Challenge",
+        ch_soon: "10 Kasım’da başlıyor: 5 kişilik takımla 30 gün, ücretsiz.",
+        ch_tomorrow: "Yarın başlıyor: 5 kişilik takımla 30 gün.",
+        ch_now: "Challenge başladı. Bugün hâlâ katılabilirsin.",
         seo_title: "ODDO – Antrenman Planı ve Fotoğrafla Kalori Uygulaması",
         seo_desc: "Kişisel antrenman planı, fotoğraf ve barkodla kalori takibi, GPS ile koşu ve ilerleme tek uygulamada. Türkçe, dürüst fiyat, iki dokunuşla iptal. Day One bugün.",
         og_title: "ODDO – Seni kandırmayan fitness uygulaması",
@@ -763,7 +926,47 @@
         sign_cta: "İmzala ve yerini ayır",
         fine: "Şimdilik ödeme yok. Başlamadan önce tüm bilgilerle sana yazacağız.",
         stamp: "Mühürlendi",
-        welcome: "Artık içeridesin. E-postanı kontrol et, başlamadan önce yazacağız.",
+        soon: "Yakında",
+        st_ios: "Çok yakında",
+        st_android: "Çok yakında",
+        st_web: "İndirmeden",
+        st_web_b: "Web uygulaması",
+        st_ios_live: "Hemen indir",
+        st_android_live: "Hemen indir",
+        st_web_live: "Hemen başla",
+        get_note: "iPhone, Android ve tarayıcı: Uygulamalar şu an Apple ve Google'ın incelemesinde.",
+        get_soon: "Az kaldı: Aşağıda imzala, link ilk sana gelsin.",
+        get_signed: "Listedesin. Uygulama çıkar çıkmaz linki sana göndereceğiz.",
+        get_title: "Her yerde: iPhone, Android, tarayıcı",
+        sign_busy: "Mühürleniyor …",
+        after_eyebrow: "Mühürlendi. Senin Day One'ın.",
+        after_title: "Hoş geldin, {n}.",
+        next1_t: "Şimdi",
+        next1: "Birini de yanına al. İki kişi daha kolay devam eder.",
+        next2_t: "Başlangıçta",
+        next2: "Erişimin ve kurucu fiyatınla sana yazacağız.",
+        next2_live: "Uygulama hazır: Aç ve 7 gün Pro'yu ücretsiz al.",
+        next3_t: "10 Kasım",
+        next3: "Day One Challenge: 5 kişilik takımla 30 gün, ücretsiz.",
+        open_app: "Uygulamayı aç",
+        share_story: "Hikâyende paylaş",
+        share_wa: "WhatsApp ile",
+        share_link: "Linki kopyala",
+        copied: "Link kopyalandı. \"Bir gün\" diyen birine gönder.",
+        saved: "Görsel kaydedildi. Hikâyende paylaş.",
+        share_text: "İmzaladım: \"Bir gün\" bitti. Artık ODDO ile Day One. Sen de var mısın?",
+        redo: "Sen değil misin? Yeniden imzala",
+        pass_kicker: "Kurucu kartı",
+        pass_line: "\"bir gün\" demeyi bıraktı.",
+        pass_day: "Day One",
+        pass_access: "Erişim",
+        pass_founder: "Kurucu",
+        pass_ch: "gün kaldı: Day One Challenge",
+        pass_ch1: "gün kaldı: Day One Challenge",
+        pass_ch0: "Day One Challenge başladı",
+        story_kicker: "İmzaladım",
+        story_title: ["\"Bir gün\"", "bitti."],
+        story_cta: "Sen de katıl:",
         faq_eyebrow: "Sorular",
         fq1: "Yeni başlıyorum. Bana uygun mu?", fa1: "ODDO tam da bunun için. Kısa bir başlangıç testi her egzersizi senin seviyene ayarlar, dizüstü şınavdan ilk barfiksine kadar.",
         fq2: "Salon, ev ya da calisthenics?", fa2: "Üçü de. Başta seçersin ve planın sadece gerçekten elinde olanı kullanır.",
@@ -782,6 +985,12 @@
         imprint: "Künye"
       },
       en: {
+        ch_day: "day",
+        ch_days: "days",
+        ch_kicker: "Day One Challenge",
+        ch_soon: "Starts November 10: 30 days in a team of 5, free.",
+        ch_tomorrow: "Starts tomorrow: 30 days in a team of 5.",
+        ch_now: "The challenge is on. Join today, there’s still time.",
         seo_title: "ODDO – Workout Plan & Photo Calorie Tracker in One App",
         seo_desc: "Personal workout plan, calories by photo and barcode, GPS runs and progress in one app. Honest pricing, cancel in two taps. Start your Day One today.",
         og_title: "ODDO – The fitness app that doesn't trick you",
@@ -899,7 +1108,47 @@
         sign_cta: "Sign and save my spot",
         fine: "No payment yet. We'll reach out with all details before the start.",
         stamp: "Sealed",
-        welcome: "You're in. Check your inbox, we'll be in touch before the start.",
+        soon: "Soon",
+        st_ios: "Coming soon to",
+        st_android: "Coming soon to",
+        st_web: "No download",
+        st_web_b: "Web app",
+        st_ios_live: "Download on the",
+        st_android_live: "Get it on",
+        st_web_live: "Start right away",
+        get_note: "iPhone, Android and browser: the apps are in review with Apple and Google right now.",
+        get_soon: "Almost there: sign below and you get the link first.",
+        get_signed: "You're on the list. We'll send you the link as soon as the app is out.",
+        get_title: "Everywhere: iPhone, Android, browser",
+        sign_busy: "Sealing …",
+        after_eyebrow: "Sealed. Your Day One.",
+        after_title: "Welcome, {n}.",
+        next1_t: "Now",
+        next1: "Bring someone along. Two people keep going longer.",
+        next2_t: "At launch",
+        next2: "We'll write to you with your access and the founder price.",
+        next2_live: "The app is here: open it and get 7 days of Pro free.",
+        next3_t: "Nov 10",
+        next3: "Day One Challenge: 30 days in a team of 5, free.",
+        open_app: "Open the app",
+        share_story: "Share as story",
+        share_wa: "Via WhatsApp",
+        share_link: "Copy link",
+        copied: "Link copied. Send it to someone who also says \"someday\".",
+        saved: "Image saved. Post it to your story.",
+        share_text: "I signed it: no more \"someday\". Day One starts now with ODDO. You in?",
+        redo: "Not you? Sign again",
+        pass_kicker: "Founder pass",
+        pass_line: "is done with \"someday\".",
+        pass_day: "Day One",
+        pass_access: "Access",
+        pass_founder: "Founder",
+        pass_ch: "days to the Day One Challenge",
+        pass_ch1: "day to the Day One Challenge",
+        pass_ch0: "The Day One Challenge is on",
+        story_kicker: "I signed it",
+        story_title: ["No more", "someday."],
+        story_cta: "Join me:",
         faq_eyebrow: "Questions",
         fq1: "I'm a beginner. Is this for me?", fa1: "That's exactly who ODDO is for. A quick starter test sets every exercise to your level, from knee push-ups to your first pull-up.",
         fq2: "Gym, home or calisthenics?", fa2: "All three. You choose at the start, and your plan only uses what you actually have.",
@@ -924,18 +1173,94 @@
     const LANG_PATH = { de: "/", tr: "/tr/", en: "/en/" };
     let lang = PAGE_LANG;
 
-    // Launch day: set to true. Shows "start in your browser" and the store note.
+    // Where the visitor came from, first touch only: ?s= (or utm_source) of the link, flyer or post, else the site that sent them.
+    // The app on the same site reads the same key and saves it with the account.
+    try {
+      if (!localStorage.getItem("oddo.source")) {
+        const q = new URLSearchParams(location.search), s = (q.get("s") || q.get("utm_source") || "").trim().toLowerCase();
+        let src = /^[a-z0-9][a-z0-9_-]{0,39}$/.test(s) ? s : null;
+        if (!src && document.referrer) {
+          const host = new URL(document.referrer).hostname;
+          const sites = [[/instagram/, "instagram"], [/tiktok/, "tiktok"], [/youtube|youtu\.be/, "youtube"], [/facebook|fb\.com/, "facebook"],
+            [/(^|\.)t\.co$|twitter|(^|\.)x\.com$/, "x"], [/google\./, "google"], [/bing\./, "bing"], [/whatsapp|wa\.me/, "whatsapp"]];
+          if (host && host !== location.hostname) src = (sites.find(([re]) => re.test(host)) || [0, "web"])[1];
+        }
+        if (src) localStorage.setItem("oddo.source", src);
+      }
+    } catch (e) {}
+
+    // Launch day: set to true. Shows "start in your browser" and the main buttons lead into the app.
     const APP_LIVE = false;
+    // Paste the store links here once Apple and Google have approved the app; until then the buttons say "soon".
+    const STORES = { ios: "", android: "" };
     document.body.classList.toggle("app-live", APP_LIVE);
-    // A friend's invite code in the address (?r=ABC1234) travels along into the app.
+    // A friend's invite code (?r=ABC1234) or challenge team code (?c=BCD234) in the address travels along into the app.
     const REF = new URLSearchParams(location.search).get("r");
-    const APP_URL = "/app/" + (REF && /^[A-Za-z0-9]{6,7}$/.test(REF) ? "?r=" + REF.toUpperCase() : "");
+    const TEAM = new URLSearchParams(location.search).get("c");
+    const APP_URL = "/app/" + (REF && /^[A-Za-z0-9]{6,7}$/.test(REF) ? "?r=" + REF.toUpperCase() : TEAM && /^[A-Za-z0-9]{6}$/.test(TEAM) ? "?c=" + TEAM.toUpperCase() : "");
     document.querySelectorAll('a[href="/app/"]').forEach(a => { a.href = APP_URL; });
     // From launch day on, the main buttons lead straight into the app instead of the waitlist.
     if (APP_LIVE) document.querySelectorAll("[data-live]").forEach(a => {
       a.href = APP_URL;
       (a.querySelector("[data-i18n]") || a).dataset.i18n = a.dataset.live;
     });
+
+    // The Day One Challenge: counts down to the start and stays up until sign-up closes 2 days later.
+    const CHALLENGE_START = new Date(2026, 10, 10);
+    function showChallenge() {
+      const el = document.getElementById("challenge"), t = texts[lang];
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const days = Math.round((CHALLENGE_START - today) / 86400000);
+      el.hidden = days < -2;
+      if (el.hidden) return;
+      if (APP_LIVE) el.href = APP_URL;
+      document.getElementById("ch-n").textContent = days > 0 ? days : "GO";
+      document.getElementById("ch-u").textContent = days > 1 ? t.ch_days : days === 1 ? t.ch_day : "";
+      document.getElementById("ch-text").textContent = days > 1 ? t.ch_soon : days === 1 ? t.ch_tomorrow : t.ch_now;
+    }
+
+    // The founder pass and its next steps count down to the challenge too, and drop it once sign-up has closed.
+    function challengeDays() {
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      return Math.round((CHALLENGE_START - today) / 86400000);
+    }
+    function showPassChallenge() {
+      const t = texts[lang], days = challengeDays();
+      document.getElementById("pass-ch").hidden = document.getElementById("next3").hidden = days < -2;
+      document.getElementById("pass-ch-n").textContent = days > 0 ? days : "GO";
+      document.getElementById("pass-ch-t").textContent = days > 1 ? t.pass_ch : days === 1 ? t.pass_ch1 : t.pass_ch0;
+    }
+
+    // App Store, Google Play and the web app: real links once they exist, otherwise "soon" and a nudge to sign up.
+    const PLATFORM = /iPhone|iPad|iPod/.test(navigator.userAgent) ? "ios" : /Android/.test(navigator.userAgent) ? "android" : "web";
+    function storeUrl(kind) { return kind === "web" ? (APP_LIVE ? APP_URL : "") : STORES[kind]; }
+    function showStores() {
+      const t = texts[lang];
+      document.querySelectorAll("[data-store]").forEach(a => {
+        const kind = a.dataset.store, url = storeUrl(kind);
+        a.classList.toggle("live", !!url);
+        a.classList.toggle("mine", kind === PLATFORM);
+        a.href = url || "#pact";
+        if (url && kind !== "web") { a.target = "_blank"; a.rel = "noopener"; }
+        a.querySelector("small").textContent = t[`st_${kind}${url ? "_live" : ""}`];
+      });
+      const noneYet = !STORES.ios && !STORES.android;
+      document.querySelectorAll("[data-get-note]").forEach(p => {
+        p.classList.remove("pop");
+        p.textContent = noneYet ? (signed() ? t.get_signed : t.get_note) : "";
+      });
+    }
+    document.querySelectorAll("[data-store]").forEach(a => a.addEventListener("click", e => {
+      if (storeUrl(a.dataset.store)) return;
+      e.preventDefault();
+      const t = texts[lang], note = a.closest("[data-stores]").nextElementSibling;
+      note.textContent = signed() ? t.get_signed : t.get_soon;
+      note.classList.add("pop");
+      if (!signed()) setTimeout(() => {
+        document.getElementById("pact").scrollIntoView({ behavior: "smooth" });
+        setTimeout(() => sig.focus({ preventScroll: true }), 700);
+      }, 900);
+    }));
 
     function setLang(next) {
       lang = next;
@@ -947,6 +1272,10 @@
       document.querySelectorAll(".lang button").forEach(b => b.classList.toggle("active", b.dataset.lang === lang));
       document.querySelectorAll("[data-legal]").forEach(a => { a.href = `/${a.dataset.legal}.html#${lang}`; });
       syncName();
+      showChallenge();
+      showPassChallenge();
+      showStores();
+      showSigned();
       try { localStorage.setItem("oddo-lang", lang); } catch (e) {}
     }
 
@@ -975,7 +1304,6 @@
       try { localStorage.setItem("oddo-lang", next); } catch (e) {}
       if (LANG_PATH[next] !== location.pathname) location.href = LANG_PATH[next] + location.search + location.hash; else setLang(next);
     }));
-    setLang(initialLang());
 
     // Scroll reveal.
     const io = new IntersectionObserver(entries => {
@@ -990,20 +1318,160 @@
     const nav = document.getElementById("nav");
     addEventListener("scroll", () => nav.classList.toggle("scrolled", scrollY > 10), { passive: true });
 
-    // Signing up.
-    document.getElementById("pact-form").addEventListener("submit", async e => {
+    // Signing up. The pass is remembered on this device, so coming back shows it again instead of an empty form.
+    const PACT_KEY = "oddo.pact";
+    function signed() {
+      try { return JSON.parse(localStorage.getItem(PACT_KEY) || "null"); } catch (e) { return null; }
+    }
+    function showSigned() {
+      const me = signed(), t = texts[lang];
+      document.getElementById("pact").classList.toggle("signed", !!me);
+      document.getElementById("after").hidden = document.getElementById("pass").hidden = !me;
+      if (!me) return;
+      document.getElementById("after-title").textContent = t.after_title.replace("{n}", me.name);
+      document.getElementById("pass-sig").textContent = me.name;
+      document.getElementById("pass-date").textContent = new Date(me.at).toLocaleDateString(lang === "en" ? "en-GB" : lang, { day: "numeric", month: "short", year: "numeric" });
+      document.getElementById("share-wa").href = "https://wa.me/?text=" + encodeURIComponent(t.share_text + " " + shareLink("pact-wa"));
+    }
+    function shareLink(source) { return location.origin + LANG_PATH[lang] + "?s=" + source; }
+
+    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.getElementById("pact-form").addEventListener("submit", e => {
       e.preventDefault();
-      const form = e.target;
+      const form = e.target, paper = document.getElementById("paper"), button = form.querySelector("button");
+      if (paper.classList.contains("signed")) return;
       document.getElementById("lang-field").value = lang;
       // Netlify Forms stores the sign-up; opened as a local file the request just fails and the page still shows the signed state.
+      fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams(new FormData(form)).toString()
+      }).catch(() => {});
+      try { localStorage.setItem(PACT_KEY, JSON.stringify({ name: sig.value.trim().slice(0, 40), at: Date.now() })); } catch (err) {}
+      button.firstElementChild.textContent = texts[lang].sign_busy;
+      // The stamp lands, the paper thuds, confetti flies; then the paper makes way for the founder pass.
+      paper.classList.add("signed");
+      setTimeout(() => {
+        if (navigator.vibrate) navigator.vibrate([18, 40, 70]);
+        const r = paper.querySelector(".stamp").getBoundingClientRect();
+        confetti(r.left + r.width / 2, r.top + r.height / 2);
+      }, reduceMotion ? 0 : 330);
+      setTimeout(() => paper.classList.add("away"), reduceMotion ? 300 : 1500);
+      setTimeout(() => {
+        showSigned();
+        const pass = document.getElementById("pass"), after = document.getElementById("after");
+        pass.classList.add("in"); after.classList.add("in");
+        const top = pass.getBoundingClientRect().top;
+        if (top < 70 || top > innerHeight * 0.6) pass.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => confetti(innerWidth / 2, innerHeight * 0.35, 90), reduceMotion ? 0 : 650);
+        showStores();
+      }, reduceMotion ? 400 : 2050);
+    });
+
+    document.getElementById("redo").addEventListener("click", () => {
+      try { localStorage.removeItem(PACT_KEY); } catch (e) {}
+      const paper = document.getElementById("paper"), form = document.getElementById("pact-form");
+      paper.classList.remove("signed", "away");
+      form.reset(); syncName();
+      form.querySelector("button").firstElementChild.textContent = texts[lang].sign_cta;
+      document.getElementById("pass").classList.remove("in");
+      document.getElementById("after").classList.remove("in");
+      showSigned(); showStores();
+      document.getElementById("pact").scrollIntoView({ behavior: "smooth" });
+    });
+
+    // A short burst of paper confetti in the brand colours.
+    function confetti(x, y, count = 160) {
+      if (reduceMotion) return;
+      const c = document.createElement("canvas"), ctx = c.getContext("2d"), dpr = Math.min(devicePixelRatio || 1, 2);
+      c.id = "confetti"; c.width = innerWidth * dpr; c.height = innerHeight * dpr;
+      document.body.appendChild(c); ctx.scale(dpr, dpr);
+      const colours = ["#d4ff3a", "#d4ff3a", "#f3efe6", "#ffffff", "#d6322b", "#1d3fb8"];
+      const bits = Array.from({ length: count }, () => {
+        const a = Math.random() * Math.PI * 2, v = 6 + Math.random() * 11;
+        return { x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 7, w: 6 + Math.random() * 7, h: 4 + Math.random() * 5,
+          r: Math.random() * 6, vr: (Math.random() - .5) * .4, c: colours[Math.floor(Math.random() * colours.length)] };
+      });
+      const start = performance.now();
+      (function frame(now) {
+        const age = now - start;
+        ctx.clearRect(0, 0, innerWidth, innerHeight);
+        ctx.globalAlpha = Math.max(0, 1 - age / 2400);
+        for (const b of bits) {
+          b.vy += .32; b.vx *= .985; b.vy *= .985; b.x += b.vx; b.y += b.vy; b.r += b.vr;
+          ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.r); ctx.scale(1, Math.cos(b.r * 2));
+          ctx.fillStyle = b.c; ctx.fillRect(-b.w / 2, -b.h / 2, b.w, b.h); ctx.restore();
+        }
+        if (age < 2400) requestAnimationFrame(frame); else c.remove();
+      })(start);
+    }
+
+    // Sharing: a story image (1080×1920) with the signature, a WhatsApp message and a plain link, each tagged with its source.
+    async function storyImage() {
+      const me = signed(), t = texts[lang];
+      await Promise.all(["64px Anton", "600 64px Caveat", "800 32px Inter", "600 32px Inter"].map(f => document.fonts.load(f).catch(() => {})));
+      const c = document.createElement("canvas"); c.width = 1080; c.height = 1920;
+      const g = c.getContext("2d");
+      g.fillStyle = "#0a0a0a"; g.fillRect(0, 0, 1080, 1920);
+      const glow = g.createRadialGradient(980, 120, 0, 980, 120, 820);
+      glow.addColorStop(0, "rgba(212,255,58,.32)"); glow.addColorStop(1, "rgba(212,255,58,0)");
+      g.fillStyle = glow; g.fillRect(0, 0, 1080, 1920);
+      g.textBaseline = "alphabetic";
+      g.font = "86px Anton"; g.fillStyle = "#f5f5f4"; g.fillText("ODD", 90, 200);
+      g.fillStyle = "#d4ff3a"; g.fillText("O", 90 + g.measureText("ODD").width, 200);
+      const up = x => x.toLocaleUpperCase(lang);
+      g.font = "800 40px Inter"; g.fillStyle = "#d4ff3a"; g.fillText(up(t.story_kicker), 90, 560);
+      let y = 560;
+      for (const line of t.story_title) {
+        let size = 210;
+        do { g.font = `${size}px Anton`; size -= 6; } while (g.measureText(up(line)).width > 900);
+        y += size * 1.04; g.fillStyle = "#f5f5f4"; g.fillText(up(line), 90, y);
+      }
+      // The signed paper, slightly tilted.
+      g.save(); g.translate(540, y + 300); g.rotate(-0.035);
+      g.fillStyle = "#f3efe6"; g.beginPath(); g.roundRect(-450, -190, 900, 380, 14); g.fill();
+      g.fillStyle = "rgba(0,0,0,.06)"; for (let ly = -150; ly < 190; ly += 52) g.fillRect(-450, ly, 900, 2);
+      let sz = 150;
+      do { g.font = `600 ${sz}px Caveat`; sz -= 6; } while (g.measureText(me.name).width > 780);
+      g.fillStyle = "#1d3fb8"; g.fillText(me.name, -400, 40);
+      g.fillStyle = "#1a1a1a"; g.fillRect(-400, 70, 800, 3);
+      g.font = "600 30px Inter"; g.fillStyle = "#666";
+      g.fillText(`Day One · ${new Date(me.at).toLocaleDateString(lang === "en" ? "en-GB" : lang)}`, -400, 130);
+      g.strokeStyle = "#d6322b"; g.lineWidth = 7; g.fillStyle = "#d6322b"; g.rotate(-0.22);
+      const st = up(t.stamp); let ss = 62;
+      do { g.font = `${ss}px Anton`; ss -= 4; } while (g.measureText(st).width > 300);
+      const sw = g.measureText(st).width;
+      g.globalAlpha = .9; g.strokeRect(380 - sw, -150, sw + 50, 96); g.fillText(st, 405 - sw, -82); g.globalAlpha = 1;
+      g.restore();
+      // Call to action with the link.
+      const by = 1500;
+      g.fillStyle = "#d4ff3a"; g.beginPath(); g.roundRect(90, by, 900, 210, 34); g.fill();
+      g.fillStyle = "#0a0a0a"; g.font = "800 38px Inter"; g.fillText(t.story_cta, 140, by + 82);
+      g.font = "64px Anton"; g.fillText(up(location.host), 140, by + 165);
+      return new Promise(res => c.toBlob(res, "image/png"));
+    }
+    const shareNote = msg => { document.getElementById("share-note").textContent = msg; };
+    document.getElementById("share-story").addEventListener("click", async () => {
+      const t = texts[lang], blob = await storyImage();
+      const file = new File([blob], "oddo-day-one.png", { type: "image/png" });
       try {
-        await fetch("/", {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams(new FormData(form)).toString()
-        });
-      } catch (err) {}
-      document.getElementById("paper").classList.add("signed");
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], text: t.share_text + " " + shareLink("pact-story") });
+          return;
+        }
+      } catch (e) { if (e.name === "AbortError") return; }
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      shareNote(t.saved);
+    });
+    document.getElementById("share-link").addEventListener("click", async () => {
+      const t = texts[lang], link = shareLink("pact-link");
+      try {
+        if (navigator.share && PLATFORM !== "web") { await navigator.share({ text: t.share_text, url: link }); return; }
+        await navigator.clipboard.writeText(t.share_text + " " + link);
+        shareNote(t.copied);
+      } catch (e) { if (e.name !== "AbortError") shareNote(link); }
     });
 
     // The "One day" button refuses.
@@ -1017,6 +1485,9 @@
       document.getElementById("nope").textContent = nopes[nopeIndex % nopes.length];
       nopeIndex++;
     });
+
+    // Last, so every helper above exists when the texts go in.
+    setLang(initialLang());
   </script>
 </body>
 </html>
