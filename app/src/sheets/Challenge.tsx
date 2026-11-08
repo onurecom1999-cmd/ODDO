@@ -251,7 +251,7 @@ function isoDate(x: string) {
 export function AdminChallenge() {
   const toast = useToast();
   const [name, setName] = useState('Day One Challenge');
-  const [date, setDate] = useState('10.11.2026');
+  const [date, setDate] = useState('23.11.2026');
   const [busy, setBusy] = useState(false);
   const [made, setMade] = useState<string | null>(null);
   const [stats, setStats] = useState<ChallengeStats | null>(null);
@@ -278,7 +278,7 @@ export function AdminChallenge() {
       <Bold>{t('ch.admin.title')}</Bold>
       <Muted>{t('ch.admin.sub')}</Muted>
       <Field value={name} onChangeText={setName} maxLength={40} />
-      <Field value={date} onChangeText={setDate} placeholder="10.11.2026" maxLength={10} />
+      <Field value={date} onChangeText={setDate} placeholder="23.11.2026" maxLength={10} />
       <Button small label={busy ? '…' : t('ch.admin.cta')} disabled={busy || !name.trim() || !iso} onPress={create} />
       {made ? <Text style={{ fontFamily: fonts.bold, fontSize: 16, color: colors.accent }}>{t('ch.admin.made', { name: made })}</Text> : null}
     </Card>
