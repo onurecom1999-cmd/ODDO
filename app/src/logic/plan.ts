@@ -21,11 +21,14 @@ export type Profile = {
   fails: Fail[];
   weak: Weak[];
   routines: string[];
-  sex: 'm' | 'f';
+  // 'x' until the person tells us: the quick start only asks goal and place, body details come later.
+  sex: 'm' | 'f' | 'x';
   age: number;
   height: number;
   weight: number;
   why: string;
+  // True while age, height and weight are typical values, not the person's own; the budget is then an estimate.
+  estimated?: boolean;
 };
 
 // An exercise in a session: catalog exercises carry an id, ones the AI invents carry their own name.
@@ -130,10 +133,10 @@ export function schedule(days: number) {
 
 // Mifflin-St Jeor with a light activity factor, adjusted for the goal.
 export function targets(p: Profile) {
-  const bmr = 10 * p.weight + 6.25 * p.height - 5 * p.age + (p.sex === 'm' ? 5 : -161);
+  const bmr = 10 * p.weight + 6.25 * p.height - 5 * p.age + ({ m: 5, f: -161, x: -78 } as const)[p.sex];
   const tdee = bmr * 1.35;
   const adj = ({ lose: -450, muscle: 250, fit: 0, skill: -150 } as const)[p.goal];
-  const floor = p.sex === 'm' ? 1600 : 1400;
+  const floor = ({ m: 1600, f: 1400, x: 1500 } as const)[p.sex];
   const budget = Math.round(Math.max(floor, tdee + adj) / 50) * 50;
   const protein = Math.round((p.weight * ({ lose: 1.8, muscle: 1.8, fit: 1.5, skill: 1.6 } as const)[p.goal]) / 5) * 5;
   // Burn estimates from training are rough, so only half counts toward the budget.

@@ -136,6 +136,14 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
         ))}
       </Row>
 
+      {pr.estimated && !S.example ? (
+        <Card style={{ gap: 8, borderColor: colors.accent }}>
+          <Eyebrow>{t('body.cardT')}</Eyebrow>
+          <Small>{t('body.cardS')}</Small>
+          <Button small label={t('body.cardGo')} onPress={() => onOpen('body')} />
+        </Card>
+      ) : null}
+
       <Card style={{ gap: 10 }}>
         <Row style={{ justifyContent: 'space-between' }}>
           <Eyebrow>{t('today.left')}</Eyebrow>

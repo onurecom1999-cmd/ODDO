@@ -26,6 +26,7 @@ import { CardioSheet } from './src/sheets/Cardio';
 import { CreatorSheet } from './src/sheets/Creator';
 import { AccountSheet } from './src/sheets/Account';
 import { ProSheet } from './src/sheets/Pro';
+import { BodySheet } from './src/sheets/Body';
 import { RewardSheet } from './src/sheets/Reward';
 import { useWeekOver, WeekOverSheet } from './src/sheets/WeekOver';
 import { FoodMode, FoodPick, FoodSheet } from './src/sheets/Food';
@@ -170,6 +171,7 @@ function Main() {
       {sheet === 'reward' ? <RewardSheet onClose={() => { close(); askReview(); }} /> : null}
       {sheet?.startsWith('settings') ? <SettingsSheet initial={sheet.split(':')[1] as SettingsPage | undefined} onClose={close} onOpen={open} /> : null}
       {sheet === 'pro' ? <ProSheet onClose={close} /> : null}
+      {sheet === 'body' ? <BodySheet onClose={close} /> : null}
       {sheet === 'weekover' ? <WeekOverSheet onClose={close} onPro={() => setSheet('pro')} /> : null}
       {sheet === 'earn' ? <EarnSheet onClose={close} /> : null}
       {sheet === 'coach' ? <CoachSheet onClose={close} /> : null}

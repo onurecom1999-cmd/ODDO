@@ -47,7 +47,8 @@ async function push(S: AppState) {
   await supabase.from('app_state').upsert({ user_id: id, data: withoutImages(S), updated_at: new Date().toISOString() });
   if (!S.profile) return;
   const sc = dayScore(S, dayKey());
-  const row = { id, name: S.profile!.name.slice(0, 30), lang: S.lang || 'de', streak: streak(S), today_done: sc.done, today_all: sc.all, today_date: dayKey() };
+  // The quick start makes the name optional; teammates then see a short stand-in instead of an empty line.
+  const row = { id, name: (S.profile!.name || `ODDO ${id.slice(0, 4).toUpperCase()}`).slice(0, 30), lang: S.lang || 'de', streak: streak(S), today_done: sc.done, today_all: sc.all, today_date: dayKey() };
   const sig = JSON.stringify(row);
   if (sig === lastProfile) return;
   const { error } = await supabase.from('profiles').upsert(row);
