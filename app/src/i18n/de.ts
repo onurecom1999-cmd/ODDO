@@ -1318,6 +1318,9 @@ export const de = {
   'body.save': "Ziel berechnen",
   'body.done': "Neues Ziel: {kcal} kcal und {protein} g Eiweiß am Tag.",
   'body.check': "Bitte prüf deine Angaben: Alter 14 bis 90, Größe 120 bis 230 cm, Gewicht 35 bis 250 kg.",
+  'body.row': "Körperdaten",
+  'body.rowEst': "geschätzt",
+  'set.noName': "Dein Profil",
 };
 
 export type Key = keyof typeof de;

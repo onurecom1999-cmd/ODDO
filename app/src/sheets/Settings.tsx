@@ -195,7 +195,7 @@ export function SettingsSheet({ onClose, onOpen, initial }: { onClose: () => voi
             <Text style={{ fontFamily: fonts.display, fontSize: 28, color: colors.ink }}>{(S.profile?.name || '?').slice(0, 1).toUpperCase()}</Text>
           </View>
           <View style={{ flex: 1, gap: 2 }}>
-            <Bold style={{ fontSize: 18 }}>{S.profile?.name}</Bold>
+            <Bold style={{ fontSize: 18 }}>{S.profile?.name || t('set.noName')}</Bold>
             <Small>{tier === 'free' ? t('set.tierFree') : tier === 'pro' ? 'ODDO Pro' : 'ODDO Ultimate'} · {acc?.email ? acc.email : t('set.notSaved')}</Small>
             {perks?.free_until && !perks.partner ? (
               <Small style={{ color: colors.accent }}>{t(perks.via ? 'partner.freeUntil' : 'partner.bonusUntil', { date: new Date(perks.free_until).toLocaleDateString(LOCALE[getLang()], { day: 'numeric', month: 'long' }), via: perks.via || '' })}</Small>
@@ -203,21 +203,22 @@ export function SettingsSheet({ onClose, onOpen, initial }: { onClose: () => voi
           </View>
         </Card>
 
-        <Group title={t('set.g.gym')}>
-          <MenuRow icon="studio" label={t('studio.mineSet')} value={studio ?? t('set.enterCode')} onPress={() => setPage('studio')} />
-          <MenuRow icon="coach" label={t('coach.mine')} value={S.coach?.name ?? t('set.enterCode')} onPress={() => setPage('coach')} />
-          <MenuRow icon="briefcase" label={t('set.bizRow')} value={S.biz ? t('set.bizOn') : t('set.bizSub')} onPress={() => go(S.biz ? 'business' : 'business:pick')} accent={!!S.biz} />
-        </Group>
-
         <Group title={t('set.g.plan')}>
           <MenuRow icon="list" label={t('set.routines')} value={String(S.routines.length)} onPress={() => setPage('routines')} />
           <MenuRow icon="calendar" label={t('set.days')} value={days} onPress={() => setPage('days')} />
+          {S.profile && !S.example ? <MenuRow icon="me" label={t('body.row')} value={S.profile.estimated ? t('body.rowEst') : `${S.profile.weight} kg · ${S.profile.height} cm`} onPress={() => go('body')} accent={!!S.profile.estimated} /> : null}
           <MenuRow icon="flame" label={t('set.targets')} value={`${P.budget} kcal · ${P.protein} g`} onPress={() => setPage('targets')} />
         </Group>
 
         <Group title={t('set.g.app')}>
           <MenuRow icon="bell" label={t('remind.title')} value={S.reminder != null ? `${S.reminder}:00` : t('remind.off')} onPress={() => setPage('remind')} />
           <MenuRow icon="globe" label={t('plan.language')} value={LANG_NAME[getLang()]} onPress={() => setPage('lang')} />
+        </Group>
+
+        <Group title={t('set.g.gym')}>
+          <MenuRow icon="studio" label={t('studio.mineSet')} value={studio ?? t('set.enterCode')} onPress={() => setPage('studio')} />
+          <MenuRow icon="coach" label={t('coach.mine')} value={S.coach?.name ?? t('set.enterCode')} onPress={() => setPage('coach')} />
+          <MenuRow icon="briefcase" label={t('set.bizRow')} value={S.biz ? t('set.bizOn') : t('set.bizSub')} onPress={() => go(S.biz ? 'business' : 'business:pick')} accent={!!S.biz} />
         </Group>
 
         <Group title={t('set.g.account')}>

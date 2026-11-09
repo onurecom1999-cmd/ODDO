@@ -12,7 +12,7 @@ import { anyCodeError, joinAnyCode, joinedText } from './Studio';
 const STEPS: IconName[] = ['today', 'move', 'community', 'me'];
 
 // Right after the plan: first how the person uses ODDO (with a code, as trainer or studio), then the four tabs.
-export function TourSheet({ onClose, onBusiness, onJoined }: { onClose: () => void; onBusiness: (k: 'coach' | 'studio') => void; onJoined: (k: 'coach' | 'studio' | 'friend') => void }) {
+export function TourSheet({ onClose, onBusiness, onJoined, remindOnly }: { remindOnly?: boolean; onClose: () => void; onBusiness: (k: 'coach' | 'studio') => void; onJoined: (k: 'coach' | 'studio' | 'friend') => void }) {
   const { S, update } = useApp();
   const toast = useToast();
   const [i, setI] = useState(S.asked ? 0 : -1);
@@ -20,7 +20,7 @@ export function TourSheet({ onClose, onBusiness, onJoined }: { onClose: () => vo
   const [hour, setHour] = useState(18);
   // After the tabs, on the phone: one daily reminder at the person's time. People who are reminded stay with it far more often.
   const askReminder = remindersSupported && S.reminder == null;
-  const [remind, setRemind] = useState(false);
+  const [remind, setRemind] = useState(!!remindOnly);
   const finish = () => (askReminder ? setRemind(true) : onClose());
   if (remind) return (
     <Sheet visible title={t('tour.title')} onClose={onClose}>

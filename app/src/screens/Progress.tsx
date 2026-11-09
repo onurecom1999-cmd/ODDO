@@ -52,6 +52,8 @@ function StrengthCard() {
   const [key, setKey] = useState(gym ? 'bench' : 'pushup');
   const [kg, setKg] = useState('');
   const [reps, setReps] = useState('');
+  // The form stays folded until someone wants to rate a set, so the progress page stays short.
+  const [rating, setRating] = useState(false);
   const keys = STD_KEYS.filter(k => (gym ? !STD[k].reps : STD[k].reps) || strengthBest(S, k));
   const repsOnly = !!STD[key].reps;
   const repsText = (n: number) => t('strength.reps', { n });
@@ -92,7 +94,7 @@ function StrengthCard() {
             </Stack>
           );
         })}
-        <Stack gap={10} style={{ paddingTop: 12, borderTopWidth: 1, borderTopColor: colors.line }}>
+        {rating ? <Stack gap={10} style={{ paddingTop: 12, borderTopWidth: 1, borderTopColor: colors.line }}>
           <Bold>{t('strength.rate')}</Bold>
           <Chips>{STD_KEYS.map(k => <Chip key={k} label={l3(STD[k].t)} on={key === k} onPress={() => setKey(k)} />)}</Chips>
           <Row style={{ gap: 12 }}>
@@ -100,8 +102,8 @@ function StrengthCard() {
             <Field label={t('strength.repsLabel')} value={reps} onChangeText={setReps} keyboardType="number-pad" placeholder={repsOnly ? '10' : '5'} />
           </Row>
           <Button variant="ghost" label={t('strength.add')} onPress={add} />
-        </Stack>
-        <Small>{t('strength.source')}</Small>
+          <Small>{t('strength.source')}</Small>
+        </Stack> : <Button small variant="ghost" label={t('strength.rate')} onPress={() => setRating(true)} />}
       </Stack>
     </Card>
   );
@@ -121,9 +123,11 @@ export function Progress() {
   const toast = useToast();
   const P = S.profile!;
   const start = S.startedAt ? dayKey(new Date(S.startedAt)) : dayKey();
-  const startW = S.progress.find(e => e.date === start && e.weight)?.weight ?? P.weight;
-  const points = [{ date: start, v: startW }, ...S.progress.filter(e => e.weight && e.date > start).map(e => ({ date: e.date, v: e.weight! }))];
-  const cur = points[points.length - 1].v, diff = cur - points[0].v;
+  // After the quick start the profile weight is only a typical value, so the curve starts at the first weight the person enters.
+  const startW = S.progress.find(e => e.date === start && e.weight)?.weight ?? (P.estimated ? undefined : P.weight);
+  const later = S.progress.filter(e => e.weight && (startW == null ? true : e.date > start)).map(e => ({ date: e.date, v: e.weight! }));
+  const points = startW == null ? later : [{ date: start, v: startW }, ...later];
+  const cur = points.length ? points[points.length - 1].v : null, diff = cur == null ? 0 : cur - points[0].v;
   const waists = S.progress.filter(e => e.waist);
   const wDiff = waists.length >= 2 ? waists[waists.length - 1].waist! - waists[0].waist! : null;
   const photos = S.progress.filter(e => e.img);
@@ -156,7 +160,7 @@ export function Progress() {
       <Muted>{t('progress.lead')}</Muted>
 
       <Card style={{ paddingVertical: 4 }}>
-        <Stat first label={t('progress.weight')} value={<Text style={{ fontFamily: fonts.display, fontSize: 22, color: colors.text }}>{fmt1(cur)} kg{delta(diff, fmt1)}</Text>} />
+        <Stat first label={t('progress.weight')} value={<Text style={{ fontFamily: fonts.display, fontSize: 22, color: colors.text }}>{cur == null ? '–' : <>{fmt1(cur)} kg{delta(diff, fmt1)}</>}</Text>} />
         <Stat label={t('progress.waist')} value={<Text style={{ fontFamily: fonts.display, fontSize: 22, color: colors.text }}>{waists.length ? `${waists[waists.length - 1].waist} cm` : '–'}{wDiff !== null ? delta(wDiff, n => fmt(n)) : null}</Text>} />
         <Stat label={t('progress.sessions')} value={String(sessions)} />
       </Card>
@@ -165,7 +169,7 @@ export function Progress() {
         <Stack gap={12}>
           <Eyebrow>{t('progress.today')}</Eyebrow>
           <Row style={{ gap: 12 }}>
-            <Field label={t('progress.weightKg')} value={weight} onChangeText={setWeight} keyboardType="decimal-pad" placeholder={fmt1(cur)} />
+            <Field label={t('progress.weightKg')} value={weight} onChangeText={setWeight} keyboardType="decimal-pad" placeholder={cur == null ? '75' : fmt1(cur)} />
             <Field label={t('progress.waistCm')} value={waist} onChangeText={setWaist} keyboardType="number-pad" placeholder={waists.length ? String(waists[waists.length - 1].waist) : '90'} />
           </Row>
           <Button variant="ghost" label={t('progress.save')} onPress={save} />

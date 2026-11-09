@@ -1319,4 +1319,7 @@ export const en: Record<Key, string> = {
   'body.save': "Work out my target",
   'body.done': "New target: {kcal} kcal and {protein} g protein a day.",
   'body.check': "Please check: age 14 to 90, height 120 to 230 cm, weight 35 to 250 kg.",
+  'body.row': "Body details",
+  'body.rowEst': "estimated",
+  'set.noName': "Your profile",
 };

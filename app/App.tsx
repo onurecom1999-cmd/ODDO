@@ -20,6 +20,7 @@ import { SettingsPage, SettingsSheet } from './src/sheets/Settings';
 import { ChatSheet, CoachSheet, useCoachSync } from './src/sheets/Coach';
 import { BusinessSheet, useStartCode, useStudioSync } from './src/sheets/Studio';
 import { TourSheet } from './src/sheets/Tour';
+import { remindersSupported } from './src/reminders';
 import { EarnSheet } from './src/sheets/Earn';
 import { BizHome } from './src/screens/BizHome';
 import { CardioSheet } from './src/sheets/Cardio';
@@ -107,7 +108,11 @@ function Main() {
   useStudioSync(() => setStudioTick(n => n + 1));
   useStartCode(() => setStudioTick(n => n + 1), coachSync);
   // The short tour runs once, right after the plan.
-  useEffect(() => { if (!S.example && (S.tour ?? 0) < TOUR) setSheet('tour'); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // No tour of the tabs: "Jetzt dran" on Today explains itself. On the phone, one question remains: when to be reminded.
+  useEffect(() => {
+    if (S.example || (S.tour ?? 0) >= TOUR) return;
+    if (remindersSupported && S.reminder == null) setSheet('tour'); else update(d => { d.tour = TOUR; });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   // Perfect-day streaks worth sharing: the day card opens once for each, when no other sheet is open.
   const perfect = !S.example && dayScore(S, dayKey()).perfect, run = perfect ? streak(S) : 0;
   useEffect(() => {
@@ -175,7 +180,7 @@ function Main() {
       {sheet === 'weekover' ? <WeekOverSheet onClose={close} onPro={() => setSheet('pro')} /> : null}
       {sheet === 'earn' ? <EarnSheet onClose={close} /> : null}
       {sheet === 'coach' ? <CoachSheet onClose={close} /> : null}
-      {sheet === 'tour' ? <TourSheet onClose={() => { close(); update(d => { d.tour = TOUR; }); }}
+      {sheet === 'tour' ? <TourSheet remindOnly onClose={() => { close(); update(d => { d.tour = TOUR; }); }}
         onBusiness={() => { update(d => { d.tour = TOUR; }); setSheet('business'); }}
         onJoined={k => { if (k === 'studio') setStudioTick(n => n + 1); else if (k === 'coach') coachSync(); }} /> : null}
       {sheet?.startsWith('business') ? <BusinessSheet initial={sheet === 'business' ? S.biz : undefined} onClose={() => { close(); setStudioTick(n => n + 1); }} /> : null}

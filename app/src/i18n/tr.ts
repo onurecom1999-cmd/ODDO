@@ -1319,4 +1319,7 @@ export const tr: Record<Key, string> = {
   'body.save': "Hedefimi hesapla",
   'body.done': "Yeni hedef: günde {kcal} kcal ve {protein} g protein.",
   'body.check': "Lütfen kontrol et: yaş 14-90, boy 120-230 cm, kilo 35-250 kg.",
+  'body.row': "Vücut bilgileri",
+  'body.rowEst': "tahmini",
+  'set.noName': "Profilin",
 };
