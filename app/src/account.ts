@@ -24,8 +24,14 @@ export async function linkEmail(email: string) {
   if (error) throw error;
 }
 export async function confirmLink(email: string, code: string) {
-  const { error } = await supabase!.auth.verifyOtp({ email: clean(email), token: code.trim(), type: 'email_change' });
-  if (error) throw error;
+  // Depending on Supabase settings the code comes from the email-change or the signup mail; try both.
+  let last: unknown = null;
+  for (const type of ['email_change', 'signup', 'email'] as const) {
+    const { error } = await supabase!.auth.verifyOtp({ email: clean(email), token: code.trim(), type });
+    if (!error) return;
+    last = error;
+  }
+  throw last;
 }
 
 // Signing in on a new device: only existing accounts, then the saved state comes back.
