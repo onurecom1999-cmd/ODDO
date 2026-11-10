@@ -25,6 +25,8 @@ export type DayLog = {
   cardio: Cardio[];
   routines: Record<string, boolean>;
   rsteps: Record<string, number[]>;
+  // Exercise swapped for today only (machine taken etc.): exerciseIndex -> exercise id.
+  swaps?: Record<string, string>;
 };
 
 export type ProgressEntry = { date: string; weight?: number; waist?: number; img?: string };

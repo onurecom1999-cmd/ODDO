@@ -27,6 +27,7 @@ import { CardioSheet } from './src/sheets/Cardio';
 import { CreatorSheet } from './src/sheets/Creator';
 import { AccountSheet } from './src/sheets/Account';
 import { ProSheet } from './src/sheets/Pro';
+import { WeightSheet } from './src/sheets/Weight';
 import { BodySheet } from './src/sheets/Body';
 import { RewardSheet } from './src/sheets/Reward';
 import { useWeekOver, WeekOverSheet } from './src/sheets/WeekOver';
@@ -185,6 +186,7 @@ function Main() {
         onJoined={k => { if (k === 'studio') setStudioTick(n => n + 1); else if (k === 'coach') coachSync(); }} /> : null}
       {sheet?.startsWith('business') ? <BusinessSheet initial={sheet === 'business' ? S.biz : undefined} onClose={() => { close(); setStudioTick(n => n + 1); }} /> : null}
       {sheet === 'coachchat' && S.coach ? <ChatSheet other={S.coach.id} title={S.coach.name} asCoach={false} onClose={close} /> : null}
+      {sheet === 'weight' ? <WeightSheet onClose={close} /> : null}
       {sheet === 'creator' ? <CreatorSheet onClose={close} onPro={() => setSheet('pro')} onEarn={() => setSheet('earn')} /> : null}
       {sheet === 'account' ? <AccountSheet mode="save" onClose={close} /> : null}
       {sheet === 'food' ? <FoodPick onClose={close} onPick={m => setSheet(`food:${m}`)} /> : null}

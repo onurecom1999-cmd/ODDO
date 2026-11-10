@@ -80,3 +80,21 @@ export function nextStep(id: string) {
 }
 
 export function isTimed(id: string) { return !!EX[id]?.timed; }
+
+// Equivalent exercises for a quick swap when a machine is taken. Same movement, similar muscles.
+const SWAP: string[][] = [
+  ['chest_press', 'bench', 'incline_db', 'push', 'push_knee', 'dips', 'dips_bench'],
+  ['shoulder_machine', 'ohp', 'pike', 'pike_hold'],
+  ['lat_pulldown', 'pullup', 'chinup', 'pull_neg'],
+  ['cable_row', 'face_pull', 'backpack_row', 'row_aus_up', 'row_table', 'row_towel'],
+  ['leg_press', 'goblet_squat', 'back_squat', 'squat', 'split_squat', 'reverse_lunge', 'squat_chair'],
+  ['rdl', 'leg_curl', 'deadlift', 'glute_bridge', 'glute_bridge_single', 'nordic_neg'],
+  ['cable_crunch', 'plank', 'crunch', 'hollow', 'knee_raise', 'leg_raise'],
+  ['calf_raise', 'calf_raise_single'],
+];
+const EQUIP = new Set(['chest_press', 'bench', 'incline_db', 'shoulder_machine', 'ohp', 'lat_pulldown', 'cable_row', 'face_pull', 'leg_press', 'goblet_squat', 'back_squat', 'rdl', 'leg_curl', 'deadlift', 'cable_crunch']);
+export function swapOptions(id: string, gym: boolean, max = 4) {
+  const group = SWAP.find(g => g.includes(id));
+  if (!group) return [];
+  return group.filter(x => x !== id && EX[x] && !!EX[x].timed === !!EX[id]?.timed && (gym || !EQUIP.has(x))).slice(0, max);
+}

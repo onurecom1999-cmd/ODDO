@@ -213,6 +213,7 @@ export function SettingsSheet({ onClose, onOpen, initial }: { onClose: () => voi
         <Group title={t('set.g.app')}>
           <MenuRow icon="bell" label={t('remind.title')} value={S.reminder != null ? `${S.reminder}:00` : t('remind.off')} onPress={() => setPage('remind')} />
           <MenuRow icon="globe" label={t('plan.language')} value={LANG_NAME[getLang()]} onPress={() => setPage('lang')} />
+          {S.example ? null : <MenuRow icon="video" label={t('creator.title')} value={t('set.creatorSub')} onPress={() => go('creator')} />}
         </Group>
 
         <Group title={t('set.g.gym')}>

@@ -3,7 +3,7 @@ import { Linking, Platform, Pressable, Text, TextInput, Vibration, View } from '
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fmt1, t } from '../i18n';
 import { dayKey, peekLog, sessionFor } from '../logic/day';
-import { EX } from '../logic/exercises';
+import { EX, swapOptions } from '../logic/exercises';
 import { exKey, exName, exNote, sessionTitle } from '../logic/names';
 import type { PlanExercise } from '../logic/plan';
 import { history, topOf } from '../logic/sets';
@@ -32,6 +32,13 @@ export function TrainSheet({ onClose }: { onClose: () => void }) {
   const done = Object.values(l.sets).filter(x => x?.done).length;
   const restFor = S.profile!.style === 'gym' ? 90 : 60;
   const [restEnd, setRestEnd] = useState<number | null>(null);
+  const [swapAt, setSwapAt] = useState<number | null>(null);
+  const eff = (e: PlanExercise, i: number): PlanExercise => { const id = l.swaps?.[i]; return id ? { ...e, id, name: undefined, note: undefined, extra: undefined } : e; };
+  const doSwap = (i: number, sets: number, id: string) => {
+    update(d => { const L = dayLog(d); L.swaps = { ...(L.swaps || {}), [i]: id }; for (let j = 0; j < sets; j++) delete L.sets[`${i}.${j}`]; });
+    setSwapAt(null);
+    toast(t('train.swapped', { name: exName({ id, sets, reps: '' }) }));
+  };
   const firstTime = !session.exercises.some(e => past(S, exKey(e)).length);
 
   const setField = (k: string, ex: string, f: 'kg' | 'reps', v: string) => update(d => {
@@ -73,7 +80,9 @@ export function TrainSheet({ onClose }: { onClose: () => void }) {
       <Muted>{t('train.lead')}</Muted>
       {firstTime && S.profile!.style === 'gym' ? <Card style={{ borderColor: colors.accent }}><Small style={{ color: colors.text }}>{t('train.first')}</Small></Card> : null}
       <Card style={{ paddingVertical: 6 }}>
-        {session.exercises.map((e, i) => {
+        {session.exercises.map((e0, i) => {
+          const e = eff(e0, i);
+          const alts = e.id ? swapOptions(e.id, S.profile!.style === 'gym') : [];
           const ex = exKey(e), w = isWeighted(S, e), timed = !!(e.id && EX[e.id]?.timed);
           const prev = past(S, ex)[0];
           const unit = timed ? t('secShort') : t('repsShort');
@@ -84,9 +93,28 @@ export function TrainSheet({ onClose }: { onClose: () => void }) {
               <View style={{ gap: 3 }}>
                 <Text style={{ color: colors.text, fontFamily: fonts.bold, fontSize: 17 }}>{exName(e)}</Text>
                 <Small>{t('train.target', { sets: e.sets, reps: e.reps })}{exNote(e) ? ' · ' + exNote(e) : ''}</Small>
-                <Pressable accessibilityRole="link" hitSlop={6} onPress={() => Linking.openURL('https://www.youtube.com/results?search_query=' + encodeURIComponent(`${exName(e)} ${t('train.howQ')}`))}>
-                  <Text style={{ color: colors.accent, fontFamily: fonts.bold, fontSize: 13 }}>{t('train.how')}</Text>
-                </Pressable>
+                <View style={{ flexDirection: 'row', gap: 18 }}>
+                  <Pressable accessibilityRole="link" hitSlop={6} onPress={() => Linking.openURL('https://www.youtube.com/results?search_query=' + encodeURIComponent(`${exName(e)} ${t('train.howQ')}`))}>
+                    <Text style={{ color: colors.accent, fontFamily: fonts.bold, fontSize: 13 }}>{t('train.how')}</Text>
+                  </Pressable>
+                  {alts.length ? (
+                    <Pressable accessibilityRole="button" hitSlop={6} onPress={() => setSwapAt(swapAt === i ? null : i)}>
+                      <Text style={{ color: colors.accent, fontFamily: fonts.bold, fontSize: 13 }}>{t('train.swap')}</Text>
+                    </Pressable>
+                  ) : null}
+                </View>
+                {swapAt === i ? (
+                  <View style={{ gap: 8, paddingTop: 4 }}>
+                    <Small>{t('train.swapQ')}</Small>
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                      {alts.map(id => (
+                        <Pressable key={id} accessibilityRole="button" onPress={() => doSwap(i, e.sets, id)} style={{ paddingVertical: 9, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.surface2 }}>
+                          <Text style={{ color: colors.text, fontFamily: fonts.semibold, fontSize: 14 }}>{exName({ id, sets: e.sets, reps: e.reps })}</Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                  </View>
+                ) : null}
                 {prev ? <Small style={{ color: colors.text }}>{t('train.last')} {prev.sets.map(x => (w && x.kg ? `${fmt1(x.kg)} kg × ` : '') + (x.reps ?? '')).join(', ')}</Small> : null}
                 {best ? <Text style={{ color: colors.accent, fontFamily: fonts.bold, fontSize: 13 }}>{rankLine(S, sk!, best)}</Text> : null}
               </View>
@@ -94,7 +122,7 @@ export function TrainSheet({ onClose }: { onClose: () => void }) {
                 const k = `${i}.${j}`, v = l.sets[k] || ({} as Partial<SetEntry>);
                 const pre = prev?.sets[j];
                 return (
-                  <View key={j} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <View key={`${j}-${ex}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                     <Text style={{ width: 52, color: colors.muted, fontFamily: fonts.heavy, fontSize: 11, letterSpacing: 1, textTransform: 'uppercase' }}>{t('train.set', { n: j + 1 })}</Text>
                     {w ? <TextInput accessibilityLabel="kg" keyboardType="decimal-pad" placeholder={pre?.kg ? fmt1(pre.kg) : 'kg'} placeholderTextColor={colors.dim} defaultValue={v.kg != null ? fmt1(v.kg) : ''} onChangeText={x => setField(k, ex, 'kg', x)} style={inp} /> : null}
                     <TextInput accessibilityLabel={unit} keyboardType="number-pad" placeholder={`${pre?.reps ?? (topOf(e.reps) || '')} ${unit}`} placeholderTextColor={colors.dim} defaultValue={v.reps != null ? String(v.reps) : ''} onChangeText={x => setField(k, ex, 'reps', x)} style={inp} />

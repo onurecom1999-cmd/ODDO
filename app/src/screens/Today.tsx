@@ -71,7 +71,7 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
     { icon: 'food', label: t('today.qFood'), go: () => onOpen('food') },
     { icon: 'train', label: t('today.qTrain'), go: () => onOpen('train') },
     { icon: 'run', label: t('today.qMove'), go: () => onOpen('cardio:run:live') },
-    { icon: 'video', label: t('today.qVideo'), go: () => onOpen('creator') },
+    { icon: 'me', label: t('today.qWeight'), go: () => onOpen('weight') },
   ];
 
   return (

@@ -7,6 +7,7 @@ import { useApp } from '../state';
 import { colors, fonts } from '../theme';
 import { Body, Bold, Button, Card, Chip, Chips, Field, H1, H2, LinkButton, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
 import { EarnTeaser } from '../sheets/Earn';
+import { ChallengeCard } from '../sheets/Challenge';
 
 const APP_URL = 'https://oddo-app.netlify.app';
 type Scope = 'foryou' | 'friends' | 'near';
@@ -299,12 +300,14 @@ export function Community({ onOpen }: { onOpen: (sheet: string) => void }) {
       <H1>{t('tab.community')}</H1>
       {S.example ? <Card><Muted>{t('com.example')}</Muted></Card> : (
         <>
-          <EarnTeaser onOpen={() => onOpen('earn')} />
+          {/* Joining comes first for new people: challenge, then groups. Earning sits below. */}
+          <ChallengeCard />
           <Chips>
             <Chip label={t('com.groups')} on={tab === 'groups'} onPress={() => setTab('groups')} />
             <Chip label={t('com.feed')} on={tab === 'feed'} onPress={() => setTab('feed')} />
           </Chips>
           {tab === 'groups' ? <Groups /> : <Feed />}
+          <EarnTeaser onOpen={() => onOpen('earn')} />
         </>
       )}
     </Stack>
