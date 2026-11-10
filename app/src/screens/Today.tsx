@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 import { fmt, Key, LOCALE, getLang, t } from '../i18n';
-import { dayKey, dayNumber, dayScore, dayStatus, emblemKey, isTrainingDay, routineState, sessionFor, streakInfo, cardioBonus } from '../logic/day';
+import { dayKey, dayNumber, dayScore, dayStatus, emblemKey, isTrainingDay, routineState, sessionFor, streakInfo, cardioBonus, fromKey } from '../logic/day';
 import { routineSteps, routineSub, routineTitle, sessionTitle } from '../logic/names';
 import { WHEN } from '../logic/routines';
 import { dayLog, useApp } from '../state';
@@ -14,6 +14,8 @@ import { CoachBanner } from '../sheets/Coach';
 import { StudioCard } from '../sheets/Studio';
 import { ChallengeCard, ChallengeResultCard } from '../sheets/Challenge';
 import { LevelChip } from '../sheets/Level';
+import { dayXp, levelInfo, STATS } from '../logic/level';
+const levelDay = (S: Parameters<typeof dayXp>[0], k: string) => { const x = dayXp(S, k); return STATS.some(st => x[st] > 0); };
 import { SaveNudge } from '../sheets/SaveNudge';
 import { TrialCard } from '../ui/TrialCard';
 import { InstallCard } from '../ui/InstallCard';
@@ -69,6 +71,9 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
     : null;
 
   const routinesSorted = [...S.routines].sort((a, b) => WHEN.indexOf(a.when) - WHEN.indexOf(b.when));
+  // Days since the last day with anything done: after a break, a warm welcome instead of a wall of open items.
+  const lastActive = Object.keys(S.log).filter(k => k < key && levelDay(S, k)).sort().pop();
+  const away = lastActive ? Math.round((fromKey(key).getTime() - fromKey(lastActive).getTime()) / 864e5) - 1 : 0;
   const quick: { icon: IconName; label: string; go: () => void }[] = [
     { icon: 'food', label: t('today.qFood'), go: () => onOpen('food') },
     { icon: 'train', label: t('today.qTrain'), go: () => onOpen('train') },
@@ -86,6 +91,14 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
         </View>
         <Pressable accessibilityRole="button" onPress={() => onOpen('reward')}><Ring done={score.done} all={score.all} /></Pressable>
       </Row>
+
+      {away >= 2 && score.done === 0 && !S.example ? (
+        <Card style={{ gap: 6, borderColor: colors.accent }}>
+          <Eyebrow>{t('back.eyebrow')}</Eyebrow>
+          <Text style={{ fontFamily: fonts.heavy, fontSize: 20, color: colors.text }}>{t('back.title', { n: levelInfo(S).n })}</Text>
+          <Small>{t('back.sub')}</Small>
+        </Card>
+      ) : null}
 
       <StudioCard refresh={studioTick} />
 
