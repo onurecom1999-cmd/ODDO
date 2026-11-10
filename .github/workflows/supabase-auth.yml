@@ -31,9 +31,11 @@ jobs:
             mailer_subjects_magic_link: "ODDO", mailer_templates_magic_link_content: $t,
             mailer_subjects_confirmation: "ODDO", mailer_templates_confirmation_content: $t,
             mailer_secure_email_change_enabled: false,
-            smtp_sender_name: "ODDO" }')
-          curl -sf -X PATCH -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
-            -d "$body" https://api.supabase.com/v1/projects/$REF/config/auth > /dev/null
+            smtp_sender_name: "ODDO", mailer_otp_length: 6 }')
+          code=$(curl -s -o resp.json -w "%{http_code}" -X PATCH -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+            -d "$body" https://api.supabase.com/v1/projects/$REF/config/auth)
+          echo "HTTP $code"
+          if [ "$code" -ge 300 ]; then cat resp.json; exit 1; fi
           echo "Templates gesetzt."
       - name: After
         if: steps.tok.outputs.ok == '1'
