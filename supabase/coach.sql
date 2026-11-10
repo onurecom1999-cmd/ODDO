@@ -1478,3 +1478,24 @@ begin
 end $$;
 revoke execute on function public.set_source(text), public.admin_sources() from public, anon;
 grant execute on function public.set_source(text), public.admin_sources() to authenticated;
+
+-- Creator numbers for the person themself: people who came through their code (30 days and all time),
+-- how many were active in the last 7 days and pay, where they came from (the link's ?s=), and their clips.
+create or replace function public.my_creator_stats() returns jsonb
+language sql stable security definer set search_path = public as $$
+  with mine as (select r.user_id, r.created_at from referrals r where r.partner_id = auth.uid())
+  select jsonb_build_object(
+    'people', (select count(*) from mine),
+    'people_30', (select count(*) from mine where created_at > now() - interval '30 days'),
+    'active_7', (select count(distinct a.user_id) from activity_days a join mine m on m.user_id = a.user_id where a.day > current_date - 7),
+    'paying', (select count(*) from mine m where exists (select 1 from subscriptions s where s.user_id = m.user_id and public.sub_live(s))),
+    'sources', (select coalesce(jsonb_agg(jsonb_build_object('source', src, 'n', n) order by n desc), '[]'::jsonb) from (
+                  select coalesce(s.source, 'direct') as src, count(*) as n
+                  from mine m left join signup_sources s on s.user_id = m.user_id group by 1 order by 2 desc limit 8) x),
+    'clips', (select count(*) from clips where user_id = auth.uid()),
+    'clip_views', (select coalesce(sum(views), 0) from clips where user_id = auth.uid() and status = 'approved'),
+    'clip_cents', (select coalesce(sum(amount_cents), 0) from clips where user_id = auth.uid() and status = 'approved'))
+  where auth.uid() is not null
+$$;
+revoke execute on function public.my_creator_stats() from public, anon;
+grant execute on function public.my_creator_stats() to authenticated;

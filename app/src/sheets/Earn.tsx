@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Linking, Pressable, Share, Text, View } from 'react-native';
+import { ActivityIndicator, Linking, Platform, Pressable, Share, Text, View } from 'react-native';
 import { getLang, Key, LOCALE, t } from '../i18n';
 import {
-  Clip, CLIP, CLIP_URL, clipCents, earnings, Earnings, inviteUrl, LEVELS, myClips, myInvite, OpenClip, openClips, rateClip, submitClip,
+  Clip, CLIP, CLIP_URL, clipCents, creatorStats, CreatorStats, earnings, Earnings, inviteUrl, LEVELS, myClips, myInvite, OpenClip, openClips, rateClip, submitClip,
 } from '../partner';
 import { useApp } from '../state';
 import { colors, fonts } from '../theme';
@@ -23,7 +23,57 @@ export function useInvite() {
   useEffect(() => { if (!S.example) myInvite().then(setCode, () => {}); }, [S.example]);
   return code;
 }
-export const inviteText = (code: string) => t('earn.shareText', { code, url: inviteUrl(code) });
+export const inviteText = (code: string, s?: string) => t('earn.shareText', { code, url: inviteUrl(code, s) });
+
+// Where people came from, as the creator would call it.
+const SOURCE_NAME: Record<string, string> = { tiktok: 'TikTok', ig: 'Instagram', yt: 'YouTube', wa: 'WhatsApp', share: 'Link' };
+const sourceName = (s: string) => SOURCE_NAME[s] ?? (s === 'direct' ? t('cs.srcDirect') : s.startsWith('share-') ? t('cs.srcCard') : s);
+
+// Copy on the web; on the phone the share sheet has "Copy".
+async function copyText(text: string, done: () => void) {
+  if (Platform.OS === 'web' && navigator.clipboard) { await navigator.clipboard.writeText(text).catch(() => {}); done(); }
+  else Share.share({ message: text }).catch(() => {});
+}
+
+function Stat({ n, label }: { n: string; label: string }) {
+  return (
+    <View style={{ width: '50%', paddingVertical: 8, gap: 2 }}>
+      <Text style={{ fontFamily: fonts.display, fontSize: 30, color: colors.text }}>{n}</Text>
+      <Small>{label}</Small>
+    </View>
+  );
+}
+
+// The creator's own numbers: people through their code, who stayed, who pays, where they came from, clip views.
+function CreatorNumbers({ c }: { c: CreatorStats }) {
+  const total = c.sources.reduce((a, x) => a + x.n, 0) || 1;
+  return (
+    <Card style={{ gap: 10 }}>
+      <Eyebrow>{t('cs.title')}</Eyebrow>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+        <Stat n={num(c.people)} label={t('cs.people')} />
+        <Stat n={num(c.people_30)} label={t('cs.people30')} />
+        <Stat n={num(c.active_7)} label={t('cs.active')} />
+        <Stat n={num(c.paying)} label={t('cs.paying')} />
+        {c.clips ? <Stat n={num(c.clip_views)} label={t('cs.views')} /> : null}
+        {c.clips ? <Stat n={money(c.clip_cents)} label={t('cs.clipMoney')} /> : null}
+      </View>
+      {c.sources.length && c.people ? (
+        <View style={{ gap: 8 }}>
+          <Bold>{t('cs.from')}</Bold>
+          {c.sources.map(x => (
+            <View key={x.source} style={{ gap: 4 }}>
+              <Row style={{ justifyContent: 'space-between' }}><Small>{sourceName(x.source)}</Small><Small>{x.n}</Small></Row>
+              <View style={{ height: 6, borderRadius: 3, backgroundColor: colors.line }}>
+                <View style={{ height: 6, borderRadius: 3, width: `${Math.round((x.n / total) * 100)}%`, backgroundColor: colors.accent }} />
+              </View>
+            </View>
+          ))}
+        </View>
+      ) : null}
+    </Card>
+  );
+}
 
 // On the Community tab: one line that leads to "Earn".
 export function EarnTeaser({ onOpen }: { onOpen: () => void }) {
@@ -56,8 +106,10 @@ export function EarnSheet({ onClose }: { onClose: () => void }) {
   const [busy, setBusy] = useState(false);
   const [details, setDetails] = useState(false);
   const [friend, setFriend] = useState<string | null>(null);
+  const [cs, setCs] = useState<CreatorStats | null>(null);
   const load = useCallback(() => {
     earnings().then(setE, () => setE(null));
+    creatorStats().then(setCs, () => {});
     myClips().then(setClips, () => {});
   }, []);
   useEffect(() => { if (!S.example) load(); }, [load, S.example]);
@@ -98,9 +150,15 @@ export function EarnSheet({ onClose }: { onClose: () => void }) {
                 <Text selectable testID="invite-code" style={{ fontFamily: fonts.display, fontSize: 44, letterSpacing: 4, color: colors.accent }}>{code}</Text>
                 <Text selectable style={{ fontFamily: fonts.medium, fontSize: 14, color: colors.muted }}>{inviteUrl(code)}</Text>
                 <Row style={{ gap: 10 }}>
-                  <Button small label={t('coach.inviteWa')} style={{ flex: 1 }} onPress={() => Linking.openURL(`https://wa.me/?text=${encodeURIComponent(inviteText(code))}`)} />
-                  <Button small variant="ghost" label={t('coach.share')} style={{ flex: 1 }} onPress={() => Share.share({ message: inviteText(code) }).catch(() => {})} />
+                  <Button small label={t('coach.inviteWa')} style={{ flex: 1 }} onPress={() => Linking.openURL(`https://wa.me/?text=${encodeURIComponent(inviteText(code, 'wa'))}`)} />
+                  <Button small variant="ghost" label={t('coach.share')} style={{ flex: 1 }} onPress={() => Share.share({ message: inviteText(code, 'share') }).catch(() => {})} />
                 </Row>
+                <Small>{t('cs.bio')}</Small>
+                <Chips>
+                  {(['tiktok', 'ig', 'yt'] as const).map(src => (
+                    <Chip key={src} label={SOURCE_NAME[src]} onPress={() => copyText(inviteUrl(code, src), () => toast(t('cs.copied', { app: SOURCE_NAME[src] })))} />
+                  ))}
+                </Chips>
               </>
             ) : <ActivityIndicator color={colors.accent} />}
           </Card>
@@ -133,6 +191,8 @@ export function EarnSheet({ onClose }: { onClose: () => void }) {
             <Button small variant="ghost" label={t('earn.details')} onPress={() => setDetails(true)} />
           </Card>
         ) : null}
+
+        {cs && (cs.people || cs.clips) ? <CreatorNumbers c={cs} /> : null}
 
         <View style={{ gap: 10 }}>
           <H2>{t('earn.clipsTitle')}</H2>

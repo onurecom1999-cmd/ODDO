@@ -37,7 +37,13 @@ export const markPaid = (id: string) => rpc<number>('admin_mark_paid', { p_partn
 
 // Everyone's own invite code: a friend gets a free Pro month, the person earns the same share as a trainer.
 export const INVITE_RE = /^[A-Z2-9]{7}$/;
-export const inviteUrl = (code: string) => `${SITE}/app/?r=${code}`;
+// `s` names where the link was shared (wa, tiktok, ig…), so the creator sees where their people come from.
+export const inviteUrl = (code: string, s?: string) => `${SITE}/app/?r=${code}${s ? `&s=${s}` : ''}`;
+export type CreatorStats = {
+  people: number; people_30: number; active_7: number; paying: number;
+  sources: { source: string; n: number }[]; clips: number; clip_views: number; clip_cents: number;
+};
+export const creatorStats = () => rpc<CreatorStats | null>('my_creator_stats');
 export const myInvite = () => rpc<{ code: string }>('my_invite').then(r => r.code);
 export const redeemInvite = (code: string) => rpc<{ name: string }>('redeem_invite', { p_code: code });
 
