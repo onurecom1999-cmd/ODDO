@@ -2,6 +2,7 @@ import { Platform, Pressable, Share, Text, View } from 'react-native';
 import { fmt, t, type Key } from '../i18n';
 import { levelInfo, RANKS, STATS, statLevel } from '../logic/level';
 import { useApp } from '../state';
+import { inviteUrl, myInvite } from '../partner';
 import { colors, fonts } from '../theme';
 import { Bar, Button, Card, Eyebrow, H1, LinkButton, Muted, Row, Sheet, Small } from '../ui/kit';
 
@@ -72,7 +73,9 @@ export function LevelUpSheet({ onClose }: { onClose: () => void }) {
   const newRank = RANKS.some(([min]) => min === L.n);
   const next = [...RANKS].reverse().find(([min]) => min > L.n);
   const share = async () => {
-    const message = t('lvl.shareText', { n: L.n, rank: rankName(L.rank), url: APP_URL });
+    // With the person's invite code, a friend who joins gets a free Pro month and the person earns their share.
+    const code = await Promise.race([myInvite().catch(() => ''), new Promise<string>(r => setTimeout(() => r(''), 1500))]);
+    const message = t('lvl.shareText', { n: L.n, rank: rankName(L.rank), url: code ? `${inviteUrl(code)}&s=share-level` : `${APP_URL}/app/?s=share-level` });
     try {
       if (Platform.OS === 'web') {
         const nav = navigator as Navigator & { share?: (d: ShareData) => Promise<void> };

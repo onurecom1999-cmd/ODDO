@@ -66,6 +66,8 @@ export type AppState = {
   reviewAsked?: boolean;
   // Highest level the person has already celebrated; a higher one opens the level-up screen.
   levelSeen?: number;
+  // When the person last tapped "later" on the save-your-progress card (ms).
+  saveAskedAt?: number;
 };
 
 export const emptyState: AppState = { profile: null, plan: null, log: {}, progress: [], routines: [], strength: [], startedAt: null };

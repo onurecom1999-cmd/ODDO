@@ -1,3 +1,4 @@
+import { downloadReminderIcs } from '../calendar';
 import { useEffect, useState } from 'react';
 import { Linking, Pressable, Text, View } from 'react-native';
 import { account, AccountInfo, deleteAccount } from '../account';
@@ -122,7 +123,7 @@ export function SettingsSheet({ onClose, onOpen, initial }: { onClose: () => voi
             <Button small label={t('set.save')} onPress={saveTargets} />
           </Section>
         ) : page === 'remind' ? (
-          <Section sub={remindersSupported ? t('set.remindSub') : t('set.remindWeb')}>
+          <Section sub={remindersSupported ? t('set.remindSub') : undefined}>
             {remindersSupported ? (
               <Chips>
                 {[null, ...REMINDER_HOURS].map(h => (
@@ -130,7 +131,15 @@ export function SettingsSheet({ onClose, onOpen, initial }: { onClose: () => voi
                     onPress={async () => { const ok = await setReminder(h); if (ok) update(d => { d.reminder = h; }); else toast(t('remind.denied')); }} />
                 ))}
               </Chips>
-            ) : null}
+            ) : (
+              <Stack gap={12}>
+                <Small>{t('remind.calSub')}</Small>
+                <Chips>
+                  {REMINDER_HOURS.map(h => <Chip key={h} label={`${h}:00`} on={S.reminder === h} onPress={() => update(d => { d.reminder = h; })} />)}
+                </Chips>
+                <Button label={t('remind.cal')} disabled={S.reminder == null} onPress={() => { downloadReminderIcs(S.reminder!, t('remind.calTitle'), 'https://oddo-app.netlify.app/app/'); toast(t('remind.calDone')); }} />
+              </Stack>
+            )}
           </Section>
         ) : page === 'lang' ? (
           <Section>

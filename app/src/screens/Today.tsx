@@ -14,6 +14,7 @@ import { CoachBanner } from '../sheets/Coach';
 import { StudioCard } from '../sheets/Studio';
 import { ChallengeCard, ChallengeResultCard } from '../sheets/Challenge';
 import { LevelChip } from '../sheets/Level';
+import { SaveNudge } from '../sheets/SaveNudge';
 import { TrialCard } from '../ui/TrialCard';
 import { InstallCard } from '../ui/InstallCard';
 
@@ -126,6 +127,7 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
 
       <CoachBanner onChat={() => onOpen('coachchat')} />
       {S.example ? null : <TrialCard onPro={() => onOpen('pro')} />}
+      <SaveNudge onSave={() => onOpen('account')} />
       {/* From the first ticked item on, or from day 2: so the first minutes stay about the plan. */}
       {S.example || (score.done === 0 && dayNumber(S, key) <= 1) ? null : <InstallCard />}
 
