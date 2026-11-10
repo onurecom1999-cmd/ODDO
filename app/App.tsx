@@ -28,6 +28,8 @@ import { CreatorSheet } from './src/sheets/Creator';
 import { AccountSheet } from './src/sheets/Account';
 import { ProSheet } from './src/sheets/Pro';
 import { WeightSheet } from './src/sheets/Weight';
+import { LevelSheet, LevelUpSheet } from './src/sheets/Level';
+import { levelInfo } from './src/logic/level';
 import { BodySheet } from './src/sheets/Body';
 import { RewardSheet } from './src/sheets/Reward';
 import { useWeekOver, WeekOverSheet } from './src/sheets/WeekOver';
@@ -121,6 +123,15 @@ function Main() {
     update(d => { d.shareAsked = [...(d.shareAsked || []), run]; });
     setSheet('reward');
   }, [run, sheet]); // eslint-disable-line react-hooks/exhaustive-deps
+  // A new level gets its own moment, once, when no other sheet is open. Day 1 starts at level 1.
+  const level = S.plan && !S.example ? levelInfo(S).n : 0;
+  useEffect(() => {
+    if (!level || sheet) return;
+    if (S.levelSeen == null) { update(d => { d.levelSeen = 1; }); if (level <= 1) return; }
+    if (level <= (S.levelSeen ?? 1)) return;
+    update(d => { d.levelSeen = level; });
+    setSheet('levelup');
+  }, [level, sheet]); // eslint-disable-line react-hooks/exhaustive-deps
   // After a week of perfect days, people are happiest with the app: ask once for a store rating, after they closed their day card.
   // The store decides whether it actually shows the dialog.
   const askReview = () => {
@@ -187,6 +198,8 @@ function Main() {
       {sheet?.startsWith('business') ? <BusinessSheet initial={sheet === 'business' ? S.biz : undefined} onClose={() => { close(); setStudioTick(n => n + 1); }} /> : null}
       {sheet === 'coachchat' && S.coach ? <ChatSheet other={S.coach.id} title={S.coach.name} asCoach={false} onClose={close} /> : null}
       {sheet === 'weight' ? <WeightSheet onClose={close} /> : null}
+      {sheet === 'level' ? <LevelSheet onClose={close} onRoutines={() => setSheet('settings:routines')} /> : null}
+      {sheet === 'levelup' ? <LevelUpSheet onClose={close} /> : null}
       {sheet === 'creator' ? <CreatorSheet onClose={close} onPro={() => setSheet('pro')} onEarn={() => setSheet('earn')} /> : null}
       {sheet === 'account' ? <AccountSheet mode="save" onClose={close} /> : null}
       {sheet === 'food' ? <FoodPick onClose={close} onPick={m => setSheet(`food:${m}`)} /> : null}

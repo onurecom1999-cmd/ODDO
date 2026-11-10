@@ -13,6 +13,7 @@ import { Icon, IconName } from '../ui/icons';
 import { CoachBanner } from '../sheets/Coach';
 import { StudioCard } from '../sheets/Studio';
 import { ChallengeCard, ChallengeResultCard } from '../sheets/Challenge';
+import { LevelChip } from '../sheets/Level';
 import { TrialCard } from '../ui/TrialCard';
 import { InstallCard } from '../ui/InstallCard';
 
@@ -80,6 +81,7 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
         <View>
           <Eyebrow>{new Date().toLocaleDateString(LOCALE[getLang()], { weekday: 'long', day: 'numeric', month: 'long' })}</Eyebrow>
           <H1 style={{ marginTop: 4 }}>{t('today.day', { n: dayNumber(S) })}</H1>
+          {S.example ? null : <LevelChip onPress={() => onOpen('level')} />}
         </View>
         <Pressable accessibilityRole="button" onPress={() => onOpen('reward')}><Ring done={score.done} all={score.all} /></Pressable>
       </Row>

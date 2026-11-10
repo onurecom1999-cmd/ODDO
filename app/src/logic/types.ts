@@ -64,6 +64,8 @@ export type AppState = {
   shareAsked?: number[];
   // Set once the app asked for a store rating.
   reviewAsked?: boolean;
+  // Highest level the person has already celebrated; a higher one opens the level-up screen.
+  levelSeen?: number;
 };
 
 export const emptyState: AppState = { profile: null, plan: null, log: {}, progress: [], routines: [], strength: [], startedAt: null };

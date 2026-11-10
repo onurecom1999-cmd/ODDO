@@ -36,6 +36,10 @@ export const ROUTINES: RoutineDef[] = [
       { de: 'Liegende Drehung, 30 s pro Seite', en: 'Lying twist, 30 s per side', tr: 'Yatarak dönüş, her taraf 30 sn' },
     ],
   },
+  { id: 'meditate', when: 'morning', t: { de: '5 Minuten Meditation', en: '5 minutes of meditation', tr: '5 dakika meditasyon' }, s: { de: 'Hinsetzen, Augen zu, nur atmen', en: 'Sit down, eyes closed, just breathe', tr: 'Otur, gözlerini kapat, sadece nefes al' } },
+  { id: 'focus', when: 'day', t: { de: '30 Minuten fokussiert arbeiten', en: '30 minutes of deep focus', tr: '30 dakika odaklı çalışma' }, s: { de: 'Handy in einen anderen Raum', en: 'Phone in another room', tr: 'Telefon başka odada' } },
+  { id: 'read', when: 'evening', t: { de: '10 Seiten lesen', en: 'Read 10 pages', tr: '10 sayfa oku' }, s: { de: 'Ein Buch, kein Bildschirm', en: 'A book, not a screen', tr: 'Kitap, ekran değil' } },
+  { id: 'journal', when: 'evening', t: { de: 'Journal: 3 Sätze zum Tag', en: 'Journal: 3 lines about your day', tr: 'Günlük: gün hakkında 3 cümle' }, s: { de: 'Was lief gut, was lerne ich daraus', en: 'What went well, what did I learn', tr: 'Ne iyi gitti, ne öğrendim' } },
   { id: 'screen', when: 'evening', t: { de: 'Handy weg, 30 Min. vor dem Schlafen', en: 'Phone away 30 min before bed', tr: 'Yatmadan 30 dk önce telefon bırak' }, s: { de: 'Besser schlafen, besser erholen', en: 'Better sleep, better recovery', tr: 'Daha iyi uyku, daha iyi toparlanma' } },
   { id: 'sleep', when: 'evening', t: { de: '7 Stunden Schlaf', en: '7 hours of sleep', tr: '7 saat uyku' }, s: { de: 'Jeden Tag zur gleichen Zeit ins Bett', en: 'Same bedtime every day', tr: 'Her gün aynı saatte yat' } },
 ];

@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fmt1, t } from '../i18n';
 import { dayKey, peekLog, sessionFor } from '../logic/day';
 import { EX, swapOptions } from '../logic/exercises';
+import { XP } from '../logic/level';
 import { exKey, exName, exNote, sessionTitle } from '../logic/names';
 import type { PlanExercise } from '../logic/plan';
 import { history, topOf } from '../logic/sets';
@@ -70,7 +71,7 @@ export function TrainSheet({ onClose }: { onClose: () => void }) {
   const finish = () => {
     update(d => { const L = dayLog(d); L.trained = true; L.sessionIdx = idx; });
     onClose();
-    toast(t('train.finished', { n: S.plan!.bonus }));
+    toast(`${t('train.finished', { n: S.plan!.bonus })} +${XP.train + Math.min(XP.setMax, done * XP.set)} XP`);
   };
 
   return (

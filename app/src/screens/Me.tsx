@@ -6,14 +6,18 @@ import { Stack } from '../ui/kit';
 import { PlanTab } from './PlanTab';
 import { Progress } from './Progress';
 import { Week } from './Week';
+import { LevelCard } from '../sheets/Level';
+import { useApp } from '../state';
 
 type Part = 'progress' | 'week' | 'plan';
 
 // Everything about you in one tab: progress, the week report and your plan and settings.
 export function Me({ onOpen }: { onOpen: (sheet: string) => void }) {
   const [part, setPart] = useState<Part>('progress');
+  const { S } = useApp();
   return (
     <Stack gap={4}>
+      {S.example ? null : <View style={{ marginBottom: 12 }}><LevelCard onPress={() => onOpen('level')} /></View>}
       <View style={{ flexDirection: 'row', backgroundColor: colors.surface, borderRadius: 999, padding: 4, borderWidth: 1, borderColor: colors.line, marginBottom: 6 }}>
         {(['progress', 'week', 'plan'] as Part[]).map(k => (
           <Pressable key={k} accessibilityRole="tab" accessibilityState={{ selected: part === k }} onPress={() => setPart(k)} style={{ flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: 999, backgroundColor: part === k ? colors.accent : 'transparent' }}>
