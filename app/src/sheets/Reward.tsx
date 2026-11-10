@@ -4,7 +4,7 @@ import { Image, Platform, Text, View, ViewInstance } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 import Svg, { Defs, LinearGradient, RadialGradient, Rect, Stop } from 'react-native-svg';
 import { getLang, LOCALE, t } from '../i18n';
-import { dayCard, DayCard } from '../logic/reward';
+import { dayCard, DayCard, weekCard } from '../logic/reward';
 import { pickPhoto, shrink } from '../media';
 import { useApp } from '../state';
 import { colors, fonts } from '../theme';
@@ -50,13 +50,14 @@ function Card({ c, photo, width, code }: { c: DayCard; photo: string; width: num
   );
 }
 
-export function RewardSheet({ onClose }: { onClose: () => void }) {
+export function RewardSheet({ onClose, week }: { onClose: () => void; week?: boolean }) {
   const { S } = useApp();
   const toast = useToast();
-  const c = dayCard(S);
+  const c = week ? weekCard(S) : dayCard(S);
   const code = useInvite();
   // The share text carries the invite link, so whoever sees the card can start with a free Pro month.
-  const shareText = code ? `${t('reward.shareText')} ${inviteText(code)} #ODDO` : `${t('reward.shareText')} #ODDO`;
+  const base = week ? t('wk.shareText', { n: (c as { active?: number }).active ?? 0 }) : t('reward.shareText');
+  const shareText = code ? `${base} ${inviteText(code)} #ODDO` : `${base} #ODDO`;
   const [photo, setPhoto] = useState('');
   const [width, setWidth] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -104,11 +105,11 @@ export function RewardSheet({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <Sheet visible title={t('reward.title')} onClose={onClose}>
+    <Sheet visible title={week ? t('wk.sheet') : t('reward.title')} onClose={onClose}>
       <Stack gap={16}>
         <Row style={{ gap: 14 }}>
-          <Emblem n={c.perfect ? c.streak : 0} size={64} />
-          <Muted style={{ flex: 1 }}>{c.perfect ? c.footer : t('reward.hint')}</Muted>
+          <Emblem n={week || c.perfect ? c.streak : 0} size={64} />
+          <Muted style={{ flex: 1 }}>{week ? t('wk.hint') : c.perfect ? c.footer : t('reward.hint')}</Muted>
         </Row>
         <View onLayout={e => setWidth(Math.min(e.nativeEvent.layout.width, 440))} style={{ alignItems: 'center' }}>
           {width ? <View ref={ref} collapsable={false}><Card c={c} photo={photo} width={width} code={code} /></View> : null}

@@ -207,6 +207,7 @@ function Main() {
       {sheet === 'weight' ? <WeightSheet onClose={close} /> : null}
       {sheet === 'level' ? <LevelSheet onClose={close} onRoutines={() => setSheet('settings:routines')} /> : null}
       {sheet === 'levelup' ? <LevelUpSheet onClose={close} /> : null}
+      {sheet === 'weekly' ? <RewardSheet week onClose={close} /> : null}
       {sheet === 'creator' ? <CreatorSheet onClose={close} onPro={() => setSheet('pro')} onEarn={() => setSheet('earn')} /> : null}
       {sheet === 'account' ? <AccountSheet mode="save" onClose={close} /> : null}
       {sheet === 'food' ? <FoodPick onClose={close} onPick={m => setSheet(`food:${m}`)} /> : null}

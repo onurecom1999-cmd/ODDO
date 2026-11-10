@@ -68,6 +68,8 @@ export type AppState = {
   levelSeen?: number;
   // When the person last tapped "later" on the save-your-progress card (ms).
   saveAskedAt?: number;
+  // Monday (day key) of the last week review the person opened.
+  weekSeen?: string;
 };
 
 export const emptyState: AppState = { profile: null, plan: null, log: {}, progress: [], routines: [], strength: [], startedAt: null };

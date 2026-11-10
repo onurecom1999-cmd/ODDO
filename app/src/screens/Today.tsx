@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 import { fmt, Key, LOCALE, getLang, t } from '../i18n';
-import { dayKey, dayNumber, dayScore, dayStatus, emblemKey, isTrainingDay, routineState, sessionFor, streakInfo, cardioBonus, fromKey } from '../logic/day';
+import { dayKey, dayNumber, dayScore, dayStatus, emblemKey, isTrainingDay, routineState, sessionFor, streakInfo, cardioBonus, fromKey, addDays } from '../logic/day';
+import { lastWeekStart, weekCard } from '../logic/reward';
 import { routineSteps, routineSub, routineTitle, sessionTitle } from '../logic/names';
 import { WHEN } from '../logic/routines';
 import { dayLog, useApp } from '../state';
@@ -74,6 +75,10 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
   // Days since the last day with anything done: after a break, a warm welcome instead of a wall of open items.
   const lastActive = Object.keys(S.log).filter(k => k < key && levelDay(S, k)).sort().pop();
   const away = lastActive ? Math.round((fromKey(key).getTime() - fromKey(lastActive).getTime()) / 864e5) - 1 : 0;
+  // Monday to Wednesday: last week's review, once, for anyone who did something that week.
+  const wkMon = lastWeekStart();
+  const wkCard = !S.example && [1, 2, 3].includes(new Date().getDay()) && S.weekSeen !== wkMon && S.startedAt && dayKey(new Date(S.startedAt)) <= dayKey(addDays(fromKey(wkMon), 6)) ? weekCard(S, wkMon) : null;
+  const wk = wkCard && wkCard.active >= 1 ? wkCard : null;
   const quick: { icon: IconName; label: string; go: () => void }[] = [
     { icon: 'food', label: t('today.qFood'), go: () => onOpen('food') },
     { icon: 'train', label: t('today.qTrain'), go: () => onOpen('train') },
@@ -98,6 +103,17 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
           <Text style={{ fontFamily: fonts.heavy, fontSize: 20, color: colors.text }}>{t('back.title', { n: levelInfo(S).n })}</Text>
           <Small>{t('back.sub')}</Small>
         </Card>
+      ) : null}
+
+      {wk ? (
+        <Pressable accessibilityRole="button" onPress={() => { update(d => { d.weekSeen = wk.monday; }); onOpen('weekly'); }}>
+          <Card style={{ gap: 6, borderColor: colors.accent }}>
+            <Eyebrow>{t('wk.eyebrow')}</Eyebrow>
+            <Text style={{ fontFamily: fonts.heavy, fontSize: 20, color: colors.text }}>{t('wk.cardTitle', { n: wk.active })}</Text>
+            <Small>{t('wk.cardSub')}</Small>
+            <Text style={{ fontFamily: fonts.heavy, fontSize: 15, color: colors.accent, marginTop: 4 }}>{t('wk.open')} →</Text>
+          </Card>
+        </Pressable>
       ) : null}
 
       <StudioCard refresh={studioTick} />
