@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 import { restore, resetSession, userId } from './cloud';
 import type { AppState } from './logic/types';
 import { supabase } from './supabase';
+import { getLang } from './i18n/lang';
 
 // Accounts start anonymous. Adding an email keeps the data when the phone changes; codes arrive by email.
 export type AccountInfo = { email: string | null; anonymous: boolean };
@@ -19,7 +20,7 @@ export const validEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(cl
 // Step 1 of saving the current (anonymous) account: send a code to the email.
 export async function linkEmail(email: string) {
   if (!supabase || !(await userId())) throw new Error('offline');
-  const { error } = await supabase.auth.updateUser({ email: clean(email) });
+  const { error } = await supabase.auth.updateUser({ email: clean(email), data: { lang: getLang() } }); // lang picks the code mail's language
   if (error) throw error;
 }
 export async function confirmLink(email: string, code: string) {
