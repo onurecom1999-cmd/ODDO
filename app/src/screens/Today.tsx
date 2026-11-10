@@ -94,7 +94,7 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
           <H1 style={{ marginTop: 4 }}>{t('today.day', { n: dayNumber(S) })}</H1>
           {S.example ? null : <LevelChip onPress={() => onOpen('level')} />}
         </View>
-        <Pressable accessibilityRole="button" onPress={() => onOpen('reward')}><Ring done={score.done} all={score.all} /></Pressable>
+        <Pressable accessibilityRole="button" onPress={() => onOpen('reward')} style={{ alignItems: 'center', gap: 2 }}><Ring done={score.done} all={score.all} /><Text style={{ fontFamily: fonts.bold, fontSize: 11, color: colors.muted }}>{t('today.ringLabel')}</Text></Pressable>
       </Row>
 
       {away >= 2 && score.done === 0 && !S.example ? (
@@ -162,6 +162,12 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
         </Card>
       ) : null}
 
+      {dayNumber(S, key) <= 2 && !score.perfect && !S.example ? (
+        <Card style={{ gap: 6 }}>
+          <Eyebrow>{t('how.eyebrow')}</Eyebrow>
+          <Small>{t('how.text', { n: score.all })}</Small>
+        </Card>
+      ) : null}
       <CoachBanner onChat={() => onOpen('coachchat')} />
       {S.example ? null : <TrialCard onPro={() => onOpen('pro')} />}
       <SaveNudge onSave={() => onOpen('account')} />

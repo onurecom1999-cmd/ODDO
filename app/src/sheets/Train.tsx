@@ -129,7 +129,7 @@ export function TrainSheet({ onClose }: { onClose: () => void }) {
                     <TextInput accessibilityLabel={unit} keyboardType="number-pad" placeholder={`${pre?.reps ?? (topOf(e.reps) || '')} ${unit}`} placeholderTextColor={colors.dim} defaultValue={v.reps != null ? String(v.reps) : ''} onChangeText={x => setField(k, ex, 'reps', x)} style={inp} />
                     <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: !!v.done }} aria-checked={!!v.done} accessibilityLabel={t('train.set', { n: j + 1 })} onPress={() => tick(e, i, j)}
                       style={{ width: 46, height: 46, borderRadius: 12, borderWidth: 1, borderColor: v.done ? colors.accent : colors.line, backgroundColor: v.done ? colors.accent : colors.surface2, alignItems: 'center', justifyContent: 'center' }}>
-                      {v.done ? <Text style={{ color: colors.ink, fontFamily: fonts.heavy }}>✓</Text> : null}
+                      <Text style={{ color: v.done ? colors.ink : colors.dim, fontFamily: fonts.heavy, fontSize: 18 }}>✓</Text>
                     </Pressable>
                   </View>
                 );
