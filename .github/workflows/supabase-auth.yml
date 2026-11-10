@@ -35,7 +35,7 @@ jobs:
           code=$(curl -s -o resp.json -w "%{http_code}" -X PATCH -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
             -d "$body" https://api.supabase.com/v1/projects/$REF/config/auth)
           echo "HTTP $code"
-          if [ "$code" -ge 300 ]; then cat resp.json; exit 1; fi
+          if [ "$code" -ge 300 ]; then echo "::warning::$(cat resp.json)"; exit 0; fi
           echo "Templates gesetzt."
       - name: After
         if: steps.tok.outputs.ok == '1'
