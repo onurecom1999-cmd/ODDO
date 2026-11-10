@@ -1,6 +1,6 @@
 import type { L3 } from '../i18n/lang';
 
-type Ex = { name: L3; cue?: L3; timed?: boolean };
+type Ex = { name: L3; cue?: L3; timed?: boolean; reps?: string };
 
 // Every exercise the rule-based plan can pick, by id. Plans store ids; names render in the person's language.
 export const EX: Record<string, Ex> = {
@@ -58,6 +58,17 @@ export const EX: Record<string, Ex> = {
   ohp: { name: { de: 'Schulterdrücken mit Langhantel', en: 'Overhead press', tr: 'Overhead press' }, cue: { de: 'Po und Bauch fest, Stange gerade nach oben.', en: 'Glutes and abs tight, bar straight up.', tr: 'Kalça ve karın sıkı, bar dümdüz yukarı.' } },
   back_squat: { name: { de: 'Kniebeugen mit Langhantel', en: 'Barbell back squat', tr: 'Barbell squat' }, cue: { de: 'Brust raus, mindestens bis die Oberschenkel waagerecht sind.', en: 'Chest up, at least to parallel.', tr: 'Göğüs dik, en az paralele kadar.' } },
   deadlift: { name: { de: 'Kreuzheben', en: 'Deadlift', tr: 'Deadlift' }, cue: { de: 'Stange nah am Körper, Rücken bleibt gerade.', en: 'Bar close to your body, back stays straight.', tr: 'Bar vücuda yakın, sırt düz.' } },
+  kb_swing: { name: { de: 'Kettlebell Swings', en: 'Kettlebell swings', tr: 'Kettlebell swing' }, reps: '15–20', cue: { de: 'Kraft aus der Hüfte, nicht aus den Armen. Oben Po fest.', en: 'Power from the hips, not the arms. Squeeze your glutes on top.', tr: 'Güç kalçadan gelsin, kollardan değil. Üstte kalçayı sık.' } },
+  kb_clean: { name: { de: 'Kettlebell Clean, einarmig', en: 'Single-arm kettlebell clean', tr: 'Tek kol kettlebell clean' }, reps: '6–8', cue: { de: 'Pro Seite. Glocke nah am Körper, weich in der Rack-Position landen.', en: 'Per side. Keep the bell close, land softly in the rack.', tr: 'Her taraf. Kettlebell vücuda yakın, rack pozisyonuna yumuşak in.' } },
+  kb_press: { name: { de: 'Kettlebell Press, einarmig', en: 'Single-arm kettlebell press', tr: 'Tek kol kettlebell press' }, cue: { de: 'Pro Seite. Bauch und Po fest, Arm gerade nach oben, Bizeps am Ohr.', en: 'Per side. Brace abs and glutes, press straight up, biceps by your ear.', tr: 'Her taraf. Karın ve kalça sıkı, düz yukarı it, pazı kulak hizasında.' } },
+  kb_floor_press: { name: { de: 'Kettlebell Bodendrücken', en: 'Kettlebell floor press', tr: 'Kettlebell yerde press' }, cue: { de: 'Auf dem Rücken, Ellbogen tippt kurz den Boden.', en: 'On your back, elbow taps the floor.', tr: 'Sırtüstü, dirsek yere hafifçe değsin.' } },
+  kb_row: { name: { de: 'Kettlebell Rudern, einarmig', en: 'Single-arm kettlebell row', tr: 'Tek kol kettlebell row' }, cue: { de: 'Pro Seite. Rücken flach, Ellbogen Richtung Hüfte ziehen.', en: 'Per side. Flat back, pull your elbow to your hip.', tr: 'Her taraf. Sırt düz, dirseği kalçaya doğru çek.' } },
+  kb_deadlift: { name: { de: 'Kettlebell Kreuzheben', en: 'Kettlebell deadlift', tr: 'Kettlebell deadlift' }, cue: { de: 'Hüfte nach hinten, Rücken gerade, Glocke zwischen den Füßen.', en: 'Hips back, straight back, bell between your feet.', tr: 'Kalça geriye, sırt düz, kettlebell ayakların arasında.' } },
+  kb_lunge: { name: { de: 'Goblet Ausfallschritte rückwärts', en: 'Goblet reverse lunges', tr: 'Goblet geri lunge' }, cue: { de: 'Glocke vor der Brust, hinteres Knie fast am Boden.', en: 'Bell at your chest, back knee almost to the floor.', tr: 'Kettlebell göğüste, arka diz neredeyse yerde.' } },
+  kb_getup: { name: { de: 'Turkish Get-up', en: 'Turkish get-up', tr: 'Turkish get-up' }, reps: '2–3', cue: { de: 'Pro Seite. Langsam, Blick immer zur Glocke, Arm bleibt gestreckt.', en: 'Per side. Slow, eyes on the bell, arm stays locked.', tr: 'Her taraf. Yavaş, gözler kettlebell’de, kol hep düz.' } },
+  kb_halo: { name: { de: 'Kettlebell Halo', en: 'Kettlebell halo', tr: 'Kettlebell halo' }, reps: '8', cue: { de: 'Pro Richtung. Glocke eng um den Kopf kreisen, Bauch fest.', en: 'Each direction. Circle the bell close around your head, brace your core.', tr: 'Her yöne. Kettlebell’i başın etrafında yakın çevir, karın sıkı.' } },
+  kb_carry: { name: { de: 'Kettlebell Koffer-Tragen', en: 'Kettlebell suitcase carry', tr: 'Kettlebell bavul taşıma' }, timed: true, cue: { de: 'Aufrecht gehen, nicht zur Glocke kippen. Seite wechseln.', en: 'Walk tall, do not lean to the bell. Switch sides.', tr: 'Dik yürü, kettlebell’e doğru eğilme. Taraf değiştir.' } },
+  kb_snatch: { name: { de: 'Kettlebell Snatch', en: 'Kettlebell snatch', tr: 'Kettlebell snatch' }, reps: '5–8', cue: { de: 'Aus dem Swing nach oben, Glocke dreht weich ums Handgelenk.', en: 'From the swing to overhead, the bell rolls softly over the wrist.', tr: 'Swing’den yukarı, kettlebell bileğin üstüne yumuşak döner.' } },
   finisher: { name: { de: 'Intervall-Finisher: 6 × 30 s schnell, 30 s Pause', en: 'Interval finisher: 6 × 30 s fast, 30 s rest', tr: 'Interval bitiriş: 6 × 30 sn hızlı, 30 sn ara' }, timed: true },
   mobility5: { name: { de: '5 Minuten Mobility für Hüfte und Schultern', en: '5 minutes of hip and shoulder mobility', tr: 'Kalça ve omuz için 5 dakika mobilite' }, timed: true },
 };
@@ -83,18 +94,24 @@ export function isTimed(id: string) { return !!EX[id]?.timed; }
 
 // Equivalent exercises for a quick swap when a machine is taken. Same movement, similar muscles.
 const SWAP: string[][] = [
-  ['chest_press', 'bench', 'incline_db', 'push', 'push_knee', 'dips', 'dips_bench'],
-  ['shoulder_machine', 'ohp', 'pike', 'pike_hold'],
+  ['chest_press', 'bench', 'incline_db', 'kb_floor_press', 'push', 'push_knee', 'dips', 'dips_bench'],
+  ['shoulder_machine', 'ohp', 'kb_press', 'pike', 'pike_hold'],
   ['lat_pulldown', 'pullup', 'chinup', 'pull_neg'],
-  ['cable_row', 'face_pull', 'backpack_row', 'row_aus_up', 'row_table', 'row_towel'],
-  ['leg_press', 'goblet_squat', 'back_squat', 'squat', 'split_squat', 'reverse_lunge', 'squat_chair'],
-  ['rdl', 'leg_curl', 'deadlift', 'glute_bridge', 'glute_bridge_single', 'nordic_neg'],
+  ['cable_row', 'face_pull', 'kb_row', 'backpack_row', 'row_aus_up', 'row_table', 'row_towel'],
+  ['leg_press', 'goblet_squat', 'back_squat', 'kb_lunge', 'squat', 'split_squat', 'reverse_lunge', 'squat_chair'],
+  ['rdl', 'leg_curl', 'deadlift', 'kb_deadlift', 'kb_swing', 'glute_bridge', 'glute_bridge_single', 'nordic_neg'],
+  ['kb_swing', 'kb_clean', 'kb_snatch', 'kb_deadlift'],
+  ['kb_getup', 'kb_halo', 'crunch', 'knee_raise'],
+  ['kb_carry', 'plank', 'hollow'],
   ['cable_crunch', 'plank', 'crunch', 'hollow', 'knee_raise', 'leg_raise'],
   ['calf_raise', 'calf_raise_single'],
 ];
 const EQUIP = new Set(['chest_press', 'bench', 'incline_db', 'shoulder_machine', 'ohp', 'lat_pulldown', 'cable_row', 'face_pull', 'leg_press', 'goblet_squat', 'back_squat', 'rdl', 'leg_curl', 'deadlift', 'cable_crunch']);
-export function swapOptions(id: string, gym: boolean, max = 4) {
-  const group = SWAP.find(g => g.includes(id));
-  if (!group) return [];
-  return group.filter(x => x !== id && EX[x] && !!EX[x].timed === !!EX[id]?.timed && (gym || !EQUIP.has(x))).slice(0, max);
+// A kettlebell is all a kettlebell trainee has; goblet squats and Romanian deadlifts work with it too.
+const KB_OK = new Set(['goblet_squat', 'rdl']);
+export function swapOptions(id: string, style: string, max = 4) {
+  const ok = (x: string) => style === 'gym' || (style === 'kb' ? !EQUIP.has(x) || KB_OK.has(x) : !EQUIP.has(x) && !x.startsWith('kb_'));
+  const seen = new Set<string>();
+  for (const g of SWAP) if (g.includes(id)) for (const x of g) if (x !== id && EX[x] && !!EX[x].timed === !!EX[id]?.timed && ok(x)) seen.add(x);
+  return [...seen].slice(0, max);
 }

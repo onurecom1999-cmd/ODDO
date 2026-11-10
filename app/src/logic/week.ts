@@ -62,7 +62,7 @@ export function exerciseFacts(S: AppState) {
     const nx = e.id ? nextStep(e.id) : '';
     out.push({
       ex: k, name: exName(e), target: `${e.sets} × ${e.reps}`,
-      weighted: S.profile!.style === 'gym' && !(e.id && EX[e.id]?.timed),
+      weighted: (S.profile!.style === 'gym' || S.profile!.style === 'kb') && !(e.id && EX[e.id]?.timed),
       last: h.sets.map(x => ({ kg: x.kg, reps: x.reps })),
       allTop: top > 0 && h.sets.length >= e.sets && h.sets.every(x => (x.reps || 0) >= top),
       next: nx ? exName({ id: nx, sets: 0, reps: '' }) : '',

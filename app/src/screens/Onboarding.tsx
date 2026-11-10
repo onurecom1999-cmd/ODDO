@@ -12,7 +12,7 @@ import { colors, fonts } from '../theme';
 import { Bold, Button, Chip, Chips, Eyebrow, Field, H2, LinkButton, Muted, Row, Screen, Small, Stack, useToast } from '../ui/kit';
 
 const GOALS: Goal[] = ['lose', 'muscle', 'fit', 'skill'];
-const STYLES: Style[] = ['gym', 'home', 'cali'];
+const STYLES: Style[] = ['gym', 'home', 'cali', 'kb'];
 
 // The quick start asks only what the first plan cannot do without: the goal and where the person trains.
 // Everything else starts from typical values and is asked later, when it matters (body details for an exact calorie target).

@@ -15,7 +15,7 @@ import { colors, fonts } from '../theme';
 import { Button, Card, H1, Muted, Sheet, Small, useToast } from '../ui/kit';
 
 export function isWeighted(S: AppState, e: PlanExercise) {
-  return S.profile!.style === 'gym' && !(e.id && EX[e.id]?.timed) && e.id !== 'finisher' && e.id !== 'mobility5';
+  return (S.profile!.style === 'gym' || S.profile!.style === 'kb') && !(e.id && EX[e.id]?.timed) && e.id !== 'finisher' && e.id !== 'mobility5';
 }
 const num = (v: string) => { const n = Number(v.replace(',', '.')); return v.trim() === '' || !(n >= 0) ? undefined : n; };
 
@@ -31,7 +31,7 @@ export function TrainSheet({ onClose }: { onClose: () => void }) {
   const l = peekLog(S, dayKey());
   const total = session.exercises.reduce((a, e) => a + e.sets, 0);
   const done = Object.values(l.sets).filter(x => x?.done).length;
-  const restFor = S.profile!.style === 'gym' ? 90 : 60;
+  const restFor = S.profile!.style === 'gym' ? 90 : S.profile!.style === 'kb' ? 75 : 60;
   const [restEnd, setRestEnd] = useState<number | null>(null);
   const [swapAt, setSwapAt] = useState<number | null>(null);
   const eff = (e: PlanExercise, i: number): PlanExercise => { const id = l.swaps?.[i]; return id ? { ...e, id, name: undefined, note: undefined, extra: undefined } : e; };
@@ -79,11 +79,11 @@ export function TrainSheet({ onClose }: { onClose: () => void }) {
       footer={restEnd ? <RestBar end={restEnd} onChange={setRestEnd} /> : null}>
       <H1>{sessionTitle(session)}</H1>
       <Muted>{t('train.lead')}</Muted>
-      {firstTime && S.profile!.style === 'gym' ? <Card style={{ borderColor: colors.accent }}><Small style={{ color: colors.text }}>{t('train.first')}</Small></Card> : null}
+      {firstTime && (S.profile!.style === 'gym' || S.profile!.style === 'kb') ? <Card style={{ borderColor: colors.accent }}><Small style={{ color: colors.text }}>{t('train.first')}</Small></Card> : null}
       <Card style={{ paddingVertical: 6 }}>
         {session.exercises.map((e0, i) => {
           const e = eff(e0, i);
-          const alts = e.id ? swapOptions(e.id, S.profile!.style === 'gym') : [];
+          const alts = e.id ? swapOptions(e.id, S.profile!.style) : [];
           const ex = exKey(e), w = isWeighted(S, e), timed = !!(e.id && EX[e.id]?.timed);
           const prev = past(S, ex)[0];
           const unit = timed ? t('secShort') : t('repsShort');

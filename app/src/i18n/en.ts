@@ -88,6 +88,8 @@ export const en: Record<Key, string> = {
   'style.home.s': 'Little space, no equipment needed',
   'style.cali': 'Calisthenics',
   'style.cali.s': 'Bodyweight, in the park or with a pull-up bar',
+  'style.kb': 'Kettlebell',
+  'style.kb.s': 'One kettlebell is enough, at home or outside',
   'test.push': 'Push-ups in a row',
   'test.pull': 'Pull-ups in a row',
   'test.legs': 'Squats in a row',

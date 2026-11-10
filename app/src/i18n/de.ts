@@ -87,6 +87,8 @@ export const de = {
   'style.home.s': 'Wenig Platz, kein Gerät nötig',
   'style.cali': 'Calisthenics',
   'style.cali.s': 'Körpergewicht, im Park oder mit Klimmzugstange',
+  'style.kb': 'Kettlebell',
+  'style.kb.s': 'Eine Kettlebell reicht, zuhause oder draußen',
   'test.push': 'Liegestütze am Stück',
   'test.pull': 'Klimmzüge am Stück',
   'test.legs': 'Kniebeugen am Stück',

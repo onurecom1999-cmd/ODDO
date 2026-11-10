@@ -1,7 +1,7 @@
 import { EX, LADDER } from './exercises';
 
 export type Goal = 'lose' | 'muscle' | 'fit' | 'skill';
-export type Style = 'gym' | 'home' | 'cali';
+export type Style = 'gym' | 'home' | 'cali' | 'kb';
 export type Fail = 'time' | 'motivation' | 'results' | 'knowhow' | 'food' | 'pain' | 'alone';
 export type Weak = 'upper' | 'legs' | 'core' | 'cardio' | 'mobility';
 export type TestKey = 'push' | 'pull' | 'legs' | 'core';
@@ -60,7 +60,7 @@ function exercise(id: string, p: Profile, extra?: PlanExercise['extra']): PlanEx
   const reps = timed ? ({ 0: '20 s', 1: '30 s', 2: '45 s', 3: '60 s' } as Record<number, string>)[clamp(levels(p).core, 0, 3)]
     : ({ lose: '12–15', muscle: '8–12', fit: '10–12', skill: '6–10' } as const)[p.goal];
   const sets = p.minutes <= 20 ? 2 : p.goal === 'muscle' && p.minutes >= 60 ? 4 : 3;
-  return { id, sets, reps, ...(extra ? { extra } : {}) };
+  return { id, sets, reps: (!timed && EX[id]?.reps) || reps, ...(extra ? { extra } : {}) };
 }
 
 function pickers(p: Profile) {
@@ -74,6 +74,15 @@ function pickers(p: Profile) {
       pull: ['lat_pulldown', 'cable_row', 'face_pull'],
       legs: [e >= 1 ? 'back_squat' : 'leg_press', e >= 1 ? 'leg_press' : 'goblet_squat', e >= 2 ? 'deadlift' : 'rdl', 'leg_curl'],
       core: ['plank', 'cable_crunch'],
+    };
+  }
+  if (p.style === 'kb') {
+    // Built around swings, cleans, presses and get-ups; one bell is enough.
+    return {
+      push: ['kb_press', 'kb_floor_press', L('push', lv.push)],
+      pull: ['kb_row', 'kb_clean', 'kb_halo'],
+      legs: ['kb_swing', 'goblet_squat', 'kb_deadlift', 'kb_lunge'],
+      core: ['kb_getup', 'kb_carry'],
     };
   }
   if (p.style === 'home') {
@@ -118,6 +127,8 @@ export function basePlan(p: Profile): Session[] {
       list.unshift({ id: LADDER.pull[clamp(levels(p).pull, 0, 3)], sets: 5, reps: '3–5', extra: 'skill' });
       list = list.slice(0, n);
     }
+    // Kettlebell sessions end with mobility, so the joints get something back.
+    if (p.style === 'kb' && list.length >= 5 && !list.some(e => e.id === 'mobility5')) list[list.length - 1] = exercise('mobility5', p);
     if (weak.length) {
       const id = WEAK_EXTRA[weak[i % weak.length]](x);
       if (!list.some(e => e.id === id)) list[list.length - 1] = exercise(id, p, 'weak');

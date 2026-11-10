@@ -88,6 +88,8 @@ export const tr: Record<Key, string> = {
   'style.home.s': 'Az yer, ekipman gerekmez',
   'style.cali': 'Calisthenics',
   'style.cali.s': 'Vücut ağırlığı, parkta ya da barfiks barıyla',
+  'style.kb': 'Kettlebell',
+  'style.kb.s': 'Tek bir kettlebell yeter, evde ya da dışarıda',
   'test.push': 'Arka arkaya şınav',
   'test.pull': 'Arka arkaya barfiks',
   'test.legs': 'Arka arkaya squat',
