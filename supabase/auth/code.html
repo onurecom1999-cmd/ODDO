@@ -1,0 +1,13 @@
+{{ if eq .Data.lang "tr" }}
+<h2>ODDO</h2><p>Giriş kodun:</p>
+<p style="font-size:32px;font-weight:bold;letter-spacing:6px">{{ .Token }}</p>
+<p>Bu kodu uygulamaya gir. Bu e-postayı sen istemediysen, görmezden gelebilirsin.</p>
+{{ else if eq .Data.lang "de" }}
+<h2>ODDO</h2><p>Dein Code:</p>
+<p style="font-size:32px;font-weight:bold;letter-spacing:6px">{{ .Token }}</p>
+<p>Gib ihn in der App ein. Wenn du das nicht warst, ignoriere diese Mail einfach.</p>
+{{ else }}
+<h2>ODDO</h2><p>Your code:</p>
+<p style="font-size:32px;font-weight:bold;letter-spacing:6px">{{ .Token }}</p>
+<p>Enter it in the app. If this wasn't you, just ignore this email.</p>
+{{ end }}

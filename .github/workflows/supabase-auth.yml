@@ -1,0 +1,36 @@
+name: Supabase auth mails
+# Sets the login/confirm mail templates (code instead of link) and prints the current mail settings.
+# Needs repo secret SUPABASE_ACCESS_TOKEN (supabase.com/dashboard/account/tokens).
+on:
+  push:
+    paths: ['supabase/auth/**', '.github/workflows/supabase-auth.yml']
+  workflow_dispatch:
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    env:
+      REF: qtsfdkungnkxxfgigfrs
+      TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check token
+        run: '[ -n "$TOKEN" ] || { echo "::error::Secret SUPABASE_ACCESS_TOKEN fehlt"; exit 1; }'
+      - name: Before
+        run: |
+          curl -sf -H "Authorization: Bearer $TOKEN" https://api.supabase.com/v1/projects/$REF/config/auth \
+          | jq '{smtp_host, smtp_port, smtp_user, smtp_admin_email, smtp_sender_name, mailer_otp_length, mailer_otp_exp, mailer_secure_email_change_enabled, mailer_autoconfirm, external_anonymous_users_enabled, rate_limit_email_sent, subjects: {confirmation: .mailer_subjects_confirmation, change: .mailer_subjects_email_change, magic: .mailer_subjects_magic_link}, change_has_token: (.mailer_templates_email_change_content // "" | contains(".Token")), magic_has_token: (.mailer_templates_magic_link_content // "" | contains(".Token"))}'
+      - name: Apply templates
+        run: |
+          body=$(jq -n --rawfile t supabase/auth/code.html '{
+            mailer_subjects_email_change: "ODDO", mailer_templates_email_change_content: $t,
+            mailer_subjects_magic_link: "ODDO", mailer_templates_magic_link_content: $t,
+            mailer_subjects_confirmation: "ODDO", mailer_templates_confirmation_content: $t,
+            mailer_secure_email_change_enabled: false,
+            smtp_sender_name: "ODDO" }')
+          curl -sf -X PATCH -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+            -d "$body" https://api.supabase.com/v1/projects/$REF/config/auth > /dev/null
+          echo "Templates gesetzt."
+      - name: After
+        run: |
+          curl -sf -H "Authorization: Bearer $TOKEN" https://api.supabase.com/v1/projects/$REF/config/auth \
+          | jq '{smtp_sender_name, mailer_secure_email_change_enabled, change_has_token: (.mailer_templates_email_change_content | contains(".Token")), magic_has_token: (.mailer_templates_magic_link_content | contains(".Token")), confirm_has_token: (.mailer_templates_confirmation_content | contains(".Token"))}'
