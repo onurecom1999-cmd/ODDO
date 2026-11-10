@@ -1,5 +1,6 @@
 import type { DayCard } from '../logic/reward';
 import { colors } from '../theme';
+import { SITE_HOST } from '../site';
 
 // Draws the 1080×1350 share card on a canvas (web). Native uses a view snapshot instead.
 export async function cardImage(c: DayCard, photo: string, upper: (s: string) => string, code?: string | null): Promise<Blob | null> {
@@ -31,6 +32,6 @@ export async function cardImage(c: DayCard, photo: string, upper: (s: string) =>
   if (c.rank) { g.fillStyle = colors.accent; g.font = '40px Inter_800ExtraBold'; g.fillText(c.rank, 80, y); }
   g.font = '32px Inter_600SemiBold'; g.fillStyle = colors.muted; g.fillText(c.footer, 80, H - 80);
   // With the person's invite code, every shared card can bring in a friend.
-  g.textAlign = 'right'; if (code) g.fillStyle = colors.accent; g.fillText(code ? `ODDO · Code ${code}` : 'oddo-app.netlify.app', W - 80, H - 80);
+  g.textAlign = 'right'; if (code) g.fillStyle = colors.accent; g.fillText(code ? `ODDO · Code ${code}` : SITE_HOST, W - 80, H - 80);
   return new Promise(r => cv.toBlob(b => r(b), 'image/png'));
 }

@@ -11,6 +11,7 @@ import * as Sharing from 'expo-sharing';
 import { captureRef } from 'react-native-view-shot';
 import { challengeImage, StoryText } from './challengeImage';
 import { StoryView } from './StoryView';
+import { SITE_HOST } from '../site';
 import { Bar, Body, Bold, Button, Card, Eyebrow, Field, H2, LinkButton, Muted, Row, Sheet, Small, Stack, Stat, useToast } from '../ui/kit';
 
 const dateText = (d: Date) => d.toLocaleDateString(LOCALE[getLang()], { weekday: 'short', day: 'numeric', month: 'long' });
@@ -74,8 +75,8 @@ export function ChallengeResultCard({ onPro }: { onPro: () => void }) {
   const story = async () => {
     const msg = await pic.share({
       kicker: r.name, title, sub: r.team ? t('ch.done.place', { place: r.place, size: r.team_size, team: r.team }) : '',
-      line: t('ch.done.line'), big: 'ONE DAY OR DAY ONE', url: 'oddo-app.netlify.app',
-    }, 'oddo-day-one-result.png', t('ch.done.shareText', { n: r.perfect, days: r.days }));
+      line: t('ch.done.line'), big: 'ONE DAY OR DAY ONE', url: SITE_HOST,
+    }, 'oddo-day-one-result.png', t('ch.done.shareText', { n: r.perfect, days: r.days, url: SITE_HOST }));
     if (msg) toast(msg);
   };
   const close = () => { setHidden(r.id); try { globalThis.localStorage?.setItem(DONE_KEY, r.id); } catch {} };

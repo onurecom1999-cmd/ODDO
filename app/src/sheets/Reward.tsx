@@ -12,6 +12,7 @@ import { Bold, Button, Card as Box, Chip, Chips, Emblem, Field, Muted, Row, Shee
 import { cardImage } from './cardImage';
 import { CommunityError, post } from '../community';
 import { inviteText, useInvite } from './Earn';
+import { SITE_HOST } from '../site';
 
 const upper = (s: string) => s.toLocaleUpperCase(LOCALE[getLang()]);
 
@@ -44,7 +45,7 @@ function Card({ c, photo, width, code }: { c: DayCard; photo: string; width: num
       </View>
       <Row style={{ position: 'absolute', left: px(80), right: px(80), bottom: px(70), justifyContent: 'space-between' }}>
         <Text style={{ fontFamily: fonts.semibold, fontSize: px(32), color: colors.muted }}>{c.footer}</Text>
-        <Text style={{ fontFamily: fonts.semibold, fontSize: px(32), color: code ? colors.accent : colors.muted }}>{code ? `ODDO · Code ${code}` : 'oddo-app.netlify.app'}</Text>
+        <Text style={{ fontFamily: fonts.semibold, fontSize: px(32), color: code ? colors.accent : colors.muted }}>{code ? `ODDO · Code ${code}` : SITE_HOST}</Text>
       </Row>
     </View>
   );

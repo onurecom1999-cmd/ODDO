@@ -1,4 +1,5 @@
 import { userId } from './cloud';
+import { SITE } from './site';
 import { supabase } from './supabase';
 
 // Studios (gyms): members check in with a code, see the crowd and book classes; staff run the studio.
@@ -46,7 +47,7 @@ export const addClass = (id: string, c: { title: string; trainer: string; starts
   rpc<string>('studio_add_class', { p_studio: id, p_title: c.title, p_trainer: c.trainer, p_starts: c.starts.toISOString(), p_minutes: c.minutes, p_capacity: c.capacity });
 export const deleteClass = (id: string) => rpc<void>('studio_delete_class', { p_class: id });
 
-export const studioInvite = (code: string) => `https://oddo-app.netlify.app/app/?studio=${code}`;
+export const studioInvite = (code: string) => `${SITE}/app/?studio=${code}`;
 
 // A studio code from an invite link (?studio=ABC123), kept until the person is set up.
 const KEY = 'oddo.studioCode';

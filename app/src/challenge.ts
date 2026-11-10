@@ -1,4 +1,5 @@
 import { userId } from './cloud';
+import { SITE } from './site';
 import { supabase } from './supabase';
 
 // The Day One Challenge: 30 free days with a fixed start, played in teams of 5.
@@ -31,7 +32,7 @@ export type ChallengeResult = { id: string; name: string; days: number; perfect:
 export const challengeResult = () => rpc<ChallengeResult | null>('challenge_result');
 
 export const TEAM_RE = /^[A-Z2-9]{6}$/;
-export const teamUrl = (code: string) => `https://oddo-app.netlify.app/app/?c=${code}`;
+export const teamUrl = (code: string) => `${SITE}/app/?c=${code}`;
 
 // A team link (?c=ABC234) is kept until the person has an account and opens the challenge.
 const KEY = 'oddo.teamCode';

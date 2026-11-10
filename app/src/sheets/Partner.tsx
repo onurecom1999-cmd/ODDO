@@ -5,7 +5,7 @@ import { Earnings, earnings, FOUNDING_RATE, level, LEVELS, markPaid, MIN_PAYOUT_
 import { colors, fonts } from '../theme';
 import { Bar, Body, Bold, Button, Card, Eyebrow, Field, H2, LinkButton, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
 
-const SITE = 'https://oddo-app.netlify.app';
+import { SITE } from '../site';
 export const money = (cents: number, currency = 'USD') =>
   (cents / 100).toLocaleString(LOCALE[getLang()], { style: 'currency', currency, minimumFractionDigits: 2 });
 // 30 % in German, 30% in English, %30 in Turkish.

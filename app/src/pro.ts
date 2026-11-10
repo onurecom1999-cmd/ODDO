@@ -8,6 +8,7 @@ export type Tier = 'free' | 'pro' | 'ultimate';
 
 // Lemon Squeezy checkout links (public). Empty until the products exist.
 export type Plan = 'pro' | 'proYear' | 'ultimate';
+import { SITE } from './site';
 const CHECKOUT: Record<Plan, string> = {
   pro: process.env.EXPO_PUBLIC_CHECKOUT_PRO || '',
   proYear: process.env.EXPO_PUBLIC_CHECKOUT_PRO_YEAR || '',
@@ -108,7 +109,7 @@ export async function changeSubscription(action: 'cancel' | 'pause' | 'resume'):
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
   if (!token) throw new Error('signin');
-  const base = Platform.OS === 'web' ? '' : 'https://oddo-app.netlify.app';
+  const base = Platform.OS === 'web' ? '' : SITE;
   const res = await fetch(`${base}/.netlify/functions/subscription`, {
     method: 'POST', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: JSON.stringify({ action }),
   });

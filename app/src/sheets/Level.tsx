@@ -65,7 +65,7 @@ export function LevelSheet({ onClose, onRoutines }: { onClose: () => void; onRou
   );
 }
 
-const APP_URL = 'https://oddo-app.netlify.app';
+import { SITE as APP_URL } from '../site';
 export function LevelUpSheet({ onClose }: { onClose: () => void }) {
   const { S } = useApp();
   const L = levelInfo(S);

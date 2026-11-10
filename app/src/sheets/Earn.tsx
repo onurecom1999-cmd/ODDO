@@ -11,7 +11,7 @@ import { Body, Bold, Button, Card, Chip, Chips, Eyebrow, Field, H2, LinkButton, 
 import { EarningsSheet, money, pct } from './Partner';
 import { anyCodeError, joinAnyCode, joinedText } from './Studio';
 
-const SITE = 'https://oddo-app.netlify.app';
+import { SITE } from '../site';
 
 const date = (iso: string) => new Date(iso).toLocaleDateString(LOCALE[getLang()], { day: 'numeric', month: 'short' });
 const num = (n: number) => n.toLocaleString(LOCALE[getLang()]);

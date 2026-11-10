@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import { SITE } from './site';
 import { restore, resetSession, userId } from './cloud';
 import type { AppState } from './logic/types';
 import { supabase } from './supabase';
@@ -47,7 +48,7 @@ export async function confirmLogin(email: string, code: string): Promise<AppStat
   return restore();
 }
 
-const BASE = Platform.OS === 'web' ? '' : 'https://oddo-app.netlify.app';
+const BASE = Platform.OS === 'web' ? '' : SITE;
 // Deletes the account on the server (if there is one) and signs out; the caller clears the device.
 export async function deleteAccount() {
   if (!supabase) return;

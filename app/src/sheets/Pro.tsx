@@ -6,7 +6,7 @@ import { storeBilling, StorePlan, storeBuy, storePrices, storeRestore } from '..
 import { colors, fonts } from '../theme';
 import { Badge, Bold, Button, Card, LinkButton, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
 
-const SITE = 'https://oddo-app.netlify.app';
+import { SITE } from '../site';
 
 // Web prices, in US dollars like the Lemon Squeezy store. In the store apps the store's own price is shown instead.
 export const usd = (n: number) => n.toLocaleString(LOCALE[getLang()], { style: 'currency', currency: 'USD', minimumFractionDigits: n % 1 ? 2 : 0 });

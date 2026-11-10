@@ -22,7 +22,7 @@ import { ManageSubscription } from './Pro';
 import { MyStudioSection } from './Studio';
 import { RoutinesEditSheet } from './Routines';
 
-const SITE = 'https://oddo-app.netlify.app';
+import { SITE } from '../site';
 // WhatsApp number for help, digits with country code (e.g. 905331234567). Without it the help row stays hidden.
 const HELP = (process.env.EXPO_PUBLIC_SUPPORT_WHATSAPP || '').replace(/\D/g, '');
 const WD_ORDER = [1, 2, 3, 4, 5, 6, 0];
@@ -137,7 +137,7 @@ export function SettingsSheet({ onClose, onOpen, initial }: { onClose: () => voi
                 <Chips>
                   {REMINDER_HOURS.map(h => <Chip key={h} label={`${h}:00`} on={S.reminder === h} onPress={() => update(d => { d.reminder = h; })} />)}
                 </Chips>
-                <Button label={t('remind.cal')} disabled={S.reminder == null} onPress={() => { downloadReminderIcs(S.reminder!, t('remind.calTitle'), 'https://oddo-app.netlify.app/app/'); toast(t('remind.calDone')); }} />
+                <Button label={t('remind.cal')} disabled={S.reminder == null} onPress={() => { downloadReminderIcs(S.reminder!, t('remind.calTitle'), `${SITE}/app/`); toast(t('remind.calDone')); }} />
               </Stack>
             )}
           </Section>

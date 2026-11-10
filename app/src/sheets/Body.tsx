@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SITE } from '../site';
 import { Linking } from 'react-native';
 import { getLang, t } from '../i18n';
 import { targets } from '../logic/plan';
@@ -41,7 +42,7 @@ export function BodySheet({ onClose }: { onClose: () => void }) {
           <Field label={t('step.body.weight')} keyboardType="decimal-pad" placeholder="82" value={weight} onChangeText={setWeight} />
         </Row>
         <CheckRow first done={!!consent} title={t('step.consent')} onPress={() => setConsent(consent ? undefined : new Date().toISOString())} />
-        <LinkButton label={t('step.consentLink')} onPress={() => Linking.openURL(`https://oddo-app.netlify.app/datenschutz.html#${getLang()}`)} />
+        <LinkButton label={t('step.consentLink')} onPress={() => Linking.openURL(`${SITE}/datenschutz.html#${getLang()}`)} />
         <Button label={t('body.save')} disabled={!ready} onPress={save} />
       </Stack>
     </Sheet>

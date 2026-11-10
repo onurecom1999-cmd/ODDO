@@ -16,6 +16,7 @@ import { Me } from './src/screens/Me';
 import { Today } from './src/screens/Today';
 import { LiveRecord } from './src/sheets/LiveRecord';
 import { Icon } from './src/ui/icons';
+import { CrashGuard } from './src/ui/Crash';
 import { SettingsPage, SettingsSheet } from './src/sheets/Settings';
 import { ChatSheet, CoachSheet, useCoachSync } from './src/sheets/Coach';
 import { BusinessSheet, useStartCode, useStudioSync } from './src/sheets/Studio';
@@ -54,6 +55,11 @@ export default function App() {
   useEffect(() => { const id = setTimeout(() => setFontWait(false), 2500); return () => clearTimeout(id); }, []);
   const loaded = fontsLoaded || !!fontError || !fontWait;
   const [initial, setInitial] = useState<AppState | null>(null);
+  // Web: keep the app openable without a connection once it was loaded (not on the local dev server).
+  useEffect(() => {
+    if (Platform.OS !== 'web' || !('serviceWorker' in navigator) || ['localhost', '127.0.0.1'].includes(location.hostname)) return;
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }, []);
   useEffect(() => {
     loadState().then(s => { setLang(s.lang ?? detectLang()); setInitial(s); });
   }, []);
@@ -62,11 +68,13 @@ export default function App() {
       <StatusBar style="light" />
       <View style={{ flex: 1, backgroundColor: colors.bg }}>
         {loaded && initial ? (
-          <ToastProvider>
-            <StateProvider initial={initial}>
-              <Root />
-            </StateProvider>
-          </ToastProvider>
+          <CrashGuard>
+            <ToastProvider>
+              <StateProvider initial={initial}>
+                <Root />
+              </StateProvider>
+            </ToastProvider>
+          </CrashGuard>
         ) : (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator color={colors.accent} /></View>
         )}

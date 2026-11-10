@@ -1,4 +1,5 @@
 import { userId } from './cloud';
+import { SITE } from './site';
 import { supabase } from './supabase';
 
 // Partner program: trainers and studios earn a share of what the people they bring in pay.
@@ -36,7 +37,7 @@ export const markPaid = (id: string) => rpc<number>('admin_mark_paid', { p_partn
 
 // Everyone's own invite code: a friend gets a free Pro month, the person earns the same share as a trainer.
 export const INVITE_RE = /^[A-Z2-9]{7}$/;
-export const inviteUrl = (code: string) => `https://oddo-app.netlify.app/app/?r=${code}`;
+export const inviteUrl = (code: string) => `${SITE}/app/?r=${code}`;
 export const myInvite = () => rpc<{ code: string }>('my_invite').then(r => r.code);
 export const redeemInvite = (code: string) => rpc<{ name: string }>('redeem_invite', { p_code: code });
 

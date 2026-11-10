@@ -1,8 +1,9 @@
 import { Platform } from 'react-native';
+import { SITE } from './site';
 import { supabase } from './supabase';
 
 // The ODDO server function that talks to Claude. The API key lives only on the server.
-const BASE = Platform.OS === 'web' ? '' : 'https://oddo-app.netlify.app';
+const BASE = Platform.OS === 'web' ? '' : SITE;
 const ENDPOINT = `${BASE}/.netlify/functions/ai`;
 
 export type FoodEstimate = { name: string; items: { name: string; grams: number }[]; kcal: number; protein: number; carbs: number; fat: number; confidence: string; hint: string };

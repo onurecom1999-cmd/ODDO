@@ -9,7 +9,7 @@ import { Body, Bold, Button, Card, Chip, Chips, Field, H1, H2, LinkButton, Muted
 import { EarnTeaser } from '../sheets/Earn';
 import { ChallengeCard } from '../sheets/Challenge';
 
-const APP_URL = 'https://oddo-app.netlify.app';
+import { SITE as APP_URL } from '../site';
 type Scope = 'foryou' | 'friends' | 'near';
 
 export function errText(e: unknown) {

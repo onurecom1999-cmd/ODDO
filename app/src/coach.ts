@@ -48,7 +48,8 @@ export const setClientPlan = (id: string, sessions: Session[], note: string) =>
 export const chat = (other: string) => rpc<ChatMessage[]>('coach_chat', { p_other: other });
 export const send = (other: string, body: string) => rpc<void>('coach_send', { p_other: other, p_body: body.trim().slice(0, 1000) });
 
-export const SITE = 'https://oddo-app.netlify.app';
+import { SITE } from './site';
+export { SITE };
 export const inviteLink = (code: string) => `${SITE}/app/?coach=${code}`;
 
 // A code from an invite link (?coach=ABC123), kept until the person has an account and joins.
