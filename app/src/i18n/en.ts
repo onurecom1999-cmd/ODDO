@@ -236,6 +236,12 @@ export const en: Record<Key, string> = {
   'train.set': 'Set {n}',
   'train.finish': 'Finish session · {done}/{total}',
   'train.finished': 'Done. +{n} kcal training bonus for today.',
+  'train.how': 'How to ▸',
+  'train.howQ': 'proper form tutorial',
+  'train.first': 'First time? Pick a weight where the last 2 reps are hard but clean. After each set the rest timer starts on its own.',
+  'train.rest': 'Rest',
+  'train.restGo': 'Next set!',
+  'train.skip': 'Skip',
   'rank.line': 'Stronger than {n} % of lifters',
   'rank.pr': 'New personal best.',
   // food

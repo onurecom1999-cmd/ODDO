@@ -1,4 +1,6 @@
-import { Pressable, Text, TextInput, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Linking, Platform, Pressable, Text, TextInput, Vibration, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fmt1, t } from '../i18n';
 import { dayKey, peekLog, sessionFor } from '../logic/day';
 import { EX } from '../logic/exercises';
@@ -18,6 +20,9 @@ const num = (v: string) => { const n = Number(v.replace(',', '.')); return v.tri
 
 export function rankLine(S: AppState, key: string, v: number) { return t('rank.line', { n: percentile(S, key, v) }); }
 
+// Earlier sessions only: today's ticked sets are not "last time".
+const past = (S: AppState, ex: string) => history(S, ex).filter(h => h.date < dayKey());
+
 export function TrainSheet({ onClose }: { onClose: () => void }) {
   const { S, update } = useApp();
   const toast = useToast();
@@ -25,6 +30,9 @@ export function TrainSheet({ onClose }: { onClose: () => void }) {
   const l = peekLog(S, dayKey());
   const total = session.exercises.reduce((a, e) => a + e.sets, 0);
   const done = Object.values(l.sets).filter(x => x?.done).length;
+  const restFor = S.profile!.style === 'gym' ? 90 : 60;
+  const [restEnd, setRestEnd] = useState<number | null>(null);
+  const firstTime = !session.exercises.some(e => past(S, exKey(e)).length);
 
   const setField = (k: string, ex: string, f: 'kg' | 'reps', v: string) => update(d => {
     const L = dayLog(d); const cur: SetEntry = L.sets[k] || { ex };
@@ -35,7 +43,7 @@ export function TrainSheet({ onClose }: { onClose: () => void }) {
 
   const tick = (e: PlanExercise, i: number, j: number) => {
     const k = `${i}.${j}`, ex = exKey(e);
-    const prev = history(S, ex)[0], pre = prev?.sets[j];
+    const prev = past(S, ex)[0], pre = prev?.sets[j];
     const cur: SetEntry = { ...(l.sets[k] || {}), ex };
     if (!cur.done) {
       // An untouched field takes the placeholder: last time's value or the plan's target.
@@ -49,6 +57,7 @@ export function TrainSheet({ onClose }: { onClose: () => void }) {
       if (v > 0) toast(best && v > best.v ? `${t('rank.pr')} ${rankLine(S, sk, v)}.` : `${rankLine(S, sk, v)}.`);
     }
     update(d => { dayLog(d).sets[k] = cur; });
+    setRestEnd(cur.done ? Date.now() + restFor * 1000 : null);
   };
 
   const finish = () => {
@@ -58,13 +67,15 @@ export function TrainSheet({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <Sheet visible title={`${S.profile!.minutes} ${t('minShort')}`} onClose={onClose}>
+    <Sheet visible title={`${S.profile!.minutes} ${t('minShort')}`} onClose={onClose}
+      footer={restEnd ? <RestBar end={restEnd} onChange={setRestEnd} /> : null}>
       <H1>{sessionTitle(session)}</H1>
       <Muted>{t('train.lead')}</Muted>
+      {firstTime && S.profile!.style === 'gym' ? <Card style={{ borderColor: colors.accent }}><Small style={{ color: colors.text }}>{t('train.first')}</Small></Card> : null}
       <Card style={{ paddingVertical: 6 }}>
         {session.exercises.map((e, i) => {
           const ex = exKey(e), w = isWeighted(S, e), timed = !!(e.id && EX[e.id]?.timed);
-          const prev = history(S, ex)[0];
+          const prev = past(S, ex)[0];
           const unit = timed ? t('secShort') : t('repsShort');
           const sk = stdKey(ex);
           const best = sk ? Object.values(l.sets).filter(x => x?.done && x.ex === ex).reduce((a, x) => Math.max(a, score(sk, x.kg, x.reps)), 0) : 0;
@@ -73,6 +84,9 @@ export function TrainSheet({ onClose }: { onClose: () => void }) {
               <View style={{ gap: 3 }}>
                 <Text style={{ color: colors.text, fontFamily: fonts.bold, fontSize: 17 }}>{exName(e)}</Text>
                 <Small>{t('train.target', { sets: e.sets, reps: e.reps })}{exNote(e) ? ' · ' + exNote(e) : ''}</Small>
+                <Pressable accessibilityRole="link" hitSlop={6} onPress={() => Linking.openURL('https://www.youtube.com/results?search_query=' + encodeURIComponent(`${exName(e)} ${t('train.howQ')}`))}>
+                  <Text style={{ color: colors.accent, fontFamily: fonts.bold, fontSize: 13 }}>{t('train.how')}</Text>
+                </Pressable>
                 {prev ? <Small style={{ color: colors.text }}>{t('train.last')} {prev.sets.map(x => (w && x.kg ? `${fmt1(x.kg)} kg × ` : '') + (x.reps ?? '')).join(', ')}</Small> : null}
                 {best ? <Text style={{ color: colors.accent, fontFamily: fonts.bold, fontSize: 13 }}>{rankLine(S, sk!, best)}</Text> : null}
               </View>
@@ -96,7 +110,39 @@ export function TrainSheet({ onClose }: { onClose: () => void }) {
         })}
       </Card>
       <Button label={t('train.finish', { done, total })} disabled={done < Math.ceil(total / 2)} onPress={finish} />
+      {restEnd ? <View style={{ height: 90 }} /> : null}
     </Sheet>
+  );
+}
+
+// Rest countdown pinned to the bottom after each ticked set; buzzes when it is over.
+function RestBar({ end, onChange }: { end: number; onChange: (v: number | null) => void }) {
+  const insets = useSafeAreaInsets();
+  const [now, setNow] = useState(Date.now());
+  const left = Math.max(0, Math.ceil((end - now) / 1000));
+  useEffect(() => { const id = setInterval(() => setNow(Date.now()), 250); return () => clearInterval(id); }, []);
+  useEffect(() => {
+    if (left > 0) return;
+    if (Platform.OS === 'web') (navigator as any).vibrate?.([200, 100, 200]); else Vibration.vibrate([0, 200, 100, 200]);
+    const id = setTimeout(() => onChange(null), 2500);
+    return () => clearTimeout(id);
+  }, [left === 0]);
+  const mm = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
+  const btn = (label: string, f: () => void) => (
+    <Pressable accessibilityRole="button" onPress={f} style={{ paddingVertical: 10, paddingHorizontal: 14, borderRadius: 999, backgroundColor: 'rgba(0,0,0,0.12)' }}>
+      <Text style={{ color: colors.ink, fontFamily: fonts.bold, fontSize: 14 }}>{label}</Text>
+    </Pressable>
+  );
+  return (
+    <View style={{ position: 'absolute', left: 12, right: 12, bottom: insets.bottom + 12, backgroundColor: colors.accent, borderRadius: 18, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+      <View style={{ flex: 1 }}>
+        <Text style={{ color: colors.ink, fontFamily: fonts.heavy, fontSize: 11, letterSpacing: 1, textTransform: 'uppercase' }}>{left ? t('train.rest') : t('train.restGo')}</Text>
+        <Text style={{ color: colors.ink, fontFamily: fonts.display, fontSize: 30 }}>{left ? mm : '0:00'}</Text>
+      </View>
+      {left ? btn('−15', () => onChange(end - 15000)) : null}
+      {left ? btn('+15', () => onChange(end + 15000)) : null}
+      {btn(t('train.skip'), () => onChange(null))}
+    </View>
   );
 }
 

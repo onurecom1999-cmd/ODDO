@@ -235,6 +235,12 @@ export const de = {
   'train.set': 'Satz {n}',
   'train.finish': 'Einheit abschließen · {done}/{total}',
   'train.finished': 'Geschafft. +{n} kcal Trainingsbonus für heute.',
+  'train.how': "So geht's ▸",
+  'train.howQ': 'richtig ausführen Technik',
+  'train.first': 'Erstes Mal? Nimm ein Gewicht, bei dem die letzten 2 Wiederholungen schwer werden, aber sauber gehen. Nach jedem Satz läuft automatisch die Pause.',
+  'train.rest': 'Pause',
+  'train.restGo': "Weiter geht's!",
+  'train.skip': 'Weiter',
   'rank.line': 'Stärker als {n} % der Trainierenden',
   'rank.pr': 'Neue Bestleistung.',
   // food

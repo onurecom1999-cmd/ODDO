@@ -127,8 +127,10 @@ export function basePlan(p: Profile): Session[] {
 }
 
 // Training weekdays (0 = Sunday) for a number of days per week.
-export function schedule(days: number) {
-  return ({ 2: [1, 4], 3: [1, 3, 5], 4: [1, 2, 4, 5], 5: [1, 2, 3, 5, 6], 6: [1, 2, 3, 4, 5, 6] } as Record<number, number[]>)[days] || [1, 3, 5];
+// The pattern starts on the weekday the user starts, so day 1 is always a training day.
+export function schedule(days: number, start = new Date().getDay()) {
+  const base = ({ 2: [1, 4], 3: [1, 3, 5], 4: [1, 2, 4, 5], 5: [1, 2, 3, 5, 6], 6: [1, 2, 3, 4, 5, 6] } as Record<number, number[]>)[days] || [1, 3, 5];
+  return base.map(d => (d - 1 + start + 7) % 7).sort((a, b) => a - b);
 }
 
 // Mifflin-St Jeor with a light activity factor, adjusted for the goal.

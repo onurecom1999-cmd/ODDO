@@ -236,6 +236,12 @@ export const tr: Record<Key, string> = {
   'train.set': 'Set {n}',
   'train.finish': 'Antrenmanı bitir · {done}/{total}',
   'train.finished': 'Başardın. Bugün için +{n} kcal antrenman bonusu.',
+  'train.how': 'Nasıl yapılır ▸',
+  'train.howQ': 'nasıl yapılır doğru form',
+  'train.first': 'İlk kez mi? Son 2 tekrarın zor ama temiz olduğu bir ağırlık seç. Her setten sonra mola otomatik başlar.',
+  'train.rest': 'Mola',
+  'train.restGo': 'Devam!',
+  'train.skip': 'Geç',
   'rank.line': 'Antrenman yapanların %{n} kadarından daha güçlü',
   'rank.pr': 'Yeni kişisel rekor.',
   // food

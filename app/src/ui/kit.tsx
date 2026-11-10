@@ -88,7 +88,7 @@ export function Screen({ children, padBottom = 120, scrollRef }: { children: Rea
   );
 }
 
-export function Sheet({ visible, title, onClose, children }: { visible: boolean; title: string; onClose: () => void; children: ReactNode }) {
+export function Sheet({ visible, title, onClose, children, footer }: { visible: boolean; title: string; onClose: () => void; children: ReactNode; footer?: ReactNode }) {
   const insets = useSafeAreaInsets();
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose} transparent={false}>
@@ -102,6 +102,7 @@ export function Sheet({ visible, title, onClose, children }: { visible: boolean;
             {children}
           </View>
         </ScrollView>
+        {footer}
         <ToastHost />
       </View>
     </Modal>
