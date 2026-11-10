@@ -112,6 +112,14 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
         </Card>
       ) : null}
 
+      {!score.perfect && n >= 2 && hour >= 17 && !run.savedRecently && !S.example ? (
+        <Card style={{ gap: 4, borderColor: colors.accent }}>
+          <Eyebrow>{t('risk.eyebrow')}</Eyebrow>
+          <Text style={{ fontFamily: fonts.heavy, fontSize: 18, color: colors.text }}>{t(score.all - score.done === 1 ? 'risk.title1' : 'risk.title', { n, left: score.all - score.done })}</Text>
+          <Small>{t('risk.sub')}</Small>
+        </Card>
+      ) : null}
+
       {score.perfect ? (
         <Card style={{ borderColor: colors.accent, gap: 14 }}>
           <Row style={{ gap: 14 }}>

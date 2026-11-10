@@ -14,7 +14,7 @@ export async function setReminder(hour: number | null): Promise<boolean> {
   if (!remindersSupported) return false;
   // Everything scheduled except the free-month reminder; older versions scheduled the daily one without a name.
   const all = await Notifications.getAllScheduledNotificationsAsync().catch(() => []);
-  await Promise.all(all.filter(n => n.identifier !== TRIAL_ID && n.identifier !== CHALLENGE_ID).map(n => Notifications.cancelScheduledNotificationAsync(n.identifier).catch(() => {})));
+  await Promise.all(all.filter(n => n.identifier !== TRIAL_ID && n.identifier !== CHALLENGE_ID && !n.identifier.startsWith('nudge-')).map(n => Notifications.cancelScheduledNotificationAsync(n.identifier).catch(() => {})));
   if (hour == null) return true;
   const perm = await Notifications.requestPermissionsAsync().catch(() => null);
   if (!perm?.granted) return false;
@@ -61,4 +61,25 @@ export async function remindChallengeStart(start: string) {
     content: { title: 'ODDO', body: t('ch.push') },
     trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: at },
   }).catch(() => {});
+}
+
+// Nudges that follow what the person did, rescheduled on every change while the app is open:
+// a streak saver tonight if today is still open, and two come-back messages if the app stays closed.
+// Only when notifications are already allowed and the daily reminder was not turned off.
+export async function syncNudges(o: { streak: number; perfect: boolean; level: number; hour: number; off: boolean }) {
+  if (!remindersSupported) return;
+  const ids = ['nudge-streak', 'nudge-back2', 'nudge-back5'];
+  await Promise.all(ids.map(id => Notifications.cancelScheduledNotificationAsync(id).catch(() => {})));
+  if (o.off) return;
+  const perm = await Notifications.getPermissionsAsync().catch(() => null);
+  if (!perm?.granted) return;
+  const at = (days: number, h: number, m = 0) => { const d = new Date(); d.setDate(d.getDate() + days); d.setHours(h, m, 0, 0); return d; };
+  const plan: [string, Date, string][] = [];
+  const tonight = at(0, 20, 30);
+  if (o.streak >= 2 && !o.perfect && tonight.getTime() > Date.now() + 10 * 60e3) plan.push(['nudge-streak', tonight, t('nudge.streak', { n: o.streak })]);
+  plan.push(['nudge-back2', at(2, o.hour), t('nudge.back2', { n: o.level })]);
+  plan.push(['nudge-back5', at(5, o.hour), t('nudge.back5')]);
+  for (const [identifier, date, body] of plan) {
+    await Notifications.scheduleNotificationAsync({ identifier, content: { title: 'ODDO', body }, trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date } }).catch(() => {});
+  }
 }

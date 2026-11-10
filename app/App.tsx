@@ -6,7 +6,7 @@ import { ActivityIndicator, Platform, Pressable, ScrollViewInstance, Text, View 
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontFiles } from './src/fontFiles';
 import { detectLang, Key, setLang, t } from './src/i18n';
-import { dayKey, dayScore, streak } from './src/logic/day';
+import { dayKey, dayScore, streak, streakInfo } from './src/logic/day';
 import { exampleState } from './src/logic/example';
 import { AppState, CardioType, emptyState } from './src/logic/types';
 import { Logo, Onboarding } from './src/screens/Onboarding';
@@ -20,7 +20,7 @@ import { SettingsPage, SettingsSheet } from './src/sheets/Settings';
 import { ChatSheet, CoachSheet, useCoachSync } from './src/sheets/Coach';
 import { BusinessSheet, useStartCode, useStudioSync } from './src/sheets/Studio';
 import { TourSheet } from './src/sheets/Tour';
-import { remindersSupported } from './src/reminders';
+import { remindersSupported, syncNudges } from './src/reminders';
 import { EarnSheet } from './src/sheets/Earn';
 import { BizHome } from './src/screens/BizHome';
 import { CardioSheet } from './src/sheets/Cardio';
@@ -132,6 +132,13 @@ function Main() {
     update(d => { d.levelSeen = level; });
     setSheet('levelup');
   }, [level, sheet]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Streak saver and come-back nudges follow the day's state (phone only); debounced so ticking items does not reschedule each time.
+  const streakNow = S.plan && !S.example ? streakInfo(S).n : 0;
+  useEffect(() => {
+    if (!S.plan || S.example) return;
+    const id = setTimeout(() => { syncNudges({ streak: streakNow, perfect, level, hour: S.reminder ?? 18, off: S.reminder === null }).catch(() => {}); }, 3000);
+    return () => clearTimeout(id);
+  }, [streakNow, perfect, level, S.reminder]); // eslint-disable-line react-hooks/exhaustive-deps
   // After a week of perfect days, people are happiest with the app: ask once for a store rating, after they closed their day card.
   // The store decides whether it actually shows the dialog.
   const askReview = () => {
