@@ -36,13 +36,15 @@ async function serverTier(): Promise<Tier> {
   ]);
   // Trainers and studios get Pro; people who joined one get it for their free month.
   const viaCoach: Tier = perks?.partner || perks?.free_until ? 'pro' : 'free';
-  if (!data) return viaCoach;
+  const viaIdea: Tier = perks?.ultimate_until ? 'ultimate' : 'free';
+  if (!data) return best(viaCoach, viaIdea);
   const live = ['on_trial', 'active', 'past_due'].includes(data.status) || (data.status === 'cancelled' && data.ends_at && new Date(data.ends_at) > new Date());
-  return best(live ? (data.tier as Tier) : 'free', viaCoach);
+  return best(best(live ? (data.tier as Tier) : 'free', viaCoach), viaIdea);
 }
 
+// ultimate_until: 3 months of Ultimate for an idea that got built.
 // bonus: a free month for bringing in a friend who pays. week: the free Pro week every new person gets; week_over once it ended.
-export type Perks = { partner: boolean; free_until: string | null; via: string | null; bonus?: boolean; week?: boolean; week_over?: boolean };
+export type Perks = { partner: boolean; free_until: string | null; via: string | null; bonus?: boolean; week?: boolean; week_over?: boolean; ultimate_until?: string | null };
 export async function partnerPerks(): Promise<Perks | null> {
   if (!supabase || !(await userId())) return null;
   const { data, error } = await supabase.rpc('partner_perks');

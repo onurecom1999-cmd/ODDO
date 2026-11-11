@@ -308,6 +308,13 @@ export function Community({ onOpen }: { onOpen: (sheet: string) => void }) {
           </Chips>
           {tab === 'groups' ? <Groups /> : <Feed />}
           <EarnTeaser onOpen={() => onOpen('earn')} />
+          <Pressable accessibilityRole="button" onPress={() => onOpen('idea')}>
+            <Card style={{ gap: 4 }}>
+              <Bold>{t('idea.cardH')}</Bold>
+              <Small>{t('idea.cardSub')}</Small>
+              <Text style={{ color: colors.accent, fontFamily: fonts.bold, fontSize: 14, marginTop: 4 }}>{t('idea.cardCta')}</Text>
+            </Card>
+          </Pressable>
         </>
       )}
     </Stack>

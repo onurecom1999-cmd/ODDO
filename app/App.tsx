@@ -23,6 +23,7 @@ import { BusinessSheet, useStartCode, useStudioSync } from './src/sheets/Studio'
 import { TourSheet } from './src/sheets/Tour';
 import { remindersSupported, syncNudges } from './src/reminders';
 import { EarnSheet } from './src/sheets/Earn';
+import { IdeaSheet } from './src/sheets/Idea';
 import { BizHome } from './src/screens/BizHome';
 import { CardioSheet } from './src/sheets/Cardio';
 import { CreatorSheet } from './src/sheets/Creator';
@@ -206,6 +207,7 @@ function Main() {
       {sheet === 'body' ? <BodySheet onClose={close} /> : null}
       {sheet === 'weekover' ? <WeekOverSheet onClose={close} onPro={() => setSheet('pro')} /> : null}
       {sheet === 'earn' ? <EarnSheet onClose={close} /> : null}
+      {sheet === 'idea' ? <IdeaSheet onClose={close} /> : null}
       {sheet === 'coach' ? <CoachSheet onClose={close} /> : null}
       {sheet === 'tour' ? <TourSheet remindOnly onClose={() => { close(); update(d => { d.tour = TOUR; }); }}
         onBusiness={() => { update(d => { d.tour = TOUR; }); setSheet('business'); }}

@@ -21,12 +21,13 @@ import { AdminPayouts } from './Partner';
 import { ManageSubscription } from './Pro';
 import { MyStudioSection } from './Studio';
 import { RoutinesEditSheet } from './Routines';
+import { AdminIdeas } from './Idea';
 
 import { SITE } from '../site';
 // WhatsApp number for help, digits with country code (e.g. 905331234567). Without it the help row stays hidden.
 const HELP = (process.env.EXPO_PUBLIC_SUPPORT_WHATSAPP || '').replace(/\D/g, '');
 const WD_ORDER = [1, 2, 3, 4, 5, 6, 0];
-export type SettingsPage = 'routines' | 'days' | 'targets' | 'remind' | 'lang' | 'coach' | 'studio' | 'account' | 'payouts' | 'clips' | 'growth' | 'subscription';
+export type SettingsPage = 'routines' | 'days' | 'targets' | 'remind' | 'lang' | 'coach' | 'studio' | 'account' | 'payouts' | 'clips' | 'growth' | 'subscription' | 'ideas';
 
 // Settings as a short menu; each row opens its own page.
 export function SettingsSheet({ onClose, onOpen, initial }: { onClose: () => void; onOpen: (sheet: string) => void; initial?: SettingsPage }) {
@@ -68,7 +69,7 @@ export function SettingsSheet({ onClose, onOpen, initial }: { onClose: () => voi
   const back = () => setPage(null);
   const pageTitle: Record<SettingsPage, string> = {
     routines: t('set.routines'), days: t('set.days'), targets: t('set.targets'), remind: t('remind.title'), lang: t('plan.language'),
-    coach: t('coach.mine'), studio: t('studio.mineSet'), account: t('set.account'), payouts: t('payouts.title'), clips: t('clips.title'), growth: t('growth.title'), subscription: t('manage.title'),
+    coach: t('coach.mine'), studio: t('studio.mineSet'), account: t('set.account'), payouts: t('payouts.title'), clips: t('clips.title'), growth: t('growth.title'), subscription: t('manage.title'), ideas: t('idea.adminTitle'),
   };
   const days = WD_ORDER.filter(d => P.schedule.includes(d)).map(d => weekday(d)).join(', ');
 
@@ -155,6 +156,8 @@ export function SettingsSheet({ onClose, onOpen, initial }: { onClose: () => voi
           </Section>
         ) : page === 'payouts' ? (
           <AdminPayouts />
+        ) : page === 'ideas' ? (
+          <AdminIdeas />
         ) : page === 'clips' ? (
           <AdminClips />
         ) : page === 'growth' ? (
@@ -206,6 +209,7 @@ export function SettingsSheet({ onClose, onOpen, initial }: { onClose: () => voi
           <View style={{ flex: 1, gap: 2 }}>
             <Bold style={{ fontSize: 18 }}>{S.profile?.name || t('set.noName')}</Bold>
             <Small>{tier === 'free' ? t('set.tierFree') : tier === 'pro' ? 'ODDO Pro' : 'ODDO Ultimate'} · {acc?.email ? acc.email : t('set.notSaved')}</Small>
+            {perks?.ultimate_until ? <Small style={{ color: colors.accent }}>{t('idea.until', { date: new Date(perks.ultimate_until).toLocaleDateString(LOCALE[getLang()], { day: 'numeric', month: 'long' }) })}</Small> : null}
             {perks?.free_until && !perks.partner ? (
               <Small style={{ color: colors.accent }}>{t(perks.via ? 'partner.freeUntil' : 'partner.bonusUntil', { date: new Date(perks.free_until).toLocaleDateString(LOCALE[getLang()], { day: 'numeric', month: 'long' }), via: perks.via || '' })}</Small>
             ) : null}
@@ -235,11 +239,13 @@ export function SettingsSheet({ onClose, onOpen, initial }: { onClose: () => voi
           {S.example ? null : <MenuRow icon="gift" label={t('earn.title')} value={t('earn.row')} onPress={() => go('earn')} accent />}
           <MenuRow icon="star" label="ODDO Pro" value={tier === 'free' ? t('set.proSee') : t('set.proActive')} onPress={() => go('pro')} accent={tier === 'free'} />
           {liveSub(sub) || sub?.status === 'paused' ? <MenuRow icon="calendar" label={t('manage.title')} value={t('manage.row')} onPress={() => setPage('subscription')} /> : null}
+          {S.example ? null : <MenuRow icon="gift" label={t('idea.row')} value={t('idea.rowSub')} onPress={() => go('idea')} />}
           {HELP ? <MenuRow icon="coach" label={t('help.row')} value={t('help.value')} onPress={() => Linking.openURL(`https://wa.me/${HELP}?text=${encodeURIComponent(t('help.text'))}`)} /> : null}
           {S.example ? null : <MenuRow icon="shield" label={t('acc.cta')} value={acc?.email ? '✓' : t('set.notSaved')} onPress={() => go('account')} />}
           {admin ? <MenuRow icon="briefcase" label={t('payouts.title')} value="" onPress={() => setPage('payouts')} /> : null}
           {admin ? <MenuRow icon="flame" label={t('growth.title')} value="" onPress={() => setPage('growth')} /> : null}
           {admin ? <MenuRow icon="video" label={t('clips.title')} value="" onPress={() => setPage('clips')} /> : null}
+          {admin ? <MenuRow icon="star" label={t('idea.adminTitle')} value="" onPress={() => setPage('ideas')} /> : null}
           <MenuRow icon="settings" label={t('set.more')} value="" onPress={() => setPage('account')} />
         </Group>
       </Stack>

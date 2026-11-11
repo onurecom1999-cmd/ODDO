@@ -927,6 +927,15 @@ $$;
 revoke execute on function public.start_trial() from public, anon;
 grant execute on function public.start_trial() to authenticated;
 
+-- Ultimate earned with a built idea (the ideas table is created further down; plpgsql resolves it at call time).
+create or replace function public.idea_reward_until(p_user uuid) returns timestamptz
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if to_regclass('public.ideas') is null then return null; end if;
+  return (select max(reward_until) from ideas where user_id = p_user and reward_until > now());
+end $$;
+revoke execute on function public.idea_reward_until(uuid) from public, anon, authenticated;
+
 -- What the app needs about a person's free Pro: as a partner, in the free month after joining one, or in the Pro week.
 create or replace function public.partner_perks() returns jsonb
 language sql stable security definer set search_path = public as $$
@@ -942,7 +951,8 @@ language sql stable security definer set search_path = public as $$
             from referrals r where r.user_id = auth.uid() and r.free_until > now()),
     'bonus', exists (select 1 from partners where user_id = auth.uid() and bonus_until > now()),
     'week', exists (select 1 from pro_trials where user_id = auth.uid() and until > now()),
-    'week_over', exists (select 1 from pro_trials where user_id = auth.uid() and until <= now()))
+    'week_over', exists (select 1 from pro_trials where user_id = auth.uid() and until <= now()),
+    'ultimate_until', public.idea_reward_until(auth.uid()))
 $$;
 
 -- The partner's earnings page.
@@ -1499,3 +1509,66 @@ language sql stable security definer set search_path = public as $$
 $$;
 revoke execute on function public.my_creator_stats() from public, anon;
 grant execute on function public.my_creator_stats() to authenticated;
+
+-- Ideas for ODDO from the people who use it. An idea Onur builds earns 3 months of Ultimate for free
+-- and the person's name in the update notes (if they want it there).
+create table if not exists public.ideas (
+  id bigint generated always as identity primary key,
+  user_id uuid not null references auth.users on delete cascade,
+  body text not null check (length(body) between 10 and 1000),
+  credit text check (length(credit) <= 40),
+  lang text,
+  status text not null default 'new' check (status in ('new', 'planned', 'built', 'no')),
+  reward_until timestamptz,
+  created_at timestamptz not null default now(),
+  decided_at timestamptz
+);
+create index if not exists ideas_user on public.ideas (user_id, created_at desc);
+alter table public.ideas enable row level security;
+
+create or replace function public.submit_idea(p_body text, p_credit text default null, p_lang text default null) returns bigint
+language plpgsql security definer set search_path = public as $$
+declare v bigint;
+begin
+  if auth.uid() is null then raise exception 'no user'; end if;
+  if length(trim(p_body)) < 10 then raise exception 'too short'; end if;
+  if (select count(*) from ideas where user_id = auth.uid() and created_at > now() - interval '1 day') >= 5 then raise exception 'too many'; end if;
+  insert into ideas (user_id, body, credit, lang) values (auth.uid(), left(trim(p_body), 1000), nullif(left(trim(coalesce(p_credit, '')), 40), ''), left(p_lang, 5))
+  returning id into v;
+  return v;
+end $$;
+
+create or replace function public.my_ideas() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select coalesce(jsonb_agg(jsonb_build_object('id', id, 'body', body, 'status', status, 'at', created_at, 'reward_until', reward_until) order by created_at desc), '[]')
+  from (select * from ideas where user_id = auth.uid() order by created_at desc limit 20) x
+$$;
+
+-- For Onur: open ideas first, then the last decided ones.
+create or replace function public.admin_ideas() returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if not public.is_admin() then raise exception 'not admin'; end if;
+  return (select coalesce(jsonb_agg(x order by x.open desc, x.at desc), '[]') from (
+    select i.id, i.body, i.credit, i.lang, i.status, i.created_at as at, i.status in ('new', 'planned') as open,
+      coalesce(nullif(p.name, ''), '?') as name
+    from ideas i left join profiles p on p.id = i.user_id
+    order by (i.status in ('new', 'planned')) desc, i.created_at desc limit 100) x);
+end $$;
+
+-- 'built' gives the reward once: 3 months of Ultimate from today (or added to a running reward).
+create or replace function public.admin_set_idea(p_id bigint, p_status text) returns void
+language plpgsql security definer set search_path = public as $$
+declare u uuid; had boolean;
+begin
+  if not public.is_admin() then raise exception 'not admin'; end if;
+  if p_status not in ('new', 'planned', 'built', 'no') then raise exception 'bad status'; end if;
+  select user_id, reward_until is not null into u, had from ideas where id = p_id;
+  update ideas set status = p_status, decided_at = now(),
+    reward_until = case when p_status = 'built' and reward_until is null
+      then greatest(now(), coalesce((select max(reward_until) from ideas where user_id = u), now())) + interval '3 months'
+      else reward_until end
+  where id = p_id;
+end $$;
+revoke execute on function public.submit_idea(text, text, text), public.my_ideas(), public.admin_ideas(), public.admin_set_idea(bigint, text) from public, anon;
+grant execute on function public.submit_idea(text, text, text), public.my_ideas(), public.admin_ideas(), public.admin_set_idea(bigint, text) to authenticated;
