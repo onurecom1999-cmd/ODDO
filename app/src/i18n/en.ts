@@ -243,6 +243,8 @@ export const en: Record<Key, string> = {
   'train.swapped': 'Swapped: {name}',
   'train.how': 'How to ▸',
   'train.howQ': 'proper form tutorial',
+  'train.howClose': 'Close ▴',
+  'train.video': 'Prefer a video? Opens YouTube (may pause your music)',
   'train.first': 'First time? Pick a weight where the last 2 reps are hard but clean. After each set the rest timer starts on its own.',
   'train.rest': 'Rest',
   'train.restGo': 'Next set!',

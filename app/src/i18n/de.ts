@@ -242,6 +242,8 @@ export const de = {
   'train.swapped': 'Getauscht: {name}',
   'train.how': "So geht's ▸",
   'train.howQ': 'richtig ausführen Technik',
+  'train.howClose': 'Schließen ▴',
+  'train.video': 'Lieber als Video? Öffnet YouTube (kann deine Musik pausieren)',
   'train.first': 'Erstes Mal? Nimm ein Gewicht, bei dem die letzten 2 Wiederholungen schwer werden, aber sauber gehen. Nach jedem Satz läuft automatisch die Pause.',
   'train.rest': 'Pause',
   'train.restGo': "Weiter geht's!",

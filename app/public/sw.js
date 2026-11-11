@@ -15,7 +15,7 @@ self.addEventListener('fetch', e => {
       .catch(() => caches.match(scope).then(m => m || Response.error())));
     return;
   }
-  if (/\/(_expo|assets)\//.test(u.pathname) || /\.(png|wasm|json)$/.test(u.pathname)) {
+  if (/\/(_expo|assets)\//.test(u.pathname) || /\/ex\/|\.(png|jpg|wasm|json)$/.test(u.pathname)) {
     e.respondWith(caches.match(r).then(m => m || fetch(r).then(res => {
       if (res.ok) { const c = res.clone(); caches.open(CACHE).then(x => x.put(r, c)); }
       return res;

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Linking, Platform, Pressable, Text, TextInput, Vibration, View } from 'react-native';
+import { Image, Linking, Platform, Pressable, Text, TextInput, Vibration, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fmt1, t } from '../i18n';
 import { dayKey, peekLog, sessionFor } from '../logic/day';
+import { demoFrames } from '../logic/demo';
 import { EX, swapOptions } from '../logic/exercises';
 import { XP } from '../logic/level';
 import { exKey, exName, exNote, sessionTitle } from '../logic/names';
@@ -34,6 +35,7 @@ export function TrainSheet({ onClose }: { onClose: () => void }) {
   const restFor = S.profile!.style === 'gym' ? 90 : S.profile!.style === 'kb' ? 75 : 60;
   const [restEnd, setRestEnd] = useState<number | null>(null);
   const [swapAt, setSwapAt] = useState<number | null>(null);
+  const [howAt, setHowAt] = useState<number | null>(null);
   const eff = (e: PlanExercise, i: number): PlanExercise => { const id = l.swaps?.[i]; return id ? { ...e, id, name: undefined, note: undefined, extra: undefined } : e; };
   const doSwap = (i: number, sets: number, id: string) => {
     update(d => { const L = dayLog(d); L.swaps = { ...(L.swaps || {}), [i]: id }; for (let j = 0; j < sets; j++) delete L.sets[`${i}.${j}`]; });
@@ -95,8 +97,8 @@ export function TrainSheet({ onClose }: { onClose: () => void }) {
                 <Text style={{ color: colors.text, fontFamily: fonts.bold, fontSize: 17 }}>{exName(e)}</Text>
                 <Small>{t('train.target', { sets: e.sets, reps: e.reps })}{exNote(e) ? ' · ' + exNote(e) : ''}</Small>
                 <View style={{ flexDirection: 'row', gap: 18 }}>
-                  <Pressable accessibilityRole="link" hitSlop={6} onPress={() => Linking.openURL('https://www.youtube.com/results?search_query=' + encodeURIComponent(`${exName(e)} ${t('train.howQ')}`))}>
-                    <Text style={{ color: colors.accent, fontFamily: fonts.bold, fontSize: 13 }}>{t('train.how')}</Text>
+                  <Pressable accessibilityRole="button" accessibilityState={{ expanded: howAt === i }} hitSlop={6} onPress={() => setHowAt(howAt === i ? null : i)}>
+                    <Text style={{ color: colors.accent, fontFamily: fonts.bold, fontSize: 13 }}>{howAt === i ? t('train.howClose') : t('train.how')}</Text>
                   </Pressable>
                   {alts.length ? (
                     <Pressable accessibilityRole="button" hitSlop={6} onPress={() => setSwapAt(swapAt === i ? null : i)}>
@@ -104,6 +106,7 @@ export function TrainSheet({ onClose }: { onClose: () => void }) {
                     </Pressable>
                   ) : null}
                 </View>
+                {howAt === i ? <Demo e={e} /> : null}
                 {swapAt === i ? (
                   <View style={{ gap: 8, paddingTop: 4 }}>
                     <Small>{t('train.swapQ')}</Small>
@@ -176,3 +179,27 @@ function RestBar({ end, onChange }: { end: number; onChange: (v: number | null) 
 }
 
 const inp = { flex: 1, minWidth: 0, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.surface2, borderRadius: 12, paddingVertical: 12, paddingHorizontal: 10, color: colors.text, fontFamily: fonts.semibold, fontSize: 16, textAlign: 'center' as const };
+
+// Silent demo: two frames that flip, no sound, so Spotify and co keep playing.
+function Demo({ e }: { e: PlanExercise }) {
+  const frames = demoFrames(e.id);
+  const [f, setF] = useState(0);
+  useEffect(() => {
+    if (!frames) return;
+    const id = setInterval(() => setF(x => 1 - x), 900);
+    return () => clearInterval(id);
+  }, [frames?.[0]]);
+  const yt = () => Linking.openURL('https://www.youtube.com/results?search_query=' + encodeURIComponent(`${exName(e)} ${t('train.howQ')}`));
+  return (
+    <View style={{ gap: 8, paddingTop: 4 }}>
+      {frames ? (
+        <View accessibilityRole="image" accessibilityLabel={exName(e)} style={{ width: '100%', maxWidth: 360, aspectRatio: 1.5, borderRadius: 14, overflow: 'hidden', backgroundColor: '#fff' }}>
+          {frames.map((uri, n) => <Image key={uri} source={{ uri }} resizeMode="contain" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: f === n ? 1 : 0 }} />)}
+        </View>
+      ) : null}
+      <Pressable accessibilityRole="link" hitSlop={6} onPress={yt}>
+        <Small style={{ color: colors.muted, textDecorationLine: 'underline' }}>{t('train.video')}</Small>
+      </Pressable>
+    </View>
+  );
+}

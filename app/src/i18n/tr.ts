@@ -243,6 +243,8 @@ export const tr: Record<Key, string> = {
   'train.swapped': 'Değiştirildi: {name}',
   'train.how': 'Nasıl yapılır ▸',
   'train.howQ': 'nasıl yapılır doğru form',
+  'train.howClose': 'Kapat ▴',
+  'train.video': 'Video mu istersin? YouTube açılır (müziğini durdurabilir)',
   'train.first': 'İlk kez mi? Son 2 tekrarın zor ama temiz olduğu bir ağırlık seç. Her setten sonra mola otomatik başlar.',
   'train.rest': 'Mola',
   'train.restGo': 'Devam!',
