@@ -25,6 +25,7 @@ import { remindersSupported, syncNudges } from './src/reminders';
 import { EarnSheet } from './src/sheets/Earn';
 import { IdeaSheet } from './src/sheets/Idea';
 import { FastSheet } from './src/sheets/Fast';
+import { RecipesSheet } from './src/sheets/Recipes';
 import { BizHome } from './src/screens/BizHome';
 import { CardioSheet } from './src/sheets/Cardio';
 import { CreatorSheet } from './src/sheets/Creator';
@@ -210,6 +211,7 @@ function Main() {
       {sheet === 'earn' ? <EarnSheet onClose={close} /> : null}
       {sheet === 'idea' ? <IdeaSheet onClose={close} /> : null}
       {sheet === 'fast' ? <FastSheet onClose={close} /> : null}
+      {sheet === 'recipes' ? <RecipesSheet onClose={close} /> : null}
       {sheet === 'coach' ? <CoachSheet onClose={close} /> : null}
       {sheet === 'tour' ? <TourSheet remindOnly onClose={() => { close(); update(d => { d.tour = TOUR; }); }}
         onBusiness={() => { update(d => { d.tour = TOUR; }); setSheet('business'); }}
@@ -222,7 +224,7 @@ function Main() {
       {sheet === 'weekly' ? <RewardSheet week onClose={close} /> : null}
       {sheet === 'creator' ? <CreatorSheet onClose={close} onPro={() => setSheet('pro')} onEarn={() => setSheet('earn')} /> : null}
       {sheet === 'account' ? <AccountSheet mode="save" onClose={close} /> : null}
-      {sheet === 'food' ? <FoodPick onClose={close} onPick={m => setSheet(`food:${m}`)} /> : null}
+      {sheet === 'food' ? <FoodPick onClose={close} onPick={m => setSheet(`food:${m}`)} onRecipes={() => setSheet('recipes')} /> : null}
       {sheet?.startsWith('food:') ? <FoodSheet mode={(sheet.split(':')[1] || 'photo') as FoodMode} onClose={close} onPro={() => setSheet('pro')} /> : null}
       <ToastHost />
     </View>

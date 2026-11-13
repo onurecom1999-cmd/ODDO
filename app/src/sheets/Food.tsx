@@ -303,7 +303,7 @@ function SearchSheet({ onClose, add, onDescribe }: { onClose: () => void; add: (
 }
 
 // One way in for food: pick how to log the meal, or log one of your own meals again with one tap.
-export function FoodPick({ onClose, onPick }: { onClose: () => void; onPick: (m: FoodMode) => void }) {
+export function FoodPick({ onClose, onPick, onRecipes }: { onClose: () => void; onPick: (m: FoodMode) => void; onRecipes?: () => void }) {
   const { S } = useApp();
   const add = useAddMeal(onClose);
   const recent = recentMeals(S.log);
@@ -344,6 +344,22 @@ export function FoodPick({ onClose, onPick }: { onClose: () => void; onPick: (m:
             )}
           </Pressable>
         ))}
+        {onRecipes ? (
+          <Pressable accessibilityRole="button" testID="food-recipes" onPress={onRecipes}>
+            {({ pressed }) => (
+              <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 14, opacity: pressed ? 0.7 : 1 }}>
+                <View style={{ width: 48, height: 48, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surface2 }}>
+                  <Icon name="star" size={26} color={colors.text} />
+                </View>
+                <View style={{ flex: 1, gap: 3 }}>
+                  <Bold style={{ fontSize: 17 }}>{t('rec.title')}</Bold>
+                  <Small>{t('rec.pick')}</Small>
+                </View>
+                <Text style={{ color: colors.dim, fontSize: 24 }}>›</Text>
+              </Card>
+            )}
+          </Pressable>
+        ) : null}
       </Stack>
     </Sheet>
   );
