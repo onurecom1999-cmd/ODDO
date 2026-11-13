@@ -1508,4 +1508,7 @@ export const tr: Record<Key, string> = {
   'rec.f.m': "Öğle & akşam",
   'rec.f.x': "Çorba & salata",
   'rec.f.s': "Atıştırmalık",
+  'reward.band': "Ücretsiz uygulama",
+  'reward.codeLine': "Kod {code} = 1 ay Pro ücretsiz",
+  'reward.shareHint': "Instagram, TikTok, WhatsApp ve daha fazlasıyla paylaşım menünü açar.",
 };

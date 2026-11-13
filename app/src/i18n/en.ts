@@ -1508,4 +1508,7 @@ export const en: Record<Key, string> = {
   'rec.f.m': "Lunch & dinner",
   'rec.f.x': "Soups & salads",
   'rec.f.s': "Snacks",
+  'reward.band': "Free app",
+  'reward.codeLine': "Code {code} = 1 month Pro free",
+  'reward.shareHint': "Opens your share menu with Instagram, TikTok, WhatsApp and more.",
 };

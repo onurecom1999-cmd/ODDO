@@ -8,7 +8,7 @@ import { dayCard, DayCard, weekCard } from '../logic/reward';
 import { pickPhoto, shrink } from '../media';
 import { useApp } from '../state';
 import { colors, fonts } from '../theme';
-import { Bold, Button, Card as Box, Chip, Chips, Emblem, Field, Muted, Row, Sheet, Stack, useToast } from '../ui/kit';
+import { Bold, Button, Card as Box, Chip, Chips, Emblem, Field, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
 import { cardImage } from './cardImage';
 import { CommunityError, post } from '../community';
 import { inviteText, useInvite } from './Earn';
@@ -30,10 +30,10 @@ function Card({ c, photo, width, code }: { c: DayCard; photo: string; width: num
         <Rect width="100%" height="100%" fill={photo ? 'url(#fade)' : 'url(#glow)'} />
       </Svg>
       <Row style={{ position: 'absolute', top: px(80), left: px(80), right: px(80), justifyContent: 'space-between' }}>
-        <Text style={{ fontFamily: fonts.display, fontSize: px(64), color: colors.text }}>ODD<Text style={{ color: colors.accent }}>O</Text></Text>
+        <Text style={{ fontFamily: fonts.display, fontSize: px(80), color: colors.text }}>ODD<Text style={{ color: colors.accent }}>O</Text></Text>
         <Text style={{ fontFamily: fonts.display, fontSize: px(64), color: colors.text }}>{c.day}</Text>
       </Row>
-      <View style={{ position: 'absolute', left: px(80), right: px(80), top: px(photo ? 665 : 525) }}>
+      <View style={{ position: 'absolute', left: px(80), right: px(80), top: px(photo ? 605 : 505) }}>
         <Text style={{ fontFamily: fonts.heavy, fontSize: px(34), letterSpacing: px(3), color: colors.accent }}>{upper(c.kicker)}</Text>
         <Text numberOfLines={1} adjustsFontSizeToFit style={{ fontFamily: fonts.display, fontSize: px(140), lineHeight: px(170), color: colors.text, marginTop: px(10) }}>{upper(c.title)}</Text>
         <View style={{ marginTop: px(20), gap: px(18) }}>
@@ -43,9 +43,17 @@ function Card({ c, photo, width, code }: { c: DayCard; photo: string; width: num
           {c.rank ? <Text style={{ fontFamily: fonts.heavy, fontSize: px(40), color: colors.accent }}>{c.rank}</Text> : null}
         </View>
       </View>
-      <Row style={{ position: 'absolute', left: px(80), right: px(80), bottom: px(70), justifyContent: 'space-between' }}>
+      <Row style={{ position: 'absolute', left: px(80), right: px(80), bottom: px(160 + 40), justifyContent: 'space-between' }}>
         <Text style={{ fontFamily: fonts.semibold, fontSize: px(32), color: colors.muted }}>{c.footer}</Text>
-        <Text style={{ fontFamily: fonts.semibold, fontSize: px(32), color: code ? colors.accent : colors.muted }}>{code ? `ODDO · Code ${code}` : SITE_HOST}</Text>
+        {code ? <Text style={{ fontFamily: fonts.heavy, fontSize: px(32), color: colors.accent }}>{t('reward.codeLine', { code })}</Text> : null}
+      </Row>
+      {/* The ODDO band: whoever sees the card knows the app and where to get it. */}
+      <Row style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: px(160), backgroundColor: colors.accent, paddingHorizontal: px(80), justifyContent: 'space-between' }}>
+        <Text style={{ fontFamily: fonts.display, fontSize: px(96), lineHeight: px(120), color: colors.ink }}>ODDO</Text>
+        <View style={{ alignItems: 'flex-end' }}>
+          <Text style={{ fontFamily: fonts.heavy, fontSize: px(30), color: colors.ink }}>{upper(t('reward.band'))}</Text>
+          <Text style={{ fontFamily: fonts.bold, fontSize: px(36), color: colors.ink }}>{SITE_HOST}</Text>
+        </View>
       </Row>
     </View>
   );
@@ -83,7 +91,7 @@ export function RewardSheet({ onClose, week }: { onClose: () => void; week?: boo
     setBusy(true);
     try {
       if (Platform.OS === 'web') {
-        const blob = await cardImage(c, photo, upper, code);
+        const blob = await cardImage(c, photo, upper, code, { label: t('reward.band'), code: code ? t('reward.codeLine', { code }) : '' });
         if (!blob) throw new Error('draw');
         const name = `oddo-${c.day.toLowerCase().replace(/\W+/g, '-')}.png`;
         const file = new File([blob], name, { type: 'image/png' });
@@ -119,7 +127,10 @@ export function RewardSheet({ onClose, week }: { onClose: () => void; week?: boo
           <Button variant="ghost" small style={{ flex: 1 }} label={photo ? t('reward.changePhoto') : t('reward.addPhoto')} onPress={addPhoto} />
           {photo ? <Button variant="ghost" small style={{ flex: 1 }} label={t('reward.removePhoto')} onPress={() => setPhoto('')} /> : null}
         </Row>
-        <Button label={busy ? '…' : t('reward.share')} onPress={share} disabled={busy} />
+        <Stack gap={6}>
+          <Button label={busy ? '…' : t('reward.share')} onPress={share} disabled={busy} />
+          <Small style={{ textAlign: 'center' }}>{t('reward.shareHint')}</Small>
+        </Stack>
         {S.example || posted ? null : (
           <Box>
             <Stack gap={12}>
