@@ -70,6 +70,8 @@ export type AppState = {
   saveAskedAt?: number;
   // Monday (day key) of the last week review the person opened.
   weekSeen?: string;
+  // Intermittent fasting: plan in fasting hours, the running fast's start (ms) and finished fasts, newest first.
+  fast?: import('./fast').FastState;
 };
 
 export const emptyState: AppState = { profile: null, plan: null, log: {}, progress: [], routines: [], strength: [], startedAt: null };

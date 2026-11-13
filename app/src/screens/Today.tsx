@@ -20,6 +20,7 @@ const levelDay = (S: Parameters<typeof dayXp>[0], k: string) => { const x = dayX
 import { SaveNudge } from '../sheets/SaveNudge';
 import { TrialCard } from '../ui/TrialCard';
 import { InstallCard } from '../ui/InstallCard';
+import { FastCard } from '../sheets/Fast';
 
 export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => void; studioTick?: number }) {
   const { S, update } = useApp();
@@ -84,6 +85,7 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
     { icon: 'train', label: t('today.qTrain'), go: () => onOpen('train') },
     { icon: 'run', label: t('today.qMove'), go: () => onOpen('cardio:run:live') },
     { icon: 'me', label: t('today.qWeight'), go: () => onOpen('weight') },
+    { icon: 'clock', label: t('today.qFast'), go: () => onOpen('fast') },
   ];
 
   return (
@@ -182,6 +184,8 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
           </Pressable>
         ))}
       </Row>
+
+      {S.example ? null : <FastCard onOpen={() => onOpen('fast')} />}
 
       {pr.estimated && !S.example ? (
         <Card style={{ gap: 8, borderColor: colors.accent }}>

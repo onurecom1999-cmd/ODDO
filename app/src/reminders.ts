@@ -14,7 +14,7 @@ export async function setReminder(hour: number | null): Promise<boolean> {
   if (!remindersSupported) return false;
   // Everything scheduled except the free-month reminder; older versions scheduled the daily one without a name.
   const all = await Notifications.getAllScheduledNotificationsAsync().catch(() => []);
-  await Promise.all(all.filter(n => n.identifier !== TRIAL_ID && n.identifier !== CHALLENGE_ID && !n.identifier.startsWith('nudge-')).map(n => Notifications.cancelScheduledNotificationAsync(n.identifier).catch(() => {})));
+  await Promise.all(all.filter(n => n.identifier !== TRIAL_ID && n.identifier !== CHALLENGE_ID && n.identifier !== FAST_ID && !n.identifier.startsWith('nudge-')).map(n => Notifications.cancelScheduledNotificationAsync(n.identifier).catch(() => {})));
   if (hour == null) return true;
   const perm = await Notifications.requestPermissionsAsync().catch(() => null);
   if (!perm?.granted) return false;
@@ -82,4 +82,15 @@ export async function syncNudges(o: { streak: number; perfect: boolean; level: n
   for (const [identifier, date, body] of plan) {
     await Notifications.scheduleNotificationAsync({ identifier, content: { title: 'ODDO', body }, trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date } }).catch(() => {});
   }
+}
+
+const FAST_ID = 'fast-end';
+// "Goal reached" when the running fast hits its hours; null cancels. Asks for permission, since the person just started a fast.
+export async function remindFastEnd(at: number | null) {
+  if (!remindersSupported) return;
+  await Notifications.cancelScheduledNotificationAsync(FAST_ID).catch(() => {});
+  if (at == null || at <= Date.now()) return;
+  const perm = await Notifications.requestPermissionsAsync().catch(() => null);
+  if (!perm?.granted) return;
+  await Notifications.scheduleNotificationAsync({ identifier: FAST_ID, content: { title: 'ODDO', body: t('fast.push') }, trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: new Date(at) } }).catch(() => {});
 }
