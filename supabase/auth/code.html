@@ -1,0 +1,37 @@
+{{ $pre := "Your ODDO code is here. Valid for 1 hour." }}{{ $hi := "Your code" }}{{ $lead := "Enter this code in the ODDO app to continue. It is valid for 1 hour." }}{{ $safe := "Didn't request this? Just ignore this email. Your account stays safe." }}{{ $tag := "One day or day one." }}{{ $foot := "You are receiving this email because this address was entered in the ODDO app." }}
+{{ if eq .Data.lang "de" }}{{ $pre = "Dein ODDO-Code ist da. 1 Stunde gültig." }}{{ $hi = "Dein Code" }}{{ $lead = "Gib diesen Code in der ODDO App ein, um weiterzumachen. Er ist 1 Stunde gültig." }}{{ $safe = "Du warst das nicht? Dann ignoriere diese Mail einfach. Dein Konto bleibt sicher." }}{{ $foot = "Du bekommst diese Mail, weil diese Adresse in der ODDO App eingegeben wurde." }}{{ end }}
+{{ if eq .Data.lang "tr" }}{{ $pre = "ODDO kodun geldi. 1 saat geçerli." }}{{ $hi = "Kodun" }}{{ $lead = "Devam etmek için bu kodu ODDO uygulamasına gir. Kod 1 saat geçerli." }}{{ $safe = "Bunu sen istemediysen bu e-postayı görmezden gel. Hesabın güvende." }}{{ $foot = "Bu e-postayı, bu adres ODDO uygulamasına girildiği için alıyorsun." }}{{ end }}
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>ODDO</title></head>
+<body style="margin:0;padding:0;background:#f2f2ee;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">{{ $pre }}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f2f2ee;">
+<tr><td align="center" style="padding:32px 16px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border-radius:20px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+    <tr><td style="background:#0b0b0a;padding:22px 28px;">
+      <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+        <td style="vertical-align:middle;"><img src="https://oddo-app.netlify.app/apple-touch-icon.png" width="36" height="36" alt="" style="display:block;border-radius:9px;"></td>
+        <td style="vertical-align:middle;padding-left:12px;font-size:20px;font-weight:800;letter-spacing:3px;color:#ffffff;">ODDO</td>
+      </tr></table>
+    </td></tr>
+    <tr><td style="height:4px;background:#d4ff3a;line-height:4px;font-size:0;">&nbsp;</td></tr>
+    <tr><td style="padding:36px 28px 8px;">
+      <div style="font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b6b63;">{{ $hi }}</div>
+      <div style="margin-top:18px;background:#0b0b0a;border-radius:16px;padding:22px 12px;text-align:center;">
+        <span style="font-family:'SF Mono',Menlo,Consolas,monospace;font-size:38px;font-weight:800;letter-spacing:10px;color:#d4ff3a;">{{ .Token }}</span>
+      </div>
+      <p style="margin:22px 0 0;font-size:16px;line-height:1.55;color:#1b1b19;">{{ $lead }}</p>
+      <p style="margin:14px 0 0;font-size:14px;line-height:1.55;color:#6b6b63;">{{ $safe }}</p>
+    </td></tr>
+    <tr><td style="padding:28px 28px 32px;">
+      <div style="border-top:1px solid #e6e6e0;padding-top:20px;font-size:15px;font-weight:800;color:#1b1b19;">{{ $tag }}</div>
+    </td></tr>
+  </table>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;">
+    <tr><td style="padding:18px 28px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#8a8a82;text-align:center;">
+      {{ $foot }}<br>ODDO · Girne, North Cyprus · <a href="mailto:oddosportsapp@gmail.com" style="color:#8a8a82;">oddosportsapp@gmail.com</a>
+    </td></tr>
+  </table>
+</td></tr>
+</table>
+</body></html>

@@ -1,0 +1,8 @@
+{
+  "name": "oddo-site",
+  "private": true,
+  "description": "Netlify functions for ODDO. The app itself lives in app/.",
+  "dependencies": {
+    "@netlify/blobs": "11.1.3"
+  }
+}
