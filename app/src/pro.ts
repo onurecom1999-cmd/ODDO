@@ -30,10 +30,13 @@ export async function myTier(): Promise<Tier> {
 async function serverTier(): Promise<Tier> {
   const id = await userId();
   if (!id || !supabase) return 'free';
-  const [{ data }, perks] = await Promise.all([
+  const [{ data }, perks, admin] = await Promise.all([
     supabase.from('subscriptions').select('tier,status,ends_at').eq('user_id', id).maybeSingle(),
     partnerPerks().catch(() => null),
+    supabase.rpc('is_admin').then(r => r.data === true, () => false),
   ]);
+  // ODDO's own team sees everything, like the AI limits on the server.
+  if (admin) return 'ultimate';
   // Trainers and studios get Pro; people who joined one get it for their free month.
   const viaCoach: Tier = perks?.partner || perks?.free_until ? 'pro' : 'free';
   const viaIdea: Tier = perks?.ultimate_until ? 'ultimate' : 'free';

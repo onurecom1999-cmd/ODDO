@@ -24,7 +24,7 @@ export function recentMeals(log: Record<string, { meals: Meal[] }>, max = 6): Me
       const id = m.name.trim().toLowerCase();
       if (!id || seen.has(id) || !(m.kcal > 0)) continue;
       seen.add(id);
-      out.push({ name: m.name, kcal: m.kcal, protein: m.protein, img: m.img, est: m.est });
+      out.push({ name: m.name, kcal: m.kcal, protein: m.protein, carbs: m.carbs, fat: m.fat, img: m.img, est: m.est });
       if (out.length >= max) return out;
     }
   }

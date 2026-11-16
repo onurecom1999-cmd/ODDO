@@ -25,7 +25,7 @@ export function Me({ onOpen }: { onOpen: (sheet: string) => void }) {
           </Pressable>
         ))}
       </View>
-      {part === 'progress' ? <Progress /> : part === 'week' ? <Week onOpen={onOpen} /> : <PlanTab onOpen={onOpen} />}
+      {part === 'progress' ? <Progress onOpen={onOpen} /> : part === 'week' ? <Week onOpen={onOpen} /> : <PlanTab onOpen={onOpen} />}
     </Stack>
   );
 }

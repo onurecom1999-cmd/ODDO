@@ -5,7 +5,7 @@ import type { Unit } from './logic/generic';
 
 // Packaged food by barcode: first ODDO's own list (products people added), then Open Food Facts,
 // the free, open database with millions of products worldwide.
-export type Product = { code: string; name: string; brand: string; kcal100: number; protein100: number; serving: number | null; unit?: Unit; source: 'oddo' | 'off' | 'generic' };
+export type Product = { code: string; name: string; brand: string; kcal100: number; protein100: number; carbs100?: number; fat100?: number; serving: number | null; unit?: Unit; source: 'oddo' | 'off' | 'generic' };
 
 type Row = { code: string; name: string; brand: string; kcal100: number; protein100: number; serving: number | null };
 const fromRow = (r: Row): Product => ({ code: r.code, name: r.name, brand: r.brand, kcal100: Number(r.kcal100), protein100: Number(r.protein100), serving: r.serving, source: 'oddo' });
@@ -48,6 +48,8 @@ function fromOff(p: OffProduct, code: string): Product | null {
   return {
     code, name: name || code, brand: brands.split(',')[0].trim(),
     kcal100: Math.round(kcal), protein100: Math.round((num(n['proteins_100g']) || 0) * 10) / 10,
+    carbs100: Number.isFinite(num(n['carbohydrates_100g'])) ? num(n['carbohydrates_100g']) : undefined,
+    fat100: Number.isFinite(num(n['fat_100g'])) ? num(n['fat_100g']) : undefined,
     serving: serving > 0 && serving < 2000 ? Math.round(serving) : null, source: 'off',
   };
 }

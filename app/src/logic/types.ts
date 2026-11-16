@@ -2,7 +2,8 @@ import type { Lang } from '../i18n/lang';
 import type { Plan, Profile, Session } from './plan';
 import type { Routine } from './routines';
 
-export type Meal = { name: string; kcal: number; protein: number; img?: string; est?: boolean; time?: string };
+// carbs and fat in grams, when the source knew them (photo, description, Open Food Facts).
+export type Meal = { name: string; kcal: number; protein: number; carbs?: number; fat?: number; img?: string; est?: boolean; time?: string };
 // One logged set. `ex` is the exercise key: the catalog id, or the name for exercises the AI invented.
 export type SetEntry = { ex: string; kg?: number; reps?: number; done?: boolean };
 export type CardioType = 'run' | 'bike' | 'walk' | 'swim';

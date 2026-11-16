@@ -137,7 +137,7 @@ export function FoodSheet({ mode: start, onClose, onPro }: { mode: FoodMode; onC
           <Stack gap={8}><Bold>{t('food.portion')}</Bold><Chips>{PORTIONS.map(p => <Chip key={p} label={`×${String(p).replace('.', getLang() === 'en' ? '.' : ',')}`} on={portion === p} onPress={() => setPortion(p)} />)}</Chips></Stack>
           {result.hint ? <Small>{result.hint}</Small> : null}
           <Small>{t('food.range', { lo: fmt(result.kcal * portion * 0.8), hi: fmt(result.kcal * portion * 1.2) })}</Small>
-          <Button label={t('add')} onPress={() => add({ name: result.name, kcal: Math.round(result.kcal * portion), protein: Math.round(result.protein * portion), img: thumb || undefined, est: true })} />
+          <Button label={t('add')} onPress={() => add({ name: result.name, kcal: Math.round(result.kcal * portion), protein: Math.round(result.protein * portion), carbs: Math.round(result.carbs * portion), fat: Math.round(result.fat * portion), img: thumb || undefined, est: true })} />
           <Button variant="ghost" small label={t('food.correct')} onPress={() => { setM({ name: result.name, kcal: String(Math.round(result.kcal * portion)), protein: String(Math.round(result.protein * portion)) }); setResult(null); }} />
         </Stack>
       ) : null}
@@ -234,7 +234,7 @@ function ProductView({ p, add, again, onAgain }: { p: Product; add: (m: Meal) =>
     ? [...[1, 2, 3].map(n => ({ g: p.serving! * n, label: `${t(`unit.${unit}` as Key, { n })} · ${fmt(p.serving! * n)} g` })), ...([1, 2, 3].includes(100 / p.serving) ? [] : [{ g: 100, label: '100 g' }])]
     : [50, 100, 150, 200].map(a => ({ g: a, label: `${a} g` }));
   const pick = () => {
-    add({ name: p.brand ? `${p.name} (${p.brand})` : p.name, kcal: Math.round(p.kcal100 * g / 100), protein: Math.round(p.protein100 * g / 100), est: p.source === 'generic' || undefined });
+    add({ name: p.brand ? `${p.name} (${p.brand})` : p.name, kcal: Math.round(p.kcal100 * g / 100), protein: Math.round(p.protein100 * g / 100), carbs: p.carbs100 == null ? undefined : Math.round(p.carbs100 * g / 100), fat: p.fat100 == null ? undefined : Math.round(p.fat100 * g / 100), est: p.source === 'generic' || undefined });
     update(d => { d.foods = [{ ...p }, ...(d.foods || []).filter(f => f.code !== p.code)].slice(0, 8); });
   };
   return (

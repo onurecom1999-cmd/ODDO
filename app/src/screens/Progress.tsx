@@ -7,6 +7,7 @@ import { levelOf, LEVELS, percentile, STD, STD_KEYS, stdFor, strengthBest } from
 import type { AppState } from '../logic/types';
 import { pickPhoto, shrink } from '../media';
 import { useApp } from '../state';
+import { Trends } from './Trends';
 import { colors, fonts } from '../theme';
 import { Bar, Bold, Button, Card, Chip, Chips, Eyebrow, Field, H1, Muted, Row, Small, Stack, Stat, useToast, Badge } from '../ui/kit';
 
@@ -118,7 +119,7 @@ function Photo({ S, uri, date, accent }: { S: AppState; uri: string; date: strin
   );
 }
 
-export function Progress() {
+export function Progress({ onOpen }: { onOpen: (sheet: string) => void }) {
   const { S, update } = useApp();
   const toast = useToast();
   const P = S.profile!;
@@ -178,6 +179,7 @@ export function Progress() {
       </Card>
 
       <Card><Stack gap={10}><Eyebrow>{t('progress.chart')}</Eyebrow><WeightChart S={S} points={points} /></Stack></Card>
+      <Trends onPro={() => onOpen('pro')} />
 
       {photos.length >= 2 ? (
         <Card>

@@ -12,7 +12,7 @@ import { SITE } from '../site';
 export const usd = (n: number) => n.toLocaleString(LOCALE[getLang()], { style: 'currency', currency: 'USD', minimumFractionDigits: n % 1 ? 2 : 0 });
 const PLANS: { id: Tier; price: number; perks: string[] }[] = [
   { id: 'free', price: 0, perks: ['pro.free1', 'pro.free4', 'pro.free2', 'pro.free3'] },
-  { id: 'pro', price: 9.99, perks: ['pro.pro1', 'pro.pro2', 'pro.pro3', 'pro.pro4'] },
+  { id: 'pro', price: 9.99, perks: ['pro.pro1', 'pro.pro2', 'pro.pro5', 'pro.pro3', 'pro.pro4'] },
   { id: 'ultimate', price: 19.99, perks: ['pro.ult1', 'pro.ult2', 'pro.ult3'] },
 ];
 // Pro for a year: half the monthly price.
