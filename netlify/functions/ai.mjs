@@ -104,7 +104,8 @@ async function check() {
       body: JSON.stringify({ model: MODEL, max_tokens: 5, messages: [{ role: 'user', content: 'Say ok' }] }),
     });
     const body = await r.json().catch(() => ({}));
-    return json(200, { ...out, ok: r.ok, status: r.status, error: r.ok ? undefined : body?.error });
+    const hint = r.ok ? 'Alles gut: die KI antwortet.' : r.status === 401 ? 'Schlüssel ungültig: in Netlify ANTHROPIC_API_KEY neu eintragen und neu deployen.' : /credit|billing/i.test(JSON.stringify(body)) ? 'Kein Guthaben: in der Anthropic-Konsole aufladen.' : 'Siehe error.';
+    return json(200, { ...out, ok: r.ok, status: r.status, hint, error: r.ok ? undefined : body?.error });
   } catch (e) {
     return json(200, { ...out, ok: false, reason: `network: ${String(e).slice(0, 200)}` });
   }
