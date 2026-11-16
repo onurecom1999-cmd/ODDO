@@ -6,6 +6,9 @@ import { tierOf, userFrom } from '../lib/supabase.mjs';
 
 // Trimmed, so a space or line break copied along with the key does not break it.
 const KEY = () => String(process.env.ANTHROPIC_API_KEY || '').trim().replace(/^["']|["']$/g, '');
+// An own Anthropic key (sk-ant-…) goes straight to Anthropic. Netlify's AI gateway puts its own token in ANTHROPIC_API_KEY
+// together with ANTHROPIC_BASE_URL; that token only works through the gateway, so then the gateway address is used.
+const API = () => (KEY().startsWith('sk-ant-') || !process.env.ANTHROPIC_BASE_URL ? 'https://api.anthropic.com' : process.env.ANTHROPIC_BASE_URL.replace(/\/$/, '')) + '/v1/messages';
 const MODEL = process.env.AI_MODEL || 'claude-sonnet-5-5';
 // Per account (or IP) and day. Free gets a taste; Pro is generous but still capped against abuse.
 const LIMITS = {
@@ -95,10 +98,10 @@ async function overLimit(task, req, context, user, tier) {
 
 // Opening /.netlify/functions/ai?check=1 in a browser shows whether the AI is set up: key present, model, and Claude's answer to a 1-word test.
 async function check() {
-  const out = { key: !!KEY(), keyStart: KEY().slice(0, 7), keyLength: KEY().length, model: MODEL, netlifyGateway: !!process.env.ANTHROPIC_BASE_URL };
+  const out = { key: !!KEY(), keyStart: KEY().slice(0, 7), keyLength: KEY().length, model: MODEL, netlifyGateway: !!process.env.ANTHROPIC_BASE_URL, via: API().includes('api.anthropic.com') ? 'anthropic' : 'netlify-gateway' };
   if (!out.key) return json(200, { ...out, ok: false, reason: 'ANTHROPIC_API_KEY fehlt in Netlify' });
   try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
+    const r = await fetch(API(), {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'x-api-key': KEY(), 'anthropic-version': '2023-06-01' },
       body: JSON.stringify({ model: MODEL, max_tokens: 5, messages: [{ role: 'user', content: 'Say ok' }] }),
@@ -136,7 +139,7 @@ async function handle(req, context) {
 
   let res;
   try {
-    res = await fetch('https://api.anthropic.com/v1/messages', {
+    res = await fetch(API(), {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'x-api-key': KEY(), 'anthropic-version': '2023-06-01' },
       body: JSON.stringify({ model: MODEL, max_tokens: task === 'plan' ? 4000 : task === 'creator' || task === 'template' ? 2000 : 1200, messages: [{ role: 'user', content }] }),
