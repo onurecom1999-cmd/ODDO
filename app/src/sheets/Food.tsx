@@ -119,7 +119,7 @@ export function FoodSheet({ mode: start, onClose, onPro }: { mode: FoodMode; onC
       {result && !loading ? (
         <Stack gap={14}>
           <View style={{ gap: 6 }}>
-            <Eyebrow>{t('food.recognised')}{result.confidence ? ` · ${result.confidence}` : ''}</Eyebrow>
+            <Eyebrow>{t('food.recognised')}{['high', 'medium', 'low'].includes(result.confidence) ? ` · ${t(`food.conf.${result.confidence}` as Key)}` : ''}</Eyebrow>
             <H2>{result.name}</H2>
             {result.items.length ? <Muted>{result.items.map(i => `${i.name}${i.grams ? ` (${fmt(i.grams * portion)} g)` : ''}`).join(', ')}</Muted> : null}
           </View>

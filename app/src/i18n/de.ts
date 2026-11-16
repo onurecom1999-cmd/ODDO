@@ -1511,6 +1511,9 @@ export const de = {
   'reward.codeLine': "Code {code} = 1 Monat Pro gratis",
   'reward.shareHint': "Öffnet dein Teilen-Menü mit Instagram, TikTok, WhatsApp und mehr.",
   'food.retryPhoto': "Neues Foto",
+  'food.conf.high': "sicher",
+  'food.conf.medium': "ziemlich sicher",
+  'food.conf.low': "unsicher",
 };
 
 export type Key = keyof typeof de;
