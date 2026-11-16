@@ -8,14 +8,16 @@ import { lookupBarcode, Product, saveProduct, searchProducts } from '../foodfact
 import { searchGeneric } from '../logic/generic';
 import { Scanner } from '../ui/Scanner';
 import type { Meal } from '../logic/types';
-import { pickPhoto, shrink } from '../media';
+import { pickPhoto, Picked, shrink } from '../media';
 import { dayLog, useApp } from '../state';
 import { colors, fonts } from '../theme';
 import { Icon, IconName } from '../ui/icons';
 import { Bold, Button, Card, Chip, Chips, Eyebrow, Field, H2, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
 
 export type FoodMode = 'photo' | 'gallery' | 'search' | 'barcode' | 'describe' | 'quick';
-const PORTIONS = [0.5, 0.75, 1, 1.25, 1.5];
+const PORTIONS = [0.5, 1, 1.5, 2, 3];
+// The photo picked on the food menu, handed to the photo sheet. Picking right on the tap keeps the menu visible behind the system picker.
+let handed: Picked | null = null;
 
 function errorText(e: unknown) {
   const c = e instanceof AiError ? e.code : 'failed';
@@ -52,7 +54,8 @@ export function FoodSheet({ mode: start, onClose, onPro }: { mode: FoodMode; onC
 
   // Takes the photo and asks for an estimate; also used for "try again" after a failed estimate.
   const takePhoto = async (first: boolean, from: 'camera' | 'library' = 'camera') => {
-    const picked = await pickPhoto(from);
+    const picked = first && handed ? handed : await pickPhoto(from);
+    handed = null;
     if (!picked) { if (first) onClose(); return; }
     setError(''); setResult(null);
     const [small, big] = await Promise.all([shrink(picked, 160, 0.7), shrink(picked, 1024, 0.8)]);
@@ -131,7 +134,7 @@ export function FoodSheet({ mode: start, onClose, onPro }: { mode: FoodMode; onC
               </View>
             ))}
           </View>
-          <Stack gap={8}><Bold>{t('food.portion')}</Bold><Chips>{PORTIONS.map(p => <Chip key={p} label={p === 1 ? t('food.asShown') : `×${String(p).replace('.', getLang() === 'en' ? '.' : ',')}`} on={portion === p} onPress={() => setPortion(p)} />)}</Chips></Stack>
+          <Stack gap={8}><Bold>{t('food.portion')}</Bold><Chips>{PORTIONS.map(p => <Chip key={p} label={`×${String(p).replace('.', getLang() === 'en' ? '.' : ',')}`} on={portion === p} onPress={() => setPortion(p)} />)}</Chips></Stack>
           {result.hint ? <Small>{result.hint}</Small> : null}
           <Small>{t('food.range', { lo: fmt(result.kcal * portion * 0.8), hi: fmt(result.kcal * portion * 1.2) })}</Small>
           <Button label={t('add')} onPress={() => add({ name: result.name, kcal: Math.round(result.kcal * portion), protein: Math.round(result.protein * portion), img: thumb || undefined, est: true })} />
@@ -313,6 +316,12 @@ export function FoodPick({ onClose, onPick, onRecipes }: { onClose: () => void; 
   const { S } = useApp();
   const add = useAddMeal(onClose);
   const recent = recentMeals(S.log);
+  // Opens the camera or gallery straight from this menu; the photo sheet only appears once a photo is chosen.
+  const pickThen = async (m: 'photo' | 'gallery') => {
+    const p = await pickPhoto(m === 'gallery' ? 'library' : 'camera');
+    if (!p) return;
+    handed = p; onPick(m);
+  };
   const opts: { m: FoodMode; icon: IconName; sub: string }[] = [
     { m: 'photo', icon: 'food', sub: t('food.pick.photo') },
     { m: 'search', icon: 'search', sub: t('food.pick.search') },
@@ -336,7 +345,7 @@ export function FoodPick({ onClose, onPick, onRecipes }: { onClose: () => void; 
         ) : null}
         {opts.map(o => (
           <View key={o.m} style={{ gap: 6 }}>
-          <Pressable accessibilityRole="button" testID={`food-${o.m}`} onPress={() => onPick(o.m)}>
+          <Pressable accessibilityRole="button" testID={`food-${o.m}`} onPress={() => o.m === 'photo' ? pickThen('photo') : onPick(o.m)}>
             {({ pressed }) => (
               <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 14, opacity: pressed ? 0.7 : 1, borderColor: o.m === 'photo' ? colors.accent : colors.line }}>
                 <View style={{ width: 48, height: 48, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: o.m === 'photo' ? colors.accent : colors.surface2 }}>
@@ -350,7 +359,7 @@ export function FoodPick({ onClose, onPick, onRecipes }: { onClose: () => void; 
               </Card>
             )}
           </Pressable>
-          {o.m === 'photo' ? <Button variant="ghost" small label={t('food.fromGallery')} onPress={() => onPick('gallery')} /> : null}
+          {o.m === 'photo' ? <Button variant="ghost" small label={t('food.fromGallery')} onPress={() => pickThen('gallery')} /> : null}
           </View>
         ))}
         {onRecipes ? (
