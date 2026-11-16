@@ -23,6 +23,7 @@ import { BusinessSheet, useStartCode, useStudioSync } from './src/sheets/Studio'
 import { TourSheet } from './src/sheets/Tour';
 import { remindersSupported, syncNudges } from './src/reminders';
 import { EarnSheet } from './src/sheets/Earn';
+import { CoachPlanSheet } from './src/sheets/CoachPlan';
 import { IdeaSheet } from './src/sheets/Idea';
 import { FastSheet } from './src/sheets/Fast';
 import { RecipesSheet } from './src/sheets/Recipes';
@@ -212,7 +213,7 @@ function Main() {
       {sheet === 'idea' ? <IdeaSheet onClose={close} /> : null}
       {sheet === 'fast' ? <FastSheet onClose={close} /> : null}
       {sheet === 'recipes' ? <RecipesSheet onClose={close} /> : null}
-      {sheet === 'coach' ? <CoachSheet onClose={close} /> : null}
+      {sheet === 'cplan' ? <CoachPlanSheet onClose={close} /> : null}
       {sheet === 'tour' ? <TourSheet remindOnly onClose={() => { close(); update(d => { d.tour = TOUR; }); }}
         onBusiness={() => { update(d => { d.tour = TOUR; }); setSheet('business'); }}
         onJoined={k => { if (k === 'studio') setStudioTick(n => n + 1); else if (k === 'coach') coachSync(); }} /> : null}
@@ -222,6 +223,7 @@ function Main() {
       {sheet === 'level' ? <LevelSheet onClose={close} onRoutines={() => setSheet('settings:routines')} /> : null}
       {sheet === 'levelup' ? <LevelUpSheet onClose={close} /> : null}
       {sheet === 'weekly' ? <RewardSheet week onClose={close} /> : null}
+      {sheet === 'cplan' ? <CoachPlanSheet onClose={close} /> : null}
       {sheet === 'creator' ? <CreatorSheet onClose={close} onPro={() => setSheet('pro')} onEarn={() => setSheet('earn')} /> : null}
       {sheet === 'account' ? <AccountSheet mode="save" onClose={close} /> : null}
       {sheet === 'food' ? <FoodPick onClose={close} onPick={m => setSheet(`food:${m}`)} onRecipes={() => setSheet('recipes')} /> : null}

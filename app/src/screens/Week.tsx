@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { AiError, aiJson } from '../ai';
 import { fmt, getLang, Key, t } from '../i18n';
-import { CARDIO } from '../logic/day';
+import { addDays, CARDIO, dayKey, fromKey } from '../logic/day';
+import { lastWeekStart } from '../logic/reward';
 import { weekday } from '../logic/names';
 import type { CardioType } from '../logic/types';
 import { cell, exerciseFacts, lastWeek, report, ruleTips, Tip, weekStats } from '../logic/week';
 import { useApp } from '../state';
+import { useTier } from '../pro';
 import { colors, fonts } from '../theme';
 import { Badge, Body, Bold, Button, Card, Eyebrow, H1, Muted, Row, Small, Stack, Stat, useToast } from '../ui/kit';
 
@@ -21,6 +23,7 @@ const DOT: Record<string, object> = {
 export function Week({ onOpen }: { onOpen: (sheet: string) => void }) {
   const { S } = useApp();
   const toast = useToast();
+  const [tier] = useTier();
   const rows = lastWeek(S);
   const w = weekStats(S, rows);
   const [ai, setAi] = useState<Tip[] | null>(null);
@@ -53,6 +56,14 @@ export function Week({ onOpen }: { onOpen: (sheet: string) => void }) {
   return (
     <Stack gap={18} style={{ paddingTop: 6 }}>
       <H1>{t('week.title')}</H1>
+      {S.coach ? null : (
+        <Card style={{ gap: 8, borderColor: colors.accent }}>
+          <Row style={{ justifyContent: 'space-between' }}><Eyebrow>{t('cplan.eyebrow')}</Eyebrow>{tier === 'free' ? <Badge label="PRO" /> : null}</Row>
+          <Bold>{t(tier === 'free' ? 'cplan.lockTitle' : S.coachWeek?.monday === dayKey(addDays(fromKey(lastWeekStart()), 7)) ? 'cplan.title' : 'cplan.cardTitle')}</Bold>
+          <Muted>{t(tier === 'free' ? 'cplan.lockText' : 'cplan.cardSub')}</Muted>
+          <Button small label={t(tier === 'free' ? 'trend.unlock' : 'cplan.open')} onPress={() => onOpen(tier === 'free' ? 'pro' : 'cplan')} />
+        </Card>
+      )}
       <Card style={{ paddingVertical: 4 }}>
         <Stat first label={t('week.trainings')} value={`${w.trained} / ${w.planned}`} />
         <Stat label={t('week.inBudget')} value={`${w.inBudget} / ${w.logged}`} />

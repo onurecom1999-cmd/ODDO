@@ -71,6 +71,8 @@ export type AppState = {
   saveAskedAt?: number;
   // Monday (day key) of the last week review the person opened.
   weekSeen?: string;
+  // Pro coach plan: the Monday it was taken over (or skipped) and the budget it set.
+  coachWeek?: { monday: string; budget?: number; skipped?: boolean };
   // Intermittent fasting: plan in fasting hours, the running fast's start (ms) and finished fasts, newest first.
   fast?: import('./fast').FastState;
 };

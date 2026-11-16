@@ -6,6 +6,7 @@ import { lastWeekStart, weekCard } from '../logic/reward';
 import { routineSteps, routineSub, routineTitle, sessionTitle } from '../logic/names';
 import { WHEN } from '../logic/routines';
 import { dayLog, useApp } from '../state';
+import { useTier } from '../pro';
 import { RoutineSheet, RoutinesEditSheet } from '../sheets/Routines';
 import { colors, fonts } from '../theme';
 import Svg, { Circle } from 'react-native-svg';
@@ -80,6 +81,10 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
   const wkMon = lastWeekStart();
   const wkCard = !S.example && [1, 2, 3].includes(new Date().getDay()) && S.weekSeen !== wkMon && S.startedAt && dayKey(new Date(S.startedAt)) <= dayKey(addDays(fromKey(wkMon), 6)) ? weekCard(S, wkMon) : null;
   const wk = wkCard && wkCard.active >= 1 ? wkCard : null;
+  // Pro: this week's coach plan, until it was opened. Only after a full week and not while a trainer runs the plan.
+  const [tier] = useTier();
+  const thisMon = dayKey(addDays(fromKey(wkMon), 7));
+  const coachCard = !wk && tier !== 'free' && !S.example && !S.coach && S.coachWeek?.monday !== thisMon && !!S.startedAt && dayKey(new Date(S.startedAt)) <= wkMon;
   const quick: { icon: IconName; label: string; go: () => void }[] = [
     { icon: 'food', label: t('today.qFood'), go: () => onOpen('food') },
     { icon: 'train', label: t('today.qTrain'), go: () => onOpen('train') },
@@ -114,6 +119,17 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
             <Text style={{ fontFamily: fonts.heavy, fontSize: 20, color: colors.text }}>{t('wk.cardTitle', { n: wk.active })}</Text>
             <Small>{t('wk.cardSub')}</Small>
             <Text style={{ fontFamily: fonts.heavy, fontSize: 15, color: colors.accent, marginTop: 4 }}>{t('wk.open')} →</Text>
+          </Card>
+        </Pressable>
+      ) : null}
+
+      {coachCard ? (
+        <Pressable accessibilityRole="button" onPress={() => onOpen('cplan')}>
+          <Card style={{ gap: 6, borderColor: colors.accent }}>
+            <Eyebrow>{t('cplan.eyebrow')}</Eyebrow>
+            <Text style={{ fontFamily: fonts.heavy, fontSize: 20, color: colors.text }}>{t('cplan.cardTitle')}</Text>
+            <Small>{t('cplan.cardSub')}</Small>
+            <Text style={{ fontFamily: fonts.heavy, fontSize: 15, color: colors.accent, marginTop: 4 }}>{t('cplan.open')} →</Text>
           </Card>
         </Pressable>
       ) : null}
