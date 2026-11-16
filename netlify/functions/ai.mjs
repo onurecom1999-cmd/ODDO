@@ -95,7 +95,7 @@ async function overLimit(task, req, context, user, tier) {
 
 // Opening /.netlify/functions/ai?check=1 in a browser shows whether the AI is set up: key present, model, and Claude's answer to a 1-word test.
 async function check() {
-  const out = { key: !!KEY(), keyStart: KEY().slice(0, 7), keyLength: KEY().length, model: MODEL };
+  const out = { key: !!KEY(), keyStart: KEY().slice(0, 7), keyLength: KEY().length, model: MODEL, netlifyGateway: !!process.env.ANTHROPIC_BASE_URL };
   if (!out.key) return json(200, { ...out, ok: false, reason: 'ANTHROPIC_API_KEY fehlt in Netlify' });
   try {
     const r = await fetch('https://api.anthropic.com/v1/messages', {
