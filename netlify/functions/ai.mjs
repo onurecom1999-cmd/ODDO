@@ -91,7 +91,30 @@ async function overLimit(task, req, context, user, tier) {
   return false;
 }
 
+// Opening /.netlify/functions/ai?check=1 in a browser shows whether the AI is set up: key present, model, and Claude's answer to a 1-word test.
+async function check() {
+  const out = { key: !!process.env.ANTHROPIC_API_KEY, model: MODEL };
+  if (!out.key) return json(200, { ...out, ok: false, reason: 'ANTHROPIC_API_KEY fehlt in Netlify' });
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({ model: MODEL, max_tokens: 5, messages: [{ role: 'user', content: 'Say ok' }] }),
+    });
+    const body = await r.json().catch(() => ({}));
+    return json(200, { ...out, ok: r.ok, status: r.status, error: r.ok ? undefined : body?.error });
+  } catch (e) {
+    return json(200, { ...out, ok: false, reason: `network: ${String(e).slice(0, 200)}` });
+  }
+}
+
 export default async (req, context) => {
+  try { return await handle(req, context); }
+  catch (e) { console.error(`ai crashed: ${String(e?.stack || e).slice(0, 800)}`); return json(500, { error: 'failed' }); }
+};
+
+async function handle(req, context) {
+  if (req.method === 'GET' && new URL(req.url).searchParams.has('check')) return check();
   if (req.method !== 'POST') return json(405, { error: 'method' });
   if (!process.env.ANTHROPIC_API_KEY) return json(503, { error: 'unavailable' });
   let b;
@@ -131,4 +154,4 @@ export default async (req, context) => {
   const m = text.match(/\{[\s\S]*\}/);
   if (!m) { console.error(`anthropic no json task=${task} stop=${out.stop_reason}`); return json(502, { error: 'failed' }); }
   try { return json(200, JSON.parse(m[0])); } catch { return json(502, { error: 'failed' }); }
-};
+}
