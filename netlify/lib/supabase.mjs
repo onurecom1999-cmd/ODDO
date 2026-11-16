@@ -26,6 +26,8 @@ export async function tierOf(userId) {
       headers: { apikey: SERVICE(), authorization: `Bearer ${SERVICE()}` },
     });
     const [s] = res.ok ? await res.json() : [];
+    // ODDO admins test the AI a lot: they get the highest limits.
+    if ((await rest(`admins?user_id=eq.${encodeURIComponent(userId)}&select=user_id`)).length) return 'ultimate';
     const live = s && (ACTIVE.has(s.status) || (s.status === 'cancelled' && s.ends_at && new Date(s.ends_at) > new Date()));
     if (live) return s.tier;
     return (await withCoach(userId)) ? 'pro' : 'free';

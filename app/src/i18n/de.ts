@@ -1514,6 +1514,7 @@ export const de = {
   'food.conf.high': "sicher",
   'food.conf.medium': "ziemlich sicher",
   'food.conf.low': "unsicher",
+  'food.fromGallery': "Foto aus der Galerie wählen",
 };
 
 export type Key = keyof typeof de;

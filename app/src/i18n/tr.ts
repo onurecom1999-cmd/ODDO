@@ -1515,4 +1515,5 @@ export const tr: Record<Key, string> = {
   'food.conf.high': "emin",
   'food.conf.medium': "oldukça emin",
   'food.conf.low': "emin değil",
+  'food.fromGallery': "Galeriden fotoğraf seç",
 };

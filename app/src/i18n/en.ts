@@ -1515,4 +1515,5 @@ export const en: Record<Key, string> = {
   'food.conf.high': "confident",
   'food.conf.medium': "fairly sure",
   'food.conf.low': "unsure",
+  'food.fromGallery': "Choose a photo from your gallery",
 };

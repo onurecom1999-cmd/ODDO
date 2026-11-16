@@ -14,7 +14,7 @@ import { colors, fonts } from '../theme';
 import { Icon, IconName } from '../ui/icons';
 import { Bold, Button, Card, Chip, Chips, Eyebrow, Field, H2, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
 
-export type FoodMode = 'photo' | 'search' | 'barcode' | 'describe' | 'quick';
+export type FoodMode = 'photo' | 'gallery' | 'search' | 'barcode' | 'describe' | 'quick';
 const PORTIONS = [0.5, 0.75, 1, 1.25, 1.5];
 
 function errorText(e: unknown) {
@@ -51,8 +51,8 @@ export function FoodSheet({ mode: start, onClose, onPro }: { mode: FoodMode; onC
   const [m, setM] = useState({ name: '', kcal: '', protein: '' });
 
   // Takes the photo and asks for an estimate; also used for "try again" after a failed estimate.
-  const takePhoto = async (first: boolean) => {
-    const picked = await pickPhoto('camera');
+  const takePhoto = async (first: boolean, from: 'camera' | 'library' = 'camera') => {
+    const picked = await pickPhoto(from);
     if (!picked) { if (first) onClose(); return; }
     setError(''); setResult(null);
     const [small, big] = await Promise.all([shrink(picked, 160, 0.7), shrink(picked, 1024, 0.8)]);
@@ -60,7 +60,7 @@ export function FoodSheet({ mode: start, onClose, onPro }: { mode: FoodMode; onC
     try { setResult(await estimatePhoto(big, getLang())); } catch (e) { setError(errorText(e)); }
     setLoading(false);
   };
-  useEffect(() => { if (mode === 'photo') takePhoto(true); }, []);
+  useEffect(() => { if (mode === 'photo' || mode === 'gallery') takePhoto(true, mode === 'gallery' ? 'library' : 'camera'); }, []);
 
   const add = useAddMeal(onClose);
 
@@ -91,7 +91,7 @@ export function FoodSheet({ mode: start, onClose, onPro }: { mode: FoodMode; onC
 
   if (mode === 'barcode') return <BarcodeSheet onClose={onClose} add={add} />;
   if (mode === 'search') return <SearchSheet onClose={onClose} add={add} onDescribe={q => { setDesc(q); setMode('describe'); }} />;
-  const title = mode === 'photo' ? t('food.titlePhoto') : mode === 'describe' ? t('food.titleDescribe') : t('food.titleQuick');
+  const title = mode === 'photo' || mode === 'gallery' ? t('food.titlePhoto') : mode === 'describe' ? t('food.titleDescribe') : t('food.titleQuick');
   return (
     <Sheet visible title={title} onClose={onClose}>
       {photo ? <Image source={{ uri: photo }} style={{ width: '100%', aspectRatio: 4 / 3, borderRadius: 16, backgroundColor: colors.surface2 }} resizeMode="cover" accessibilityLabel={t('food.yourFood')} /> : null}
@@ -107,12 +107,12 @@ export function FoodSheet({ mode: start, onClose, onPro }: { mode: FoodMode; onC
           {QUICK.map((q, i) => <Chip key={i} block label={l3(q.name)} sub={`${q.kcal} ${t('kcal')} · ${q.protein} g ${t('today.protein')}`} onPress={() => add({ name: l3(q.name), kcal: q.kcal, protein: q.protein, est: true })} />)}
         </Stack>
       ) : null}
-      {loading ? <Row style={{ paddingVertical: 12 }}><ActivityIndicator color={colors.accent} /><Muted>{mode === 'photo' ? t('food.looking') : t('food.thinking')}</Muted></Row> : null}
+      {loading ? <Row style={{ paddingVertical: 12 }}><ActivityIndicator color={colors.accent} /><Muted>{mode === 'photo' || mode === 'gallery' ? t('food.looking') : t('food.thinking')}</Muted></Row> : null}
       {error ? <Muted>{error}</Muted> : null}
       {error === t('food.err.upgrade') && onPro ? <Button variant="ghost" small label={t('pro.cta')} onPress={onPro} /> : null}
-      {error && mode === 'photo' && !loading ? (
+      {error && (mode === 'photo' || mode === 'gallery') && !loading ? (
         <Row style={{ gap: 10 }}>
-          <Button variant="ghost" small style={{ flex: 1 }} label={t('food.retryPhoto')} onPress={() => takePhoto(false)} />
+          <Button variant="ghost" small style={{ flex: 1 }} label={t('food.retryPhoto')} onPress={() => takePhoto(false, mode === 'gallery' ? 'library' : 'camera')} />
           <Button variant="ghost" small style={{ flex: 1 }} label={t('food.titleSearch')} onPress={() => setMode('search')} />
         </Row>
       ) : null}
@@ -138,7 +138,7 @@ export function FoodSheet({ mode: start, onClose, onPro }: { mode: FoodMode; onC
           <Button variant="ghost" small label={t('food.correct')} onPress={() => { setM({ name: result.name, kcal: String(Math.round(result.kcal * portion)), protein: String(Math.round(result.protein * portion)) }); setResult(null); }} />
         </Stack>
       ) : null}
-      {!loading && !result && (mode !== 'photo' || photo) ? manual : null}
+      {!loading && !result && ((mode !== 'photo' && mode !== 'gallery') || photo) ? manual : null}
     </Sheet>
   );
 }
@@ -335,7 +335,8 @@ export function FoodPick({ onClose, onPick, onRecipes }: { onClose: () => void; 
           </View>
         ) : null}
         {opts.map(o => (
-          <Pressable key={o.m} accessibilityRole="button" testID={`food-${o.m}`} onPress={() => onPick(o.m)}>
+          <View key={o.m} style={{ gap: 6 }}>
+          <Pressable accessibilityRole="button" testID={`food-${o.m}`} onPress={() => onPick(o.m)}>
             {({ pressed }) => (
               <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 14, opacity: pressed ? 0.7 : 1, borderColor: o.m === 'photo' ? colors.accent : colors.line }}>
                 <View style={{ width: 48, height: 48, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: o.m === 'photo' ? colors.accent : colors.surface2 }}>
@@ -349,6 +350,8 @@ export function FoodPick({ onClose, onPick, onRecipes }: { onClose: () => void; 
               </Card>
             )}
           </Pressable>
+          {o.m === 'photo' ? <Button variant="ghost" small label={t('food.fromGallery')} onPress={() => onPick('gallery')} /> : null}
+          </View>
         ))}
         {onRecipes ? (
           <Pressable accessibilityRole="button" testID="food-recipes" onPress={onRecipes}>
