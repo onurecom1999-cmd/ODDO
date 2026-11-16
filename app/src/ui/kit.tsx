@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useCallback, useContext, useRef, useState } from 'react';
-import { Modal, Pressable, ScrollView, ScrollViewInstance, StyleProp, StyleSheet, Text, TextInput, TextInputProps, TextStyle, View, ViewStyle } from 'react-native';
+import { Modal, Platform, Pressable, ScrollView, ScrollViewInstance, StyleProp, StyleSheet, Text, TextInput, TextInputProps, TextStyle, View, ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Polygon, Text as SvgText } from 'react-native-svg';
 import { colors, fonts, radius } from '../theme';
@@ -93,7 +93,7 @@ export function Sheet({ visible, title, onClose, children, footer }: { visible: 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose} transparent={false}>
       <View style={{ flex: 1, backgroundColor: colors.bg }}>
-        <ScrollView contentContainerStyle={{ paddingTop: insets.top + 14, paddingBottom: insets.bottom + 40 }} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={{ paddingTop: insets.top + 14, paddingBottom: insets.bottom + (Platform.OS === 'web' ? 120 : 40) }} keyboardShouldPersistTaps="handled">
           <View style={[s.column, { gap: 16 }]}>
             <Row style={{ justifyContent: 'space-between' }}>
               <Eyebrow>{title}</Eyebrow>

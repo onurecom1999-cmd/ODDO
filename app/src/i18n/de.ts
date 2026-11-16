@@ -1510,6 +1510,7 @@ export const de = {
   'reward.band': "Gratis-App",
   'reward.codeLine': "Code {code} = 1 Monat Pro gratis",
   'reward.shareHint': "Öffnet dein Teilen-Menü mit Instagram, TikTok, WhatsApp und mehr.",
+  'food.retryPhoto': "Neues Foto",
 };
 
 export type Key = keyof typeof de;

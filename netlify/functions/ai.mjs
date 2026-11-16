@@ -27,15 +27,22 @@ const FOOD_FORMAT = `Answer only with JSON:
 {"name":"short meal name","items":[{"name":"…","grams":0}],"kcal":0,"protein":0,"carbs":0,"fat":0,"confidence":"high|medium|low","hint":"one short sentence, e.g. what you assumed about oil or portion"}
 Estimate realistic restaurant or home portions; include cooking oil and sauces. If there is no food or drink, answer {"name":""}.`;
 
+// The photo as Claude expects it; the type is read from the file's first bytes, so a PNG or WebP is never sent as JPEG.
+function imageSource(img) {
+  const data = String(img || '').replace(/^data:image\/[\w+.-]+;base64,/, '');
+  const media_type = data.startsWith('iVBOR') ? 'image/png' : data.startsWith('UklGR') ? 'image/webp' : data.startsWith('R0lGOD') ? 'image/gif' : 'image/jpeg';
+  return { type: 'base64', media_type, data };
+}
+
 function prompt(task, b) {
   const lang = LANG[b.lang] || 'German';
   if (task === 'food_photo') return [
-    { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: String(b.image || '').replace(/^data:image\/\w+;base64,/, '') } },
+    { type: 'image', source: imageSource(b.image) },
     { type: 'text', text: `Estimate the nutrition of the meal in this photo. Write name, item names and hint in ${lang}.\n${FOOD_FORMAT}` },
   ];
   // A packaged product the barcode lookup did not know: read its nutrition table so it can be saved for everyone.
   if (task === 'label') return [
-    { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: String(b.image || '').replace(/^data:image\/\w+;base64,/, '') } },
+    { type: 'image', source: imageSource(b.image) },
     { type: 'text', text: `This photo shows the nutrition table of a packaged food or drink, maybe with the front of the pack. Read the values per 100 g (or per 100 ml for drinks). If only kJ is given, convert to kcal (divide by 4.184). Read the serving or package size in grams or ml if printed. Name and brand as printed on the pack; if not visible, give a short plain name of the product type in ${lang} and an empty brand.
 Answer only with JSON: {"name":"…","brand":"…","kcal100":0,"protein100":0,"serving":0}
 If no nutrition table can be read, answer {"name":""}.` },
@@ -111,11 +118,17 @@ export default async (req, context) => {
   } catch {
     return json(503, { error: 'unavailable' });
   }
-  if (res.status === 429 || res.status >= 500) return json(503, { error: 'unavailable' });
-  if (!res.ok) return json(502, { error: 'failed' });
+  if (!res.ok) {
+    // Logged for the Netlify function log (never the key): shows e.g. a wrong key, no credit left or a bad request.
+    let detail = ''; try { const e = await res.json(); detail = `${e?.error?.type || ''}: ${e?.error?.message || ''}`; } catch {}
+    console.error(`anthropic ${res.status} task=${task} model=${MODEL} ${detail}`.slice(0, 500));
+    // Overloaded, no credit, wrong or missing key: the service is not usable right now, not the person's photo.
+    if (res.status === 429 || res.status >= 500 || res.status === 401 || res.status === 403 || /credit|billing/i.test(detail)) return json(503, { error: 'unavailable' });
+    return json(502, { error: 'failed' });
+  }
   const out = await res.json();
   const text = (out.content || []).filter(c => c.type === 'text').map(c => c.text).join('');
   const m = text.match(/\{[\s\S]*\}/);
-  if (!m) return json(502, { error: 'failed' });
+  if (!m) { console.error(`anthropic no json task=${task} stop=${out.stop_reason}`); return json(502, { error: 'failed' }); }
   try { return json(200, JSON.parse(m[0])); } catch { return json(502, { error: 'failed' }); }
 };

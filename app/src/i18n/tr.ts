@@ -1511,4 +1511,5 @@ export const tr: Record<Key, string> = {
   'reward.band': "Ücretsiz uygulama",
   'reward.codeLine': "Kod {code} = 1 ay Pro ücretsiz",
   'reward.shareHint': "Instagram, TikTok, WhatsApp ve daha fazlasıyla paylaşım menünü açar.",
+  'food.retryPhoto': "Yeni fotoğraf",
 };

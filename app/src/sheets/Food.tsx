@@ -50,17 +50,17 @@ export function FoodSheet({ mode: start, onClose, onPro }: { mode: FoodMode; onC
   const [portion, setPortion] = useState(1);
   const [m, setM] = useState({ name: '', kcal: '', protein: '' });
 
-  useEffect(() => {
-    if (mode !== 'photo') return;
-    (async () => {
-      const picked = await pickPhoto('camera');
-      if (!picked) { onClose(); return; }
-      const [small, big] = await Promise.all([shrink(picked, 160, 0.7), shrink(picked, 1024, 0.8)]);
-      setThumb(small); setPhoto(big); setLoading(true);
-      try { setResult(await estimatePhoto(big, getLang())); } catch (e) { setError(errorText(e)); }
-      setLoading(false);
-    })();
-  }, []);
+  // Takes the photo and asks for an estimate; also used for "try again" after a failed estimate.
+  const takePhoto = async (first: boolean) => {
+    const picked = await pickPhoto('camera');
+    if (!picked) { if (first) onClose(); return; }
+    setError(''); setResult(null);
+    const [small, big] = await Promise.all([shrink(picked, 160, 0.7), shrink(picked, 1024, 0.8)]);
+    setThumb(small); setPhoto(big); setLoading(true);
+    try { setResult(await estimatePhoto(big, getLang())); } catch (e) { setError(errorText(e)); }
+    setLoading(false);
+  };
+  useEffect(() => { if (mode === 'photo') takePhoto(true); }, []);
 
   const add = useAddMeal(onClose);
 
@@ -85,7 +85,7 @@ export function FoodSheet({ mode: start, onClose, onPro }: { mode: FoodMode; onC
         <Field label={t('kcal')} keyboardType="number-pad" value={m.kcal} onChangeText={v => setM({ ...m, kcal: v })} placeholder="600" />
         <Field label={t('food.proteinG')} keyboardType="number-pad" value={m.protein} onChangeText={v => setM({ ...m, protein: v })} placeholder="40" />
       </Row>
-      <Button variant="ghost" label={t('food.addManual')} onPress={addManual} />
+      <Button variant={error ? 'accent' : 'ghost'} label={t('food.addManual')} onPress={addManual} />
     </Card>
   );
 
@@ -110,6 +110,12 @@ export function FoodSheet({ mode: start, onClose, onPro }: { mode: FoodMode; onC
       {loading ? <Row style={{ paddingVertical: 12 }}><ActivityIndicator color={colors.accent} /><Muted>{mode === 'photo' ? t('food.looking') : t('food.thinking')}</Muted></Row> : null}
       {error ? <Muted>{error}</Muted> : null}
       {error === t('food.err.upgrade') && onPro ? <Button variant="ghost" small label={t('pro.cta')} onPress={onPro} /> : null}
+      {error && mode === 'photo' && !loading ? (
+        <Row style={{ gap: 10 }}>
+          <Button variant="ghost" small style={{ flex: 1 }} label={t('food.retryPhoto')} onPress={() => takePhoto(false)} />
+          <Button variant="ghost" small style={{ flex: 1 }} label={t('food.titleSearch')} onPress={() => setMode('search')} />
+        </Row>
+      ) : null}
       {result && !loading ? (
         <Stack gap={14}>
           <View style={{ gap: 6 }}>
