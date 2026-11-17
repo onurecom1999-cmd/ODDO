@@ -15,8 +15,12 @@ const CHECKOUT: Record<Plan, string> = {
   ultimate: process.env.EXPO_PUBLIC_CHECKOUT_ULTIMATE || '',
 };
 const FOUNDER_CODE = process.env.EXPO_PUBLIC_FOUNDER_CODE || '';
-export const checkoutReady = (t: Plan) => !!CHECKOUT[t];
-export const founderOffer = !!FOUNDER_CODE;
+// Web checkout only on the web: Apple and Google don't allow paying outside their store inside the app.
+// Until the store plans exist (storeBilling), the iPhone and Android apps sell nothing and show no prices.
+const WEB = Platform.OS === 'web';
+export const sellsHere = WEB || storeBilling;
+export const checkoutReady = (t: Plan) => WEB && !!CHECKOUT[t];
+export const founderOffer = WEB && !!FOUNDER_CODE;
 
 const RANK: Record<Tier, number> = { free: 0, pro: 1, ultimate: 2 };
 export const best = (a: Tier, b: Tier): Tier => RANK[a] >= RANK[b] ? a : b;
@@ -79,7 +83,7 @@ export function useTier() {
 // Opens the checkout with the account id attached, so the webhook knows whom to upgrade.
 export async function checkout(t: Plan, founder = false): Promise<boolean> {
   const id = await userId();
-  if (!id || !CHECKOUT[t]) return false;
+  if (!WEB || !id || !CHECKOUT[t]) return false;
   const q = new URLSearchParams({ 'checkout[custom][user_id]': id });
   if (founder && FOUNDER_CODE) { q.set('checkout[discount_code]', FOUNDER_CODE); q.set('checkout[custom][founder]', '1'); }
   await Linking.openURL(`${CHECKOUT[t]}${CHECKOUT[t].includes('?') ? '&' : '?'}${q}`);

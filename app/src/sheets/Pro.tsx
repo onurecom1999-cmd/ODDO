@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Linking, Text, View } from 'react-native';
 import { getLang, Key, LOCALE, t } from '../i18n';
-import { best, changeSubscription, checkout, checkoutReady, founderLeft, founderOffer, liveSub, mySubscription, Plan, STORE_MANAGE, Subscription, Tier, useTier } from '../pro';
+import { best, sellsHere, changeSubscription, checkout, checkoutReady, founderLeft, founderOffer, liveSub, mySubscription, Plan, STORE_MANAGE, Subscription, Tier, useTier } from '../pro';
 import { storeBilling, StorePlan, storeBuy, storePrices, storeRestore } from '../store';
 import { colors, fonts } from '../theme';
 import { Badge, Bold, Button, Card, LinkButton, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
@@ -70,10 +70,10 @@ export function ProSheet({ onClose, reason }: { onClose: () => void; reason?: st
             <Stack gap={10}>
               <Row style={{ justifyContent: 'space-between' }}>
                 <Text style={{ fontFamily: fonts.display, fontSize: 26, color: colors.text }}>{t(`pro.${p.id}` as Key)}</Text>
-                <View style={{ alignItems: 'flex-end' }}>
+                {sellsHere ? <View style={{ alignItems: 'flex-end' }}>
                   <Bold>{(p.id !== 'free' && prices[p.id]) || usd(p.price)}</Bold>
                   {p.id === 'free' ? null : <Small>{t('pro.month')}</Small>}
-                </View>
+                </View> : null}
               </Row>
               {p.perks.map(k => <Text key={k} style={{ fontFamily: fonts.medium, color: colors.text }}><Text style={{ color: colors.accent }}>✓ </Text>{t(k as Key)}</Text>)}
               {p.id === tier ? <Badge label={t('pro.current')} accent /> : p.id === 'free' ? null : p.id === 'pro' && yearFirst ? (
@@ -93,7 +93,7 @@ export function ProSheet({ onClose, reason }: { onClose: () => void; reason?: st
           </Card>
         ))}
         {tier !== 'free' ? <ManageSubscription /> : null}
-        <Small>{t(storeBilling ? 'pro.legalStore' : 'pro.legal')}</Small>
+        {sellsHere ? <Small>{t(storeBilling ? 'pro.legalStore' : 'pro.legal')}</Small> : null}
         <Row style={{ gap: 18, flexWrap: 'wrap' }}>
           {storeBilling ? <LinkButton label={t('pro.restore')} onPress={restore} /> : null}
           <LinkButton label={t('legal.terms')} onPress={() => Linking.openURL(`${SITE}/agb.html#${getLang()}`)} style={{ color: colors.dim }} />
