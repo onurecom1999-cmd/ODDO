@@ -629,7 +629,7 @@ export const de = {
   'pro.founderTitle': '{price} statt {was}, für immer',
   'pro.founderText': 'Nur für die ersten 100. Dazu das Gründer-Emblem und nach 30 Tagen am Stück 3 Monate geschenkt.',
   'pro.founderCta': 'Gründerplatz sichern',
-  'pro.legal': 'Jederzeit kündbar, zum Ende des bezahlten Zeitraums. Die Bezahlung läuft sicher über Lemon Squeezy.',
+  'pro.legal': 'Jederzeit kündbar, zum Ende des bezahlten Zeitraums. Die Bezahlung läuft sicher über Paddle.',
   'pro.upgradeFood': 'Deine 3 kostenlosen KI-Schätzungen für heute sind aufgebraucht. Mit Pro sind es bis zu 25 am Tag.',
   'pro.upgradeTips': 'Persönliche Coach-Tipps gibt es einmal am Tag kostenlos. Mit Pro bis zu fünf Auswertungen.',
   'pro.cta': 'ODDO Pro ansehen',
@@ -657,7 +657,7 @@ export const de = {
   // legal
   'acc.delete': 'Konto und Daten löschen',
   'acc.deleteQ': 'Konto wirklich löschen?',
-  'acc.deleteSub': 'Dein Konto, deine Sicherung, Beiträge, Kommentare und Gruppen-Mitgliedschaften werden endgültig gelöscht, dazu alle Daten auf diesem Gerät. Ein laufendes Abo kündigst du in der Bestätigungs-Mail von Lemon Squeezy.',
+  'acc.deleteSub': 'Dein Konto, deine Sicherung, Beiträge, Kommentare und Gruppen-Mitgliedschaften werden endgültig gelöscht, dazu alle Daten auf diesem Gerät. Ein Web-Abo über Paddle wird dabei zum Ende des bezahlten Monats beendet. Ein Abo aus dem App Store oder Google Play kündigst du dort.',
   'acc.deleteYes': 'Ja, endgültig löschen',
   'legal.privacy': 'Datenschutz',
   'legal.terms': 'AGB',

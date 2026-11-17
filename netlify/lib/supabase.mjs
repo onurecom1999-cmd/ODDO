@@ -72,6 +72,13 @@ export async function userForLsSubscription(subId) {
   return row?.user_id || null;
 }
 
+// The account behind a Paddle (or other store) subscription id, for events that come without custom data.
+export async function userForStoreSubscription(subId) {
+  if (!SERVICE() || !subId) return null;
+  const [row] = await rest(`subscriptions?store_id=eq.${encodeURIComponent(String(subId))}&select=user_id`);
+  return row?.user_id || null;
+}
+
 export async function upsertSubscription(row) {
   if (!SERVICE()) throw new Error('SUPABASE_SERVICE_ROLE_KEY missing');
   const res = await fetch(`${SB_URL}/rest/v1/subscriptions?on_conflict=user_id`, {

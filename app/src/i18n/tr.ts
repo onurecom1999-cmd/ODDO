@@ -630,7 +630,7 @@ export const tr: Record<Key, string> = {
   'pro.founderTitle': '{was} yerine {price}, ömür boyu',
   'pro.founderText': 'Sadece ilk 100 kişiye. Ayrıca kurucu amblemi ve 30 gün üst üste sonrası 3 ay hediye.',
   'pro.founderCta': 'Kurucu yerini ayırt',
-  'pro.legal': 'İstediğin zaman iptal edebilirsin, ödenen dönemin sonunda geçerli olur. Ödeme güvenli şekilde Lemon Squeezy üzerinden yapılır.',
+  'pro.legal': 'İstediğin zaman iptal edebilirsin, ödenen dönemin sonunda geçerli olur. Ödeme güvenli şekilde Paddle üzerinden yapılır.',
   'pro.upgradeFood': 'Bugünkü 3 ücretsiz YZ tahminin bitti. Pro ile günde 25\'e kadar.',
   'pro.upgradeTips': 'Kişisel koç ipuçları günde bir kez ücretsiz. Pro ile beşe kadar değerlendirme.',
   'pro.cta': 'ODDO Pro\'ya bak',
@@ -658,7 +658,7 @@ export const tr: Record<Key, string> = {
   // legal
   'acc.delete': 'Hesabı ve verileri sil',
   'acc.deleteQ': 'Hesabın gerçekten silinsin mi?',
-  'acc.deleteSub': 'Hesabın, yedeğin, paylaşımların, yorumların ve grup üyeliklerin kalıcı olarak silinir, bu cihazdaki tüm veriler de. Devam eden aboneliği Lemon Squeezy onay e-postasından iptal edersin.',
+  'acc.deleteSub': 'Hesabın, yedeğin, paylaşımların, yorumların ve grup üyeliklerin kalıcı olarak silinir, bu cihazdaki tüm veriler de. Paddle üzerinden web aboneliği, ödenen ayın sonunda sona erer. App Store veya Google Play aboneliğini oradan iptal edersin.',
   'acc.deleteYes': 'Evet, kalıcı olarak sil',
   'legal.privacy': 'Gizlilik',
   'legal.terms': 'Koşullar',

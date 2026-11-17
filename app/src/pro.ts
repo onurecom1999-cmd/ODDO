@@ -6,13 +6,15 @@ import { supabase } from './supabase';
 
 export type Tier = 'free' | 'pro' | 'ultimate';
 
-// Lemon Squeezy checkout links (public). Empty until the products exist.
+// Paddle checkout (web): the client-side token and the price ids are public. Empty until the products exist.
 export type Plan = 'pro' | 'proYear' | 'ultimate';
 import { SITE } from './site';
+import { getLang } from './i18n';
+const PADDLE_TOKEN = process.env.EXPO_PUBLIC_PADDLE_TOKEN || '';
 const CHECKOUT: Record<Plan, string> = {
-  pro: process.env.EXPO_PUBLIC_CHECKOUT_PRO || '',
-  proYear: process.env.EXPO_PUBLIC_CHECKOUT_PRO_YEAR || '',
-  ultimate: process.env.EXPO_PUBLIC_CHECKOUT_ULTIMATE || '',
+  pro: PADDLE_TOKEN && (process.env.EXPO_PUBLIC_PADDLE_PRICE_PRO || ''),
+  proYear: PADDLE_TOKEN && (process.env.EXPO_PUBLIC_PADDLE_PRICE_PRO_YEAR || ''),
+  ultimate: PADDLE_TOKEN && (process.env.EXPO_PUBLIC_PADDLE_PRICE_ULTIMATE || ''),
 };
 const FOUNDER_CODE = process.env.EXPO_PUBLIC_FOUNDER_CODE || '';
 // Web checkout only on the web: Apple and Google don't allow paying outside their store inside the app.
@@ -45,7 +47,7 @@ async function serverTier(): Promise<Tier> {
   const viaCoach: Tier = perks?.partner || perks?.free_until ? 'pro' : 'free';
   const viaIdea: Tier = perks?.ultimate_until ? 'ultimate' : 'free';
   if (!data) return best(viaCoach, viaIdea);
-  const live = ['on_trial', 'active', 'past_due'].includes(data.status) || (data.status === 'cancelled' && data.ends_at && new Date(data.ends_at) > new Date());
+  const live = liveSub(data as Subscription);
   return best(best(live ? (data.tier as Tier) : 'free', viaCoach), viaIdea);
 }
 
@@ -80,14 +82,54 @@ export function useTier() {
   return [tier, setTier] as const;
 }
 
+// Paddle.js loads once, on the first purchase tap; a test_ token means Paddle's sandbox.
+type PaddleJs = { Environment: { set: (e: string) => void }; Initialize: (o: object) => void; Checkout: { open: (o: object) => void } };
+let paddleJs: Promise<PaddleJs> | null = null;
+let onPaid: (() => void) | null = null;
+function loadPaddle(): Promise<PaddleJs> {
+  if (paddleJs) return paddleJs;
+  paddleJs = new Promise<PaddleJs>((resolve, reject) => {
+    const el = document.createElement('script');
+    el.src = 'https://cdn.paddle.com/paddle/v2/paddle.js';
+    el.onload = () => {
+      const P = (window as unknown as { Paddle: PaddleJs }).Paddle;
+      if (PADDLE_TOKEN.startsWith('test_')) P.Environment.set('sandbox');
+      P.Initialize({ token: PADDLE_TOKEN, eventCallback: (e: { name?: string }) => { if (e?.name === 'checkout.completed') onPaid?.(); } });
+      resolve(P);
+    };
+    el.onerror = () => { paddleJs = null; reject(new Error('paddle')); };
+    document.head.appendChild(el);
+  });
+  return paddleJs;
+}
+
 // Opens the checkout with the account id attached, so the webhook knows whom to upgrade.
-export async function checkout(t: Plan, founder = false): Promise<boolean> {
+export async function checkout(t: Plan, founder = false, paid?: () => void): Promise<boolean> {
   const id = await userId();
   if (!WEB || !id || !CHECKOUT[t]) return false;
-  const q = new URLSearchParams({ 'checkout[custom][user_id]': id });
-  if (founder && FOUNDER_CODE) { q.set('checkout[discount_code]', FOUNDER_CODE); q.set('checkout[custom][founder]', '1'); }
-  await Linking.openURL(`${CHECKOUT[t]}${CHECKOUT[t].includes('?') ? '&' : '?'}${q}`);
+  const P = await loadPaddle();
+  onPaid = paid || null;
+  const { data } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const email = data.user?.email;
+  P.Checkout.open({
+    items: [{ priceId: CHECKOUT[t], quantity: 1 }],
+    customData: { user_id: id, ...(founder && FOUNDER_CODE ? { founder: '1' } : {}) },
+    ...(founder && FOUNDER_CODE ? { discountCode: FOUNDER_CODE } : {}),
+    ...(email ? { customer: { email } } : {}),
+    settings: { displayMode: 'overlay', locale: getLang(), theme: 'dark', allowLogout: false },
+  });
   return true;
+}
+
+// Right after paying, the webhook needs a moment; ask the server a few times until the new plan shows.
+export async function waitForTier(want: Tier, tries = 8): Promise<Tier> {
+  let got: Tier = 'free';
+  for (let i = 0; i < tries; i++) {
+    got = await serverTier().catch(() => 'free' as Tier);
+    if (RANK[got] >= RANK[want]) return got;
+    await new Promise(r => setTimeout(r, 2500));
+  }
+  return got;
 }
 
 // The person's free Pro as a partner or in the free month after joining one; refreshed on every open.
@@ -98,8 +140,9 @@ export function usePerks() {
 }
 
 export type Subscription = { tier: Tier; status: string; source: string; renews_at: string | null; ends_at: string | null };
+// Cancelled or paused plans stay live until the paid month ends (ends_at).
 export const liveSub = (s: Subscription | null) =>
-  !!s && (['on_trial', 'active', 'past_due'].includes(s.status) || (s.status === 'cancelled' && !!s.ends_at && new Date(s.ends_at) > new Date()));
+  !!s && (['on_trial', 'active', 'past_due'].includes(s.status) || (['cancelled', 'paused'].includes(s.status) && !!s.ends_at && new Date(s.ends_at) > new Date()));
 
 export async function mySubscription(): Promise<Subscription | null> {
   const id = await userId();
@@ -108,7 +151,7 @@ export async function mySubscription(): Promise<Subscription | null> {
   return (data as Subscription | null) ?? null;
 }
 
-// Web subscriptions are changed through our server (Lemon Squeezy); store ones in the store's own settings.
+// Web subscriptions are changed through our server (Paddle); store ones in the store's own settings.
 export const STORE_MANAGE: Record<string, string> = {
   apple: 'https://apps.apple.com/account/subscriptions',
   google: 'https://play.google.com/store/account/subscriptions?package=app.oddo.coach',

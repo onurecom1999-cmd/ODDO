@@ -630,7 +630,7 @@ export const en: Record<Key, string> = {
   'pro.founderTitle': '{price} instead of {was}, forever',
   'pro.founderText': 'Only for the first 100. Plus the founder emblem and 3 months free after a 30-day streak.',
   'pro.founderCta': 'Claim a founder spot',
-  'pro.legal': 'Cancel any time, effective at the end of the paid period. Payments are handled securely by Lemon Squeezy.',
+  'pro.legal': 'Cancel any time, effective at the end of the paid period. Payments are handled securely by Paddle.',
   'pro.upgradeFood': 'Your 3 free AI estimates for today are used up. Pro gives you up to 25 a day.',
   'pro.upgradeTips': 'Personal coach tips are free once a day. Pro gives you up to five reviews.',
   'pro.cta': 'See ODDO Pro',
@@ -658,7 +658,7 @@ export const en: Record<Key, string> = {
   // legal
   'acc.delete': 'Delete account and data',
   'acc.deleteQ': 'Really delete your account?',
-  'acc.deleteSub': 'Your account, backup, posts, comments and group memberships are deleted for good, along with all data on this device. Cancel a running subscription via the Lemon Squeezy confirmation email.',
+  'acc.deleteSub': 'Your account, backup, posts, comments and group memberships are deleted for good, along with all data on this device. A web subscription through Paddle ends at the end of the paid month. Cancel an App Store or Google Play subscription there.',
   'acc.deleteYes': 'Yes, delete for good',
   'legal.privacy': 'Privacy',
   'legal.terms': 'Terms',

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Linking, Text, View } from 'react-native';
 import { getLang, Key, LOCALE, t } from '../i18n';
-import { best, sellsHere, changeSubscription, checkout, checkoutReady, founderLeft, founderOffer, liveSub, mySubscription, Plan, STORE_MANAGE, Subscription, Tier, useTier } from '../pro';
+import { best, sellsHere, changeSubscription, checkout, checkoutReady, waitForTier, founderLeft, founderOffer, liveSub, mySubscription, Plan, STORE_MANAGE, Subscription, Tier, useTier } from '../pro';
 import { storeBilling, StorePlan, storeBuy, storePrices, storeRestore } from '../store';
 import { colors, fonts } from '../theme';
 import { Badge, Bold, Button, Card, LinkButton, Muted, Row, Sheet, Small, Stack, useToast } from '../ui/kit';
@@ -22,7 +22,7 @@ export function ProSheet({ onClose, reason }: { onClose: () => void; reason?: st
   const [tier, setTier] = useTier();
   const toast = useToast();
   const [busy, setBusy] = useState(false);
-  // In the iPhone and Android apps the store sells the plans and sets the price; on the web Lemon Squeezy does.
+  // In the iPhone and Android apps the store sells the plans and sets the price; on the web Paddle does.
   const [prices, setPrices] = useState<Partial<Record<StorePlan, string>>>({});
   useEffect(() => { if (storeBilling) storePrices().then(setPrices, () => {}); }, []);
   const ready = (id: Plan) => storeBilling ? !!prices[id] : checkoutReady(id);
@@ -38,7 +38,11 @@ export function ProSheet({ onClose, reason }: { onClose: () => void; reason?: st
       if (r === 'ok') { setTier(best(tier, id === 'ultimate' ? 'ultimate' : 'pro')); toast(t('pro.thanks')); }
       else if (r !== 'cancelled') toast(t('pro.failed'));
     } else {
-      const ok = await checkout(id, isFounder).catch(() => false);
+      const want: Tier = id === 'ultimate' ? 'ultimate' : 'pro';
+      const ok = await checkout(id, isFounder, () => {
+        toast(t('pro.thanks'));
+        waitForTier(want).then(got => setTier(best(tier, got)), () => {});
+      }).catch(() => false);
       if (!ok) toast(t('pro.notYet'));
     }
     setBusy(false);
