@@ -22,6 +22,8 @@ import { SaveNudge } from '../sheets/SaveNudge';
 import { TrialCard } from '../ui/TrialCard';
 import { InstallCard } from '../ui/InstallCard';
 import { FastCard } from '../sheets/Fast';
+import { CopyDay } from '../ui/CopyDay';
+import { StartWeek } from '../ui/StartWeek';
 
 export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => void; studioTick?: number }) {
   const { S, update } = useApp();
@@ -180,12 +182,7 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
         </Card>
       ) : null}
 
-      {dayNumber(S, key) <= 2 && !score.perfect && !S.example ? (
-        <Card style={{ gap: 6 }}>
-          <Eyebrow>{t('how.eyebrow')}</Eyebrow>
-          <Small>{t('how.text', { n: score.all })}</Small>
-        </Card>
-      ) : null}
+      {dayNumber(S, key) <= 7 && !S.example ? <StartWeek all={score.all} /> : null}
       <CoachBanner onChat={() => onOpen('coachchat')} />
       {S.example ? null : <TrialCard onPro={() => onOpen('pro')} />}
       <SaveNudge onSave={() => onOpen('account')} />
@@ -240,6 +237,7 @@ export function Today({ onOpen, studioTick = 0 }: { onOpen: (sheet: string) => v
               </Pressable>
             </Row>
           )) : <Small>{t('today.foodEmpty')}</Small>}
+          {S.example ? null : <CopyDay />}
           <Button small variant="ghost" label={t('today.addMeal')} onPress={() => onOpen('food')} />
         </View>
       </Card>

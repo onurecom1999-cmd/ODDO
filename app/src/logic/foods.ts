@@ -30,3 +30,11 @@ export function recentMeals(log: Record<string, { meals: Meal[] }>, max = 6): Me
   }
   return out;
 }
+
+// The last day before today with food on it, up to a week back: its meals can be logged again in one tap.
+export function lastFoodDay(log: Record<string, { meals: Meal[] }>, today: string): { key: string; meals: Meal[] } | null {
+  const k = Object.keys(log).filter(x => x < today && (log[x].meals || []).length).sort().pop();
+  if (!k) return null;
+  const days = Math.round((new Date(today + 'T12:00:00').getTime() - new Date(k + 'T12:00:00').getTime()) / 864e5);
+  return days <= 7 ? { key: k, meals: log[k].meals } : null;
+}

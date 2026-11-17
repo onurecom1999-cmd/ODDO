@@ -7,6 +7,7 @@ import { QUICK, recentMeals } from '../logic/foods';
 import { lookupBarcode, Product, saveProduct, searchProducts } from '../foodfacts';
 import { searchGeneric } from '../logic/generic';
 import { Scanner } from '../ui/Scanner';
+import { CopyDay } from '../ui/CopyDay';
 import type { Meal } from '../logic/types';
 import { pickPhoto, Picked, shrink } from '../media';
 import { dayLog, useApp } from '../state';
@@ -333,6 +334,7 @@ export function FoodPick({ onClose, onPick, onRecipes }: { onClose: () => void; 
   return (
     <Sheet visible title={t('today.addMeal')} onClose={onClose}>
       <Stack gap={12}>
+        <CopyDay after={onClose} />
         {recent.length ? (
           <View style={{ gap: 8 }}>
             <Eyebrow>{t('food.again')}</Eyebrow>
