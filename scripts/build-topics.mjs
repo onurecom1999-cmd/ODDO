@@ -42,7 +42,48 @@ footer { border-top:1px solid var(--border); margin-top:48px; padding:32px 0 48p
 footer .wrap { display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; }
 footer .legal { display:flex; gap:18px; flex-wrap:wrap; }
 footer a { color:var(--dim); }
+table { width:100%; border-collapse:collapse; margin-top:12px; font-size:15px; }
+th, td { text-align:left; padding:12px 8px; border-bottom:1px solid var(--border); vertical-align:top; }
+th { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+td.n { white-space:nowrap; text-align:right; } th.n { text-align:right; }
+td b { display:block; } td small { color:var(--dim); font-size:13px; }
+.calc { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:24px; margin-top:32px; }
+.calc .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+.calc label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
+.calc input, .calc select { width:100%; background:var(--bg); color:var(--text); border:1px solid var(--border); border-radius:12px; padding:12px; font:inherit; }
+.calc .out { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px; }
+.calc .out div { background:var(--bg); border-radius:14px; padding:16px; }
+.calc .out b { font-family:Anton,Impact,sans-serif; font-size:36px; font-weight:400; color:var(--accent); display:block; }
+.calc .out small { color:var(--muted); font-size:13px; }
 `;
+
+// Words for the calorie calculator, per language.
+const CALC = {
+  de: { sex: 'Geschlecht', m: 'Mann', f: 'Frau', age: 'Alter', height: 'Größe (cm)', weight: 'Gewicht (kg)', act: 'Alltag', a1: 'Viel sitzen', a2: 'Etwas Bewegung', a3: 'Sehr aktiv', goal: 'Ziel', lose: 'Abnehmen', keep: 'Gewicht halten', gain: 'Muskeln aufbauen', kcal: 'kcal pro Tag', protein: 'g Eiweiß pro Tag' },
+  tr: { sex: 'Cinsiyet', m: 'Erkek', f: 'Kadın', age: 'Yaş', height: 'Boy (cm)', weight: 'Kilo (kg)', act: 'Günlük hayat', a1: 'Çok oturuyorum', a2: 'Biraz hareket', a3: 'Çok aktif', goal: 'Hedef', lose: 'Kilo vermek', keep: 'Kiloyu korumak', gain: 'Kas yapmak', kcal: 'kcal / gün', protein: 'g protein / gün' },
+  en: { sex: 'Sex', m: 'Male', f: 'Female', age: 'Age', height: 'Height (cm)', weight: 'Weight (kg)', act: 'Daily life', a1: 'Mostly sitting', a2: 'Some movement', a3: 'Very active', goal: 'Goal', lose: 'Lose weight', keep: 'Maintain', gain: 'Build muscle', kcal: 'kcal per day', protein: 'g protein per day' },
+};
+
+// Same maths as the app's plan (Mifflin-St Jeor, deficit/surplus, safe floor, protein per kilo).
+function calc(lang) {
+  const w = CALC[lang];
+  const sel = (id, opts) => `<select id="${id}">${opts.map(([v, l, on]) => `<option value="${v}"${on ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select>`;
+  return `<div class="calc" id="rechner">
+      <div class="row"><div><label for="c-sex">${esc(w.sex)}</label>${sel('c-sex', [['m', w.m, 1], ['f', w.f]])}</div><div><label for="c-age">${esc(w.age)}</label><input id="c-age" type="number" inputmode="numeric" value="30" min="14" max="99"></div></div>
+      <div class="row"><div><label for="c-h">${esc(w.height)}</label><input id="c-h" type="number" inputmode="numeric" value="175" min="120" max="230"></div><div><label for="c-w">${esc(w.weight)}</label><input id="c-w" type="number" inputmode="decimal" value="80" min="35" max="250"></div></div>
+      <div class="row"><div><label for="c-act">${esc(w.act)}</label>${sel('c-act', [['1.2', w.a1], ['1.35', w.a2, 1], ['1.55', w.a3]])}</div><div><label for="c-goal">${esc(w.goal)}</label>${sel('c-goal', [['lose', w.lose, 1], ['keep', w.keep], ['gain', w.gain]])}</div></div>
+      <div class="out" aria-live="polite"><div><b id="c-kcal">–</b><small>${esc(w.kcal)}</small></div><div><b id="c-pro">–</b><small>${esc(w.protein)}</small></div></div>
+    </div>
+    <script>(function(){var $=function(i){return document.getElementById(i)};function run(){var s=$('c-sex').value,a=+$('c-age').value,h=+$('c-h').value,w=+$('c-w').value,f=+$('c-act').value,g=$('c-goal').value;if(!(a>0&&h>0&&w>0)){return}var bmr=10*w+6.25*h-5*a+(s==='m'?5:-161);var adj={lose:-450,keep:0,gain:250}[g];var floor=s==='m'?1600:1400;var k=Math.round(Math.max(floor,bmr*f+adj)/50)*50;var p=Math.round(w*(g==='keep'?1.5:1.8)/5)*5;$('c-kcal').textContent=k.toLocaleString('${lang}');$('c-pro').textContent=p}['c-sex','c-age','c-h','c-w','c-act','c-goal'].forEach(function(i){$(i).addEventListener('input',run)});run()})();</script>`;
+}
+
+function recipeTable(topic, c) {
+  return `<section><h2>${esc(c.listTitle)}</h2>
+      <table><thead><tr><th>${esc(c.cols[0])}</th><th class="n">${esc(c.cols[1])}</th><th class="n">${esc(c.cols[2])}</th><th class="n">${esc(c.cols[3])}</th></tr></thead><tbody>
+${topic.recipes.map(r => `        <tr><td><b>${esc(r.name[c.lang])}</b><small>${esc(c.cats[r.cat])} · ${esc(r.ing[c.lang])}</small></td><td class="n">${r.kcal}</td><td class="n">${r.protein} g</td><td class="n">${r.mins} min</td></tr>`).join('\n')}
+      </tbody></table>
+    </section>`;
+}
 
 function page(topic, lang) {
   const c = topic[lang];
@@ -102,7 +143,10 @@ ${alt}
     <p class="lead">${esc(c.lead)}</p>
   </div></header>
   <main class="wrap">
+${topic.tool === 'kcal' ? '    ' + calc(lang) : ''}
 ${c.sections.map(([h, p]) => `    <section><h2>${esc(h)}</h2><p>${esc(p)}</p></section>`).join('\n')}
+${topic.recipes ? '    ' + recipeTable(topic, { ...c, lang }) : ''}
+${(c.after || []).map(([h, p]) => `    <section><h2>${esc(h)}</h2><p>${esc(p)}</p></section>`).join('\n')}
     <div class="cta"><a class="btn" href="${ui.home}#pact">${esc(ui.cta)} <span aria-hidden="true">→</span></a><small>${esc(ui.ctaNote)}</small></div>
     <section><h2>${esc(ui.faq)}</h2>
 ${c.faq.map(([q, a]) => `      <details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('\n')}
