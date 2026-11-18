@@ -3,7 +3,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { TOPICS, UI } from './topics.mjs';
 
-const SITE = 'https://oddo-app.netlify.app';
+const SITE = 'https://oddosportsapp.com';
 const LANGS = ['de', 'tr', 'en'];
 const LOCALE = { de: 'de_DE', tr: 'tr_TR', en: 'en_US' };
 const OG = { de: '/og.png', tr: '/og-tr.png', en: '/og-en.png' };
