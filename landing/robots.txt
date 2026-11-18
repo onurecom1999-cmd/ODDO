@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /app/
 
-Sitemap: https://oddo-app.netlify.app/sitemap.xml
+Sitemap: https://oddosportsapp.com/sitemap.xml
