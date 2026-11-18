@@ -398,3 +398,147 @@ export const MORE = [
     },
   },
 ];
+
+// Calorie table: every everyday food from the app (scripts/foods.json: [group, de, tr, en, kcal/100, protein/100]).
+const FOODS = JSON.parse(readFileSync(new URL('./foods.json', import.meta.url), 'utf8'));
+const N = FOODS.length;
+
+MORE.push(
+  {
+    id: 'table',
+    foods: FOODS,
+    de: {
+      path: '/kalorientabelle/',
+      link: 'Kalorientabelle',
+      title: `Kalorientabelle: ${N} Lebensmittel mit Kalorien und Eiweiß pro 100 g | ODDO`,
+      desc: `Kalorientabelle mit ${N} Lebensmitteln: Obst, Gemüse, Brot, Fleisch, Käse, Getränke, deutsche und türkische Gerichte. Kalorien und Eiweiß pro 100 g, mit Suche.`,
+      eyebrow: 'Nachschlagen',
+      h1: 'Kalorientabelle. Alles auf einen Blick.',
+      lead: `${N} Lebensmittel mit Kalorien und Eiweiß pro 100 Gramm, von Apfel bis Döner. Tipp einfach ins Suchfeld darunter.`,
+      sections: [
+        ['Wie lese ich die Tabelle?', 'Alle Werte gelten pro 100 g, bei Getränken pro 100 ml. Fleisch, Reis und Nudeln sind, wo angegeben, gegart. Es sind gerundete Durchschnittswerte aus Standard-Nährwerttabellen. Auf verpackten Produkten ist das Etikett genauer.'],
+      ],
+      search: 'Lebensmittel suchen, z. B. Banane',
+      cols: ['Lebensmittel', 'kcal', 'Eiweiß'],
+      groups: ['Obst', 'Gemüse', 'Brot, Getreide, Hülsenfrüchte', 'Milchprodukte und Eier', 'Fleisch, Fisch, pflanzliches Eiweiß', 'Nüsse, Samen, Fette', 'Süßes und Snacks', 'Getränke (pro 100 ml)', 'Gerichte'],
+      after: [
+        ['Nie mehr nachschlagen', 'In der ODDO-App suchst du genau diese Lebensmittel mit Portionen wie „1 Stück“ oder „1 Scheibe“ und trägst sie mit einem Tipp ein. Verpacktes scannst du per Barcode, Gekochtes fotografierst du.'],
+      ],
+      faq: [
+        ['Wie viele Kalorien hat eine Banane?', 'Etwa 89 kcal pro 100 g. Eine mittlere Banane wiegt ohne Schale rund 120 g, also etwa 107 kcal.'],
+        ['Welche Lebensmittel haben viel Eiweiß und wenig Kalorien?', 'Zum Beispiel Hähnchen- und Putenbrust, Thunfisch, Garnelen, Skyr, Magerquark, Hüttenkäse und Eiklar.'],
+        ['Woher stammen die Werte?', 'Es sind gerundete Durchschnittswerte aus Standard-Nährwerttabellen. Einzelne Produkte können abweichen.'],
+      ],
+    },
+    tr: {
+      path: '/tr/kalori-cetveli/',
+      link: 'Kalori cetveli',
+      title: `Kalori Cetveli: ${N} Besinin 100 g Kalori ve Protein Değeri | ODDO`,
+      desc: `${N} besinlik kalori cetveli: meyve, sebze, ekmek, et, peynir, içecekler, Türk ve dünya yemekleri. 100 g başına kalori ve protein, aramalı.`,
+      eyebrow: 'Kalori cetveli',
+      h1: 'Kalori cetveli. Hepsi tek bakışta.',
+      lead: `Elmadan dönere ${N} besinin 100 gramdaki kalori ve protein değeri. Aşağıdaki arama kutusuna yazman yeterli.`,
+      sections: [
+        ['Cetvel nasıl okunur?', 'Tüm değerler 100 g başına, içeceklerde 100 ml başına. Et, pirinç ve makarna belirtildiği yerde pişmiş. Standart besin tablolarından yuvarlanmış ortalama değerler. Paketli ürünlerde etiket daha kesindir.'],
+      ],
+      search: 'Besin ara, örn. muz',
+      cols: ['Besin', 'kcal', 'Protein'],
+      groups: ['Meyve', 'Sebze', 'Ekmek, tahıl, baklagil', 'Süt ürünleri ve yumurta', 'Et, balık, bitkisel protein', 'Kuruyemiş, tohum, yağlar', 'Tatlı ve atıştırmalık', 'İçecekler (100 ml)', 'Yemekler'],
+      after: [
+        ['Bir daha bakmana gerek yok', 'ODDO uygulamasında tam bu besinleri „1 adet“ veya „1 dilim“ gibi porsiyonlarla arar ve tek dokunuşla kaydedersin. Paketlileri barkodla okutur, pişmiş yemeğin fotoğrafını çekersin.'],
+      ],
+      faq: [
+        ['Muz kaç kalori?', '100 g’da yaklaşık 89 kcal. Orta boy bir muz kabuksuz yaklaşık 120 g, yani yaklaşık 107 kcal.'],
+        ['Hangi besinlerde protein yüksek, kalori düşük?', 'Örneğin tavuk ve hindi göğsü, ton balığı, karides, skyr, yağsız lor, süzme peynir ve yumurta akı.'],
+        ['Değerler nereden geliyor?', 'Standart besin tablolarından yuvarlanmış ortalama değerler. Tek tek ürünler farklı olabilir.'],
+      ],
+    },
+    en: {
+      path: '/en/calorie-chart/',
+      link: 'Calorie chart',
+      title: `Calorie Chart: ${N} Foods With Calories and Protein per 100 g | ODDO`,
+      desc: `Calorie chart with ${N} foods: fruit, vegetables, bread, meat, cheese, drinks, Turkish and international dishes. Calories and protein per 100 g, searchable.`,
+      eyebrow: 'Look it up',
+      h1: 'Calorie chart. Everything at a glance.',
+      lead: `${N} foods with calories and protein per 100 grams, from apple to döner. Just type into the search box below.`,
+      sections: [
+        ['How do I read the chart?', 'All values are per 100 g, drinks per 100 ml. Meat, rice and pasta are cooked where noted. These are rounded averages from standard food tables. On packaged products the label is more exact.'],
+      ],
+      search: 'Search foods, e.g. banana',
+      cols: ['Food', 'kcal', 'Protein'],
+      groups: ['Fruit', 'Vegetables', 'Bread, grains, legumes', 'Dairy and eggs', 'Meat, fish, plant protein', 'Nuts, seeds, fats', 'Sweets and snacks', 'Drinks (per 100 ml)', 'Dishes'],
+      after: [
+        ['Never look it up again', 'In the ODDO app you search exactly these foods with portions like "1 piece" or "1 slice" and log them with one tap. Scan packaged food by barcode, snap cooked meals.'],
+      ],
+      faq: [
+        ['How many calories are in a banana?', 'About 89 kcal per 100 g. A medium banana weighs about 120 g without the peel, so around 107 kcal.'],
+        ['Which foods are high in protein and low in calories?', 'For example chicken and turkey breast, tuna, prawns, skyr, low-fat quark, cottage cheese and egg whites.'],
+        ['Where do the values come from?', 'They are rounded averages from standard food tables. Single products can differ.'],
+      ],
+    },
+  },
+  {
+    id: 'bmi',
+    tool: 'bmi',
+    de: {
+      path: '/bmi-rechner/',
+      link: 'BMI-Rechner',
+      title: 'BMI-Rechner – Body-Mass-Index berechnen, kostenlos | ODDO',
+      desc: 'Berechne deinen BMI in Sekunden: Größe und Gewicht eingeben, Ergebnis mit Einordnung sehen. Kostenlos, ohne Anmeldung, mit Erklärung, was der BMI kann und was nicht.',
+      eyebrow: 'Rechner',
+      h1: 'BMI-Rechner. Sofort dein Ergebnis.',
+      lead: 'Gib Größe und Gewicht ein, und du siehst deinen Body-Mass-Index mit Einordnung. Darunter erklären wir ehrlich, wofür der BMI taugt.',
+      sections: [
+        ['So wird der BMI berechnet', 'Gewicht in Kilogramm geteilt durch die Größe in Metern zum Quadrat. Beispiel: 80 kg bei 1,80 m ergibt 80 ÷ 3,24 = 24,7.'],
+        ['Die Einordnung', 'Nach der Weltgesundheitsorganisation gilt für Erwachsene: unter 18,5 Untergewicht, 18,5 bis 24,9 Normalgewicht, 25 bis 29,9 Übergewicht, ab 30 Adipositas.'],
+        ['Was der BMI nicht weiß', 'Der BMI unterscheidet nicht zwischen Muskeln und Fett. Wer viel trainiert, hat oft einen hohen BMI, ohne zu viel Fett zu haben. Ein guter zweiter Blick ist der Bauchumfang, den du in ODDO neben deinem Gewicht und Fortschrittsfotos verfolgst.'],
+        ['Und jetzt?', 'Wenn du abnehmen willst, hilft dir der Kalorienrechner mit deinem Tagesbudget. In der ODDO-App wird daraus ein Plan mit Training, Essen und Fortschritt.'],
+      ],
+      faq: [
+        ['Welcher BMI ist normal?', 'Für Erwachsene gilt ein BMI von 18,5 bis 24,9 als Normalgewicht.'],
+        ['Gilt der BMI auch für Kinder?', 'Nein. Für Kinder und Jugendliche gibt es eigene Perzentilkurven nach Alter und Geschlecht.'],
+        ['Ist der BMI ein medizinischer Befund?', 'Nein. Er ist ein grober Richtwert. Bei Fragen zu deiner Gesundheit sprich mit einem Arzt.'],
+      ],
+    },
+    tr: {
+      path: '/tr/vucut-kitle-indeksi-hesaplama/',
+      link: 'Vücut kitle indeksi hesaplama',
+      title: 'Vücut Kitle İndeksi Hesaplama (BMI) – Ücretsiz | ODDO',
+      desc: 'Vücut kitle indeksini saniyeler içinde hesapla: boy ve kilonu gir, sonucu sınıflandırmasıyla gör. Ücretsiz, kayıt yok, BMI’ın neyi gösterip neyi göstermediğiyle.',
+      eyebrow: 'Hesaplayıcı',
+      h1: 'Vücut kitle indeksi hesapla. Sonuç hemen.',
+      lead: 'Boyunu ve kilonu gir, vücut kitle indeksini sınıflandırmasıyla gör. Altında BMI’ın ne işe yaradığını dürüstçe anlatıyoruz.',
+      sections: [
+        ['BMI nasıl hesaplanır', 'Kilogram cinsinden kilo, metre cinsinden boyun karesine bölünür. Örnek: 1,80 m’de 80 kg, 80 ÷ 3,24 = 24,7 eder.'],
+        ['Sınıflandırma', 'Dünya Sağlık Örgütü’ne göre yetişkinlerde: 18,5 altı zayıf, 18,5 ile 24,9 arası normal, 25 ile 29,9 arası fazla kilolu, 30 ve üstü obez.'],
+        ['BMI’ın bilmediği', 'BMI kas ile yağı ayırt etmez. Çok antrenman yapanların BMI’ı fazla yağ olmadan da yüksek olabilir. İyi bir ikinci ölçü bel çevresidir; ODDO’da kilonun ve ilerleme fotoğraflarının yanında takip edersin.'],
+        ['Peki şimdi?', 'Kilo vermek istiyorsan kalori hesaplayıcı sana günlük bütçeni gösterir. ODDO uygulamasında bu, antrenman, beslenme ve ilerlemeyle bir plana dönüşür.'],
+      ],
+      faq: [
+        ['Normal BMI kaç?', 'Yetişkinlerde 18,5 ile 24,9 arası normal kilo sayılır.'],
+        ['BMI çocuklar için de geçerli mi?', 'Hayır. Çocuk ve gençler için yaşa ve cinsiyete göre ayrı persentil eğrileri vardır.'],
+        ['BMI tıbbi bir teşhis mi?', 'Hayır. Kaba bir göstergedir. Sağlığınla ilgili soruların için bir doktorla konuş.'],
+      ],
+    },
+    en: {
+      path: '/en/bmi-calculator/',
+      link: 'BMI calculator',
+      title: 'BMI Calculator – Work Out Your Body Mass Index, Free | ODDO',
+      desc: 'Work out your BMI in seconds: enter height and weight and see the result with its category. Free, no sign-up, with an honest note on what BMI can and cannot tell you.',
+      eyebrow: 'Calculator',
+      h1: 'BMI calculator. Your result right away.',
+      lead: 'Enter your height and weight and see your body mass index with its category. Below we explain honestly what BMI is good for.',
+      sections: [
+        ['How BMI is calculated', 'Weight in kilograms divided by height in metres squared. Example: 80 kg at 1.80 m gives 80 ÷ 3.24 = 24.7.'],
+        ['The categories', 'According to the World Health Organization, for adults: under 18.5 underweight, 18.5 to 24.9 normal weight, 25 to 29.9 overweight, 30 and above obesity.'],
+        ['What BMI does not know', 'BMI cannot tell muscle from fat. People who train a lot often have a high BMI without too much fat. A good second check is your waist, which you track in ODDO next to your weight and progress photos.'],
+        ['What now?', 'If you want to lose weight, the calorie calculator gives you your daily budget. In the ODDO app that becomes a plan with training, food and progress.'],
+      ],
+      faq: [
+        ['What is a normal BMI?', 'For adults, a BMI of 18.5 to 24.9 counts as normal weight.'],
+        ['Does BMI apply to children?', 'No. Children and teenagers have their own percentile charts by age and sex.'],
+        ['Is BMI a medical diagnosis?', 'No. It is a rough guide. For questions about your health, talk to a doctor.'],
+      ],
+    },
+  },
+);

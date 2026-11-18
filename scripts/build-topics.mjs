@@ -47,6 +47,8 @@ th, td { text-align:left; padding:12px 8px; border-bottom:1px solid var(--border
 th { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
 td.n { white-space:nowrap; text-align:right; } th.n { text-align:right; }
 td b { display:block; } td small { color:var(--dim); font-size:13px; }
+.search { width:100%; background:var(--surface); color:var(--text); border:1px solid var(--border); border-radius:14px; padding:14px 16px; font:inherit; font-size:16px; margin-top:8px; }
+tr.g th { color:var(--accent); padding-top:24px; font-size:13px; }
 .calc { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:24px; margin-top:32px; }
 .calc .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
 .calc label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
@@ -75,6 +77,37 @@ function calc(lang) {
       <div class="out" aria-live="polite"><div><b id="c-kcal">–</b><small>${esc(w.kcal)}</small></div><div><b id="c-pro">–</b><small>${esc(w.protein)}</small></div></div>
     </div>
     <script>(function(){var $=function(i){return document.getElementById(i)};function run(){var s=$('c-sex').value,a=+$('c-age').value,h=+$('c-h').value,w=+$('c-w').value,f=+$('c-act').value,g=$('c-goal').value;if(!(a>0&&h>0&&w>0)){return}var bmr=10*w+6.25*h-5*a+(s==='m'?5:-161);var adj={lose:-450,keep:0,gain:250}[g];var floor=s==='m'?1600:1400;var k=Math.round(Math.max(floor,bmr*f+adj)/50)*50;var p=Math.round(w*(g==='keep'?1.5:1.8)/5)*5;$('c-kcal').textContent=k.toLocaleString('${lang}');$('c-pro').textContent=p}['c-sex','c-age','c-h','c-w','c-act','c-goal'].forEach(function(i){$(i).addEventListener('input',run)});run()})();</script>`;
+}
+
+const BMI = {
+  de: { h: 'Größe (cm)', w: 'Gewicht (kg)', bmi: 'Dein BMI', cats: ['Untergewicht', 'Normalgewicht', 'Übergewicht', 'Adipositas'] },
+  tr: { h: 'Boy (cm)', w: 'Kilo (kg)', bmi: 'Vücut kitle indeksin', cats: ['Zayıf', 'Normal kilo', 'Fazla kilolu', 'Obez'] },
+  en: { h: 'Height (cm)', w: 'Weight (kg)', bmi: 'Your BMI', cats: ['Underweight', 'Normal weight', 'Overweight', 'Obesity'] },
+};
+function bmi(lang) {
+  const w = BMI[lang];
+  return `<div class="calc" id="rechner">
+      <div class="row"><div><label for="b-h">${esc(w.h)}</label><input id="b-h" type="number" inputmode="numeric" value="175" min="100" max="230"></div><div><label for="b-w">${esc(w.w)}</label><input id="b-w" type="number" inputmode="decimal" value="80" min="30" max="300"></div></div>
+      <div class="out" aria-live="polite"><div><b id="b-v">–</b><small>${esc(w.bmi)}</small></div><div><b id="b-c" style="font-size:22px;font-family:Inter,sans-serif;font-weight:800">–</b></div></div>
+    </div>
+    <script>(function(){var C=${JSON.stringify(w.cats)};var $=function(i){return document.getElementById(i)};function run(){var h=+$('b-h').value/100,w=+$('b-w').value;if(!(h>0&&w>0))return;var b=w/(h*h);$('b-v').textContent=b.toLocaleString('${lang}',{maximumFractionDigits:1,minimumFractionDigits:1});$('b-c').textContent=C[b<18.5?0:b<25?1:b<30?2:3]}['b-h','b-w'].forEach(function(i){$(i).addEventListener('input',run)});run()})();</script>`;
+}
+
+const COL = { de: 1, tr: 2, en: 3 };
+function foodTable(topic, c, lang) {
+  const num = n => n.toLocaleString(lang, { maximumFractionDigits: 1 });
+  const groups = c.groups.map((g, i) => {
+    const rows = topic.foods.filter(r => r[0] === i).sort((a, b) => a[COL[lang]].localeCompare(b[COL[lang]], lang));
+    return `      <tbody><tr class="g"><th colspan="3">${esc(g)}</th></tr>
+${rows.map(r => `        <tr><td>${esc(r[COL[lang]])}</td><td class="n">${r[4]}</td><td class="n">${num(r[5])} g</td></tr>`).join('\n')}
+      </tbody>`;
+  }).join('\n');
+  return `<section><input id="f-q" class="search" type="search" placeholder="${esc(c.search)}" aria-label="${esc(c.search)}">
+      <table id="f-t"><thead><tr><th>${esc(c.cols[0])}</th><th class="n">${esc(c.cols[1])}</th><th class="n">${esc(c.cols[2])}</th></tr></thead>
+${groups}
+      </table>
+      <script>(function(){var q=document.getElementById('f-q'),t=document.getElementById('f-t');var n=function(s){return s.toLocaleLowerCase('${lang}').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ı/g,'i')};q.addEventListener('input',function(){var v=n(q.value.trim());t.querySelectorAll('tbody').forEach(function(b){var any=false;b.querySelectorAll('tr:not(.g)').forEach(function(r){var ok=!v||n(r.cells[0].textContent).indexOf(v)>=0;r.hidden=!ok;if(ok)any=true});b.hidden=!any})})})();</script>
+    </section>`;
 }
 
 function recipeTable(topic, c) {
@@ -143,7 +176,8 @@ ${alt}
     <p class="lead">${esc(c.lead)}</p>
   </div></header>
   <main class="wrap">
-${topic.tool === 'kcal' ? '    ' + calc(lang) : ''}
+${topic.tool === 'kcal' ? '    ' + calc(lang) : topic.tool === 'bmi' ? '    ' + bmi(lang) : ''}
+${topic.foods ? '    ' + foodTable(topic, c, lang) : ''}
 ${c.sections.map(([h, p]) => `    <section><h2>${esc(h)}</h2><p>${esc(p)}</p></section>`).join('\n')}
 ${topic.recipes ? '    ' + recipeTable(topic, { ...c, lang }) : ''}
 ${(c.after || []).map(([h, p]) => `    <section><h2>${esc(h)}</h2><p>${esc(p)}</p></section>`).join('\n')}
