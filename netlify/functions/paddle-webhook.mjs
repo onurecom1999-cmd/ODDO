@@ -1,5 +1,5 @@
 // Paddle Billing events -> public.subscriptions; completed payments -> partner commissions; refunds void them.
-// Notification destination in Paddle: https://oddo-app.netlify.app/.netlify/functions/paddle-webhook with the events
+// Notification destination in Paddle: https://oddosportsapp.com/.netlify/functions/paddle-webhook with the events
 // subscription.created, subscription.updated, subscription.canceled, subscription.paused, subscription.resumed,
 // subscription.activated, transaction.completed, adjustment.created, adjustment.updated.
 // Env (Netlify only): PADDLE_WEBHOOK_SECRET, SUPABASE_SERVICE_ROLE_KEY,
