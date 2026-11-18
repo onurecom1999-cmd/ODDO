@@ -10,13 +10,13 @@ export type Tier = 'free' | 'pro' | 'ultimate';
 export type Plan = 'pro' | 'proYear' | 'ultimate';
 import { SITE } from './site';
 import { getLang } from './i18n';
-const PADDLE_TOKEN = process.env.EXPO_PUBLIC_PADDLE_TOKEN || '';
+const PADDLE_TOKEN = process.env.EXPO_PUBLIC_PADDLE_TOKEN || 'live_a192fa5f650cb8908cdf9be11cd';
 const CHECKOUT: Record<Plan, string> = {
-  pro: PADDLE_TOKEN && (process.env.EXPO_PUBLIC_PADDLE_PRICE_PRO || ''),
-  proYear: PADDLE_TOKEN && (process.env.EXPO_PUBLIC_PADDLE_PRICE_PRO_YEAR || ''),
+  pro: PADDLE_TOKEN && (process.env.EXPO_PUBLIC_PADDLE_PRICE_PRO || 'pri_01m7mzdnt9aswgqgr5t0yprh5z'),
+  proYear: PADDLE_TOKEN && (process.env.EXPO_PUBLIC_PADDLE_PRICE_PRO_YEAR || 'pri_01m7qh29299dbbb1d12mwm4ywk'),
   ultimate: PADDLE_TOKEN && (process.env.EXPO_PUBLIC_PADDLE_PRICE_ULTIMATE || ''),
 };
-const FOUNDER_CODE = process.env.EXPO_PUBLIC_FOUNDER_CODE || '';
+const FOUNDER_CODE = process.env.EXPO_PUBLIC_FOUNDER_CODE || 'FOUNDER100';
 // Web checkout only on the web: Apple and Google don't allow paying outside their store inside the app.
 // Until the store plans exist (storeBilling), the iPhone and Android apps sell nothing and show no prices.
 const WEB = Platform.OS === 'web';
