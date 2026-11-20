@@ -1,0 +1,77 @@
+// Silent exercise demos: two still frames from free-exercise-db (Unlicense, github.com/yuhonas/free-exercise-db),
+// served from public/ex/<id>-0.jpg and -1.jpg. Images, not video, so music apps keep playing.
+import { Platform } from "react-native";
+import { SITE } from "../site";
+
+export const DEMO: Record<string, string> = {
+  "push_wall": "Incline_Push-Up",
+  "push_knee": "Incline_Push-Up_Medium",
+  "push": "Pushups",
+  "push_diamond": "Push-Ups_-_Close_Triceps_Position",
+  "dips_bench": "Bench_Dips",
+  "dips_bench_up": "Bench_Dips",
+  "dips": "Dips_-_Triceps_Version",
+  "dips_slow": "Dips_-_Triceps_Version",
+  "pike": "Handstand_Push-Ups",
+  "pike_up": "Handstand_Push-Ups",
+  "pike_hold": "Handstand_Push-Ups",
+  "handstand_wall": "Handstand_Push-Ups",
+  "row_table": "Inverted_Row",
+  "row_towel": "Inverted_Row_with_Straps",
+  "row_aus_up": "Inverted_Row",
+  "pull_neg": "Band_Assisted_Pull-Up",
+  "pullup": "Pullups",
+  "pullup_pause": "Pullups",
+  "chinup": "Chin-Up",
+  "chinup_slow": "Chin-Up",
+  "squat_chair": "Chair_Squat",
+  "squat": "Bodyweight_Squat",
+  "split_squat": "Split_Squats",
+  "pistol": "Kettlebell_Pistol_Squat",
+  "glute_bridge": "Butt_Lift_Bridge",
+  "glute_bridge_single": "Single_Leg_Glute_Bridge",
+  "nordic_neg": "Natural_Glute_Ham_Raise",
+  "nordic": "Natural_Glute_Ham_Raise",
+  "plank": "Plank",
+  "hollow": "Dead_Bug",
+  "knee_raise": "Knee_Hip_Raise_On_Parallel_Bars",
+  "leg_raise": "Hanging_Leg_Raise",
+  "backpack_row": "Bent_Over_Two-Dumbbell_Row",
+  "superman": "Superman",
+  "reverse_lunge": "Dumbbell_Rear_Lunge",
+  "calf_raise": "Standing_Calf_Raises",
+  "calf_raise_single": "Standing_Calf_Raises",
+  "crunch": "Crunches",
+  "chest_press": "Machine_Bench_Press",
+  "incline_db": "Incline_Dumbbell_Press",
+  "shoulder_machine": "Machine_Shoulder_Military_Press",
+  "lat_pulldown": "Wide-Grip_Lat_Pulldown",
+  "cable_row": "Seated_Cable_Rows",
+  "face_pull": "Face_Pull",
+  "leg_press": "Leg_Press",
+  "goblet_squat": "Goblet_Squat",
+  "rdl": "Romanian_Deadlift",
+  "leg_curl": "Lying_Leg_Curls",
+  "cable_crunch": "Cable_Crunch",
+  "bench": "Barbell_Bench_Press_-_Medium_Grip",
+  "ohp": "Standing_Military_Press",
+  "back_squat": "Barbell_Squat",
+  "deadlift": "Barbell_Deadlift",
+  "kb_swing": "One-Arm_Kettlebell_Swings",
+  "kb_clean": "One-Arm_Kettlebell_Clean",
+  "kb_press": "One-Arm_Kettlebell_Para_Press",
+  "kb_floor_press": "One-Arm_Kettlebell_Floor_Press",
+  "kb_row": "One-Arm_Kettlebell_Row",
+  "kb_deadlift": "Sumo_Deadlift",
+  "kb_lunge": "Dumbbell_Rear_Lunge",
+  "kb_getup": "Kettlebell_Turkish_Get-Up_Squat_style",
+  "kb_carry": "Farmers_Walk",
+  "kb_snatch": "One-Arm_Kettlebell_Snatch"
+};
+
+export function demoFrames(id?: string): string[] | null {
+  const d = id && DEMO[id];
+  if (!d) return null;
+  const base = Platform.OS === "web" ? "ex/" : `${SITE}/app/ex/`;
+  return [0, 1].map(n => `${base}${d}-${n}.jpg`);
+}
