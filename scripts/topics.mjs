@@ -1,3 +1,4 @@
+import { MORE } from './topics-more.mjs';
 // Content of the search pages next to the landing page: one page per topic and language.
 // Each topic needs the same keys in de, tr and en. Built by scripts/build-topics.mjs.
 
@@ -19,7 +20,7 @@ export const UI = {
   },
 };
 
-export const TOPICS = [
+const BASE = [
   {
     id: 'photo',
     de: {
@@ -210,3 +211,5 @@ export const TOPICS = [
     },
   },
 ];
+
+export const TOPICS = [...BASE, ...MORE];
