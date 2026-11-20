@@ -1,0 +1,306 @@
+[
+{
+"cat": "b",
+"mins": 5,
+"kcal": 275,
+"protein": 32,
+"name": {
+"de": "Thunfisch-Toast",
+"en": "Tuna toast",
+"tr": "Ton balıklı tost"
+},
+"ing": {
+"de": "Vollkornbrot, Thunfisch in Wasser, Griechischer Joghurt 2 %, Gurke, Zitrone",
+"tr": "Tam buğday ekmeği, Ton balığı, Az yağlı süzme yoğurt, Salatalık, Limon",
+"en": "Wholegrain bread, Tuna in water, Greek yogurt, low fat, Cucumber, Lemon"
+}
+},
+{
+"cat": "b",
+"mins": 5,
+"kcal": 316,
+"protein": 34,
+"name": {
+"de": "Beeren-Protein-Shake",
+"en": "Berry protein shake",
+"tr": "Meyveli protein shake"
+},
+"ing": {
+"de": "Himbeeren, Erdbeeren, Proteinpulver, Milch 1,5 %",
+"tr": "Ahududu, Çilek, Protein tozu, Yarım yağlı süt",
+"en": "Raspberries, Strawberries, Protein powder, Semi-skimmed milk"
+}
+},
+{
+"cat": "b",
+"mins": 5,
+"kcal": 327,
+"protein": 34,
+"name": {
+"de": "Quark mit Erdbeeren und Mandeln",
+"en": "Quark with strawberries and almonds",
+"tr": "Çilekli bademli lor kasesi"
+},
+"ing": {
+"de": "Magerquark, Erdbeeren, Mandeln, Honig",
+"tr": "Yağsız lor peyniri, Çilek, Badem, Bal",
+"en": "Low-fat quark, Strawberries, Almonds, Honey"
+}
+},
+{
+"cat": "b",
+"mins": 10,
+"kcal": 310,
+"protein": 31,
+"name": {
+"de": "Champignon-Omelett",
+"en": "Mushroom omelette",
+"tr": "Mantarlı omlet"
+},
+"ing": {
+"de": "Ei, Eiklar, Champignons, Frühlingszwiebel, Olivenöl, Mozzarella light",
+"tr": "Yumurta, Yumurta akı, Mantar, Taze soğan, Zeytinyağı, Light mozzarella",
+"en": "Egg, Egg white, Mushrooms, Spring onion, Olive oil, Light mozzarella"
+}
+},
+{
+"cat": "b",
+"mins": 10,
+"kcal": 413,
+"protein": 41,
+"name": {
+"de": "Eiweiß-Omelett mit Spinat und Feta",
+"en": "Egg white omelette with spinach and feta",
+"tr": "Ispanaklı beyaz peynirli yumurta akı omleti"
+},
+"ing": {
+"de": "Eiklar, Ei, Spinat, Schafskäse / Feta, Olivenöl, Vollkornbrot",
+"tr": "Yumurta akı, Yumurta, Ispanak, Beyaz peynir, Zeytinyağı, Tam buğday ekmeği",
+"en": "Egg white, Egg, Spinach, Feta cheese, Olive oil, Wholegrain bread"
+}
+},
+{
+"cat": "b",
+"mins": 5,
+"kcal": 333,
+"protein": 32,
+"name": {
+"de": "Skyr-Beeren-Bowl",
+"en": "Skyr berry bowl",
+"tr": "Skyr ve meyveli kase"
+},
+"ing": {
+"de": "Skyr, Heidelbeeren, Himbeeren, Haferflocken, Honig",
+"tr": "Skyr, Yaban mersini, Ahududu, Yulaf ezmesi, Bal",
+"en": "Skyr, Blueberries, Raspberries, Rolled oats, Honey"
+}
+},
+{
+"cat": "m",
+"mins": 20,
+"kcal": 377,
+"protein": 55,
+"name": {
+"de": "Putensteak mit Ofengemüse",
+"en": "Turkey steak with roast vegetables",
+"tr": "Fırın sebzeli hindi biftek"
+},
+"ing": {
+"de": "Putenbrust, gegart, Kürbis, Rosenkohl, Olivenöl",
+"tr": "Hindi göğsü, pişmiş, Bal kabağı, Brüksel lahanası, Zeytinyağı",
+"en": "Turkey breast, cooked, Pumpkin, Brussels sprouts, Olive oil"
+}
+},
+{
+"cat": "m",
+"mins": 15,
+"kcal": 317,
+"protein": 44,
+"name": {
+"de": "Zucchini-Nudeln mit Garnelen",
+"en": "Zucchini noodles with shrimp",
+"tr": "Karidesli kabak spagetti"
+},
+"ing": {
+"de": "Garnelen, gegart, Zucchini, Knoblauch, Tomaten aus der Dose, Olivenöl, Parmesan",
+"tr": "Karides, pişmiş, Kabak, Sarımsak, Konserve domates, Zeytinyağı, Parmesan",
+"en": "Shrimp, cooked, Zucchini, Garlic, Canned tomatoes, Olive oil, Parmesan"
+}
+},
+{
+"cat": "m",
+"mins": 20,
+"kcal": 393,
+"protein": 50,
+"name": {
+"de": "Tavuk Şiş mit Salat und Bulgur",
+"en": "Chicken skewers with salad and bulgur",
+"tr": "Salatalı bulgurlu tavuk şiş"
+},
+"ing": {
+"de": "Hähnchenbrust, roh, Griechischer Joghurt 2 %, Paprikamark, Bulgur, gekocht, Hirtensalat",
+"tr": "Tavuk göğsü, çiğ, Az yağlı süzme yoğurt, Biber salçası, Bulgur pilavı, Çoban salata",
+"en": "Chicken breast, raw, Greek yogurt, low fat, Pepper paste, Bulgur, cooked, Shepherd salad"
+}
+},
+{
+"cat": "m",
+"mins": 20,
+"kcal": 462,
+"protein": 55,
+"name": {
+"de": "Blumenkohlreis mit Hähnchen und Ei",
+"en": "Cauliflower rice with chicken and egg",
+"tr": "Karnabahar pilavlı tavuk ve yumurta"
+},
+"ing": {
+"de": "Blumenkohl, Hähnchenbrust, gegart, Ei, Erbsen, Sojasauce, Sonnenblumenöl, Frühlingszwiebel",
+"tr": "Karnabahar, Tavuk göğsü, pişmiş, Yumurta, Bezelye, Soya sosu, Ayçiçek yağı, Taze soğan",
+"en": "Cauliflower, Chicken breast, cooked, Egg, Peas, Soy sauce, Sunflower oil, Spring onion"
+}
+},
+{
+"cat": "m",
+"mins": 20,
+"kcal": 477,
+"protein": 54,
+"name": {
+"de": "Hähnchen-Sauté mit Paprika",
+"en": "Chicken sauté with peppers",
+"tr": "Biberli tavuk sote"
+},
+"ing": {
+"de": "Hähnchenbrust, gegart, Paprika, Tomate, Zwiebel, Spitzpaprika, Olivenöl, Bulgur, gekocht",
+"tr": "Tavuk göğsü, pişmiş, Biber, Domates, Soğan, Sivri biber, Zeytinyağı, Bulgur pilavı",
+"en": "Chicken breast, cooked, Bell pepper, Tomato, Onion, Green chili pepper, Olive oil, Bulgur, cooked"
+}
+},
+{
+"cat": "m",
+"mins": 25,
+"kcal": 562,
+"protein": 63,
+"name": {
+"de": "Hähnchen-Curry light",
+"en": "Light chicken curry",
+"tr": "Hafif tavuk köri"
+},
+"ing": {
+"de": "Hähnchenbrust, gegart, Basmatireis, gekocht, Blumenkohl, Zwiebel, Tomaten aus der Dose, Griechischer Joghurt 2 %, Sonnenblumenöl",
+"tr": "Tavuk göğsü, pişmiş, Basmati pirinç, haşlanmış, Karnabahar, Soğan, Konserve domates, Az yağlı süzme yoğurt, Ayçiçek yağı",
+"en": "Chicken breast, cooked, Basmati rice, cooked, Cauliflower, Onion, Canned tomatoes, Greek yogurt, low fat, Sunflower oil"
+}
+},
+{
+"cat": "m",
+"mins": 45,
+"kcal": 541,
+"protein": 60,
+"name": {
+"de": "Zucchini-Lasagne mit Putenhack",
+"en": "Zucchini lasagne with turkey",
+"tr": "Hindi kıymalı kabak lazanya"
+},
+"ing": {
+"de": "Zucchini, Putenhack, gebraten, Tomaten aus der Dose, Hüttenkäse, Mozzarella light, Zwiebel",
+"tr": "Kabak, Hindi kıyma, pişmiş, Konserve domates, Lor peyniri, Light mozzarella, Soğan",
+"en": "Zucchini, Ground turkey, cooked, Canned tomatoes, Cottage cheese, Light mozzarella, Onion"
+}
+},
+{
+"cat": "x",
+"mins": 15,
+"kcal": 390,
+"protein": 54,
+"name": {
+"de": "Caesar Salad light",
+"en": "Light Caesar salad",
+"tr": "Hafif sezar salata"
+},
+"ing": {
+"de": "Hähnchenbrust, gegart, Blattsalat, Parmesan, Griechischer Joghurt 2 %, Senf, Zitrone, Vollkornbrot",
+"tr": "Tavuk göğsü, pişmiş, Marul, Parmesan, Az yağlı süzme yoğurt, Hardal, Limon, Tam buğday ekmeği",
+"en": "Chicken breast, cooked, Lettuce, Parmesan, Greek yogurt, low fat, Mustard, Lemon, Wholegrain bread"
+}
+},
+{
+"cat": "x",
+"mins": 15,
+"kcal": 435,
+"protein": 51,
+"name": {
+"de": "Asiatischer Krautsalat mit Hähnchen",
+"en": "Asian slaw with chicken",
+"tr": "Asya usulü tavuklu lahana salatası"
+},
+"ing": {
+"de": "Weißkohl, Karotte, Hähnchenbrust, gegart, Edamame, Sojasauce, Sesam, Erdnüsse, Zitrone",
+"tr": "Lahana, Havuç, Tavuk göğsü, pişmiş, Edamame, Soya sosu, Susam, Yer fıstığı, Limon",
+"en": "Cabbage, Carrot, Chicken breast, cooked, Edamame, Soy sauce, Sesame seeds, Peanuts, Lemon"
+}
+},
+{
+"cat": "x",
+"mins": 30,
+"kcal": 383,
+"protein": 44,
+"name": {
+"de": "Hühnersuppe mit Gemüse",
+"en": "Chicken vegetable soup",
+"tr": "Sebzeli tavuk çorbası"
+},
+"ing": {
+"de": "Hähnchenbrust, gegart, Karotte, Staudensellerie, Lauch, Eiernudeln, gekocht, Gemüsebrühe, Petersilie",
+"tr": "Tavuk göğsü, pişmiş, Havuç, Sap kereviz, Pırasa, Yumurtalı erişte, haşlanmış, Sebze suyu, Maydanoz",
+"en": "Chicken breast, cooked, Carrot, Celery, Leek, Egg noodles, cooked, Vegetable broth, Parsley"
+}
+},
+{
+"cat": "x",
+"mins": 10,
+"kcal": 288,
+"protein": 31,
+"name": {
+"de": "Hirtensalat mit Thunfisch",
+"en": "Shepherd's salad with tuna",
+"tr": "Ton balıklı çoban salata"
+},
+"ing": {
+"de": "Tomate, Gurke, Paprika, Zwiebel, Petersilie, Thunfisch in Wasser, Olivenöl, Zitrone",
+"tr": "Domates, Salatalık, Biber, Soğan, Maydanoz, Ton balığı, Zeytinyağı, Limon",
+"en": "Tomato, Cucumber, Bell pepper, Onion, Parsley, Tuna in water, Olive oil, Lemon"
+}
+},
+{
+"cat": "x",
+"mins": 15,
+"kcal": 487,
+"protein": 46,
+"name": {
+"de": "Griechischer Salat mit Hähnchen",
+"en": "Greek salad with chicken",
+"tr": "Tavuklu Yunan salatası"
+},
+"ing": {
+"de": "Hähnchenbrust, gegart, Tomate, Gurke, Paprika, Zwiebel, Schwarze Oliven, Schafskäse / Feta, Olivenöl",
+"tr": "Tavuk göğsü, pişmiş, Domates, Salatalık, Biber, Soğan, Siyah zeytin, Beyaz peynir, Zeytinyağı",
+"en": "Chicken breast, cooked, Tomato, Cucumber, Bell pepper, Onion, Black olives, Feta cheese, Olive oil"
+}
+},
+{
+"cat": "s",
+"mins": 5,
+"kcal": 216,
+"protein": 35,
+"name": {
+"de": "Schoko-Protein-Mousse",
+"en": "Chocolate protein mousse",
+"tr": "Çikolatalı protein mus"
+},
+"ing": {
+"de": "Skyr, Kakaopulver, Proteinpulver, Honig",
+"tr": "Skyr, Kakao, Protein tozu, Bal",
+"en": "Skyr, Cocoa powder, Protein powder, Honey"
+}
+}
+]

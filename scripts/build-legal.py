@@ -4,7 +4,7 @@ import html, re, sys
 OUT = sys.argv[1]
 ADDR = 'Semih Sancar Caddesi 17, Girne Merkez, Girne, North Cyprus (KKTC)'
 MAIL = 'oddosportsapp@gmail.com'
-STAND = '19.10.2026'
+STAND = '17.11.2026'
 
 def md(text):
     out = []
@@ -75,7 +75,7 @@ ODDO ist ein Fitness-Coach. Wir verarbeiten nur, was die App dafür braucht, ver
 - **Trainer:** Wenn du dich mit dem Code eines Trainers verbindest, sieht dieser Trainer deinen Vornamen, deine Tagesserie und deine gesicherten App-Daten (Trainings, Mahlzeiten, Kalorien, Eiweiß, Gewicht, Aktivitäten). Er kann dir einen Trainingsplan schicken und mit dir schreiben. Du kannst die Verbindung jederzeit unter Einstellungen → Dein Trainer trennen; danach sieht er nichts mehr.
 - **Partnerprogramm:** Wenn du mit dem Code eines Trainers, Studios oder Freundes startest, speichern wir, über wen du gekommen bist, damit der Partner eine Provision auf deine Zahlungen erhält. Der Partner sieht dabei nur deinen Vornamen und die Höhe seiner Provision. Partner, die Auszahlungen erhalten, hinterlegen dafür IBAN oder PayPal-Adresse; wir nutzen sie nur für die Überweisung. Eingereichte Clip-Links speichern wir mit den gezählten Views, um die Vergütung zu berechnen.
 - **Studios:** Wenn du einem Studio mit dessen Code beitrittst, sieht das Studio deinen Vornamen, deine Tagesserie, deine Check-ins, deine Kursbuchungen und bis wann deine Mitgliedschaft gilt. Deine Trainings-, Ernährungs- und Gewichtsdaten sieht das Studio nicht. Du kannst das Studio jederzeit unter Einstellungen → Dein Studio verlassen.
-- **Zahlungen:** laufen über Lemon Squeezy als Verkäufer (Merchant of Record). Wir erhalten nur, welches Paket aktiv ist, nie deine Kartendaten.
+- **Zahlungen:** laufen im Web über Paddle als Verkäufer (Merchant of Record), in den Apps über Apple oder Google. Wir erhalten nur, welches Paket aktiv ist, nie deine Kartendaten.
 - **Missbrauchsschutz:** Für die Tageslimits der KI speichern wir pro Tag einen nicht rückrechenbaren Hashwert deiner Konto-ID oder IP-Adresse.
 - **Warteliste auf der Website:** Name und E-Mail, wenn du dich einträgst, um dich zum Start zu informieren.
 
@@ -87,7 +87,7 @@ ODDO ist ein Fitness-Coach. Wir verarbeiten nur, was die App dafür braucht, ver
 - Open Food Facts (Frankreich): Produktdaten, wenn du einen Barcode scannst; übertragen werden nur der Barcode und deine IP-Adresse
 - Produkte, die du selbst einträgst (Barcode, Name, Marke, Nährwerte), sind für alle ODDO-Nutzer sichtbar. Dein Konto wird dazu gespeichert, aber niemandem angezeigt, damit nur du deinen Eintrag ändern kannst. Das Foto der Nährwerttabelle wird nur zum Auslesen an Anthropic geschickt und nicht gespeichert
 - Resend (USA): E-Mail-Versand, etwa die Erinnerung vor dem Ende eines Gratis-Monats, wenn du eine E-Mail-Adresse hinterlegt hast
-- Lemon Squeezy (USA): Bezahlung und Abos
+- Paddle (Vereinigtes Königreich): Bezahlung und Abos im Web
 - Apple und Google: wenn du die App aus ihren Stores lädst
 Bei Übermittlungen in die USA stützen wir uns auf den EU-US Data Privacy Framework, soweit der Anbieter zertifiziert ist, sonst auf EU-Standardvertragsklauseln.
 
@@ -124,7 +124,7 @@ ODDO is a fitness coach. We only process what the app needs for that, never sell
 - **Trainers:** if you connect with a trainer's code, that trainer sees your first name, streak and backed-up app data (workouts, meals, calories, protein, weight, activities). They can send you a training plan and message you. You can disconnect any time under Settings → Your trainer; after that they see nothing.
 - **Partner program:** if you start with a trainer's, gym's or friend's code, we store who brought you in so that partner earns a commission on your payments. The partner only sees your first name and the amount of their commission. Partners who receive payouts enter an IBAN or PayPal address for it; we use it only for the transfer. We store submitted clip links with the counted views to calculate the payment.
 - **Studios:** if you join a studio with its code, the studio sees your first name, streak, check-ins, class bookings and until when your membership is valid. It does not see your workout, food or weight data. You can leave the studio any time under Settings → Your studio.
-- **Payments:** handled by Lemon Squeezy as merchant of record. We only learn which plan is active, never your card details.
+- **Payments:** handled on the web by Paddle as merchant of record, in the apps by Apple or Google. We only learn which plan is active, never your card details.
 - **Abuse protection:** for the daily AI limits we keep a one-way hash of your account ID or IP address per day.
 - **Website waitlist:** name and email if you sign up, to tell you about the launch.
 
@@ -136,7 +136,7 @@ ODDO is a fitness coach. We only process what the app needs for that, never sell
 - Open Food Facts (France): product data when you scan a barcode; only the barcode and your IP address are sent
 - Products you add yourself (barcode, name, brand, nutrition values) are visible to everyone on ODDO. Your account is stored with them but never shown, so only you can change your entry. The photo of the nutrition table is sent to Anthropic only to read the values and is not stored
 - Resend (USA): sending emails, such as the reminder before a free month ends, if you saved an email address
-- Lemon Squeezy (USA): payments and subscriptions
+- Paddle (United Kingdom): payments and subscriptions on the web
 - Apple and Google: if you install the app from their stores
 For transfers to the USA we rely on the EU-US Data Privacy Framework where the provider is certified, otherwise on EU standard contractual clauses.
 
@@ -173,7 +173,7 @@ ODDO bir fitness koçudur. Sadece uygulamanın bunun için ihtiyaç duyduğu ver
 - **Antrenör:** bir antrenörün koduyla bağlanırsan, o antrenör adını, serini ve yedeklenen uygulama verilerini (antrenmanlar, öğünler, kalori, protein, kilo, aktiviteler) görür. Sana antrenman planı gönderebilir ve seninle yazışabilir. Bağlantıyı istediğin zaman Ayarlar → Antrenörün bölümünden kesebilirsin; sonrasında hiçbir şey göremez.
 - **Ortaklık programı:** bir antrenörün, salonun veya arkadaşının koduyla başlarsan, ödemelerinden komisyon alabilmesi için seni kimin getirdiğini kaydederiz. Ortak yalnızca adını ve komisyon tutarını görür. Ödeme alan ortaklar bunun için IBAN veya PayPal adresi girer; bunu yalnızca havale için kullanırız. Gönderilen video linklerini, ödemeyi hesaplamak için sayılan izlenmelerle birlikte saklarız.
 - **Salonlar:** bir salona koduyla katılırsan, salon adını, serini, girişlerini, ders rezervasyonlarını ve üyeliğinin ne zamana kadar geçerli olduğunu görür. Antrenman, beslenme ve kilo verilerini göremez. Salondan istediğin zaman Ayarlar → Salonun bölümünden ayrılabilirsin.
-- **Ödemeler:** satıcı olarak Lemon Squeezy üzerinden yapılır. Sadece hangi paketin aktif olduğunu öğreniriz, kart bilgilerini asla.
+- **Ödemeler:** web'de satıcı olarak Paddle, uygulamalarda Apple veya Google üzerinden yapılır. Sadece hangi paketin aktif olduğunu öğreniriz, kart bilgilerini asla.
 - **Kötüye kullanım koruması:** günlük YZ limitleri için hesap kimliğinin veya IP adresinin geri döndürülemez bir özetini gün bazında saklarız.
 - **Web sitesi bekleme listesi:** kaydolursan, lansmanı haber vermek için ad ve e-posta.
 
@@ -185,7 +185,7 @@ ODDO bir fitness koçudur. Sadece uygulamanın bunun için ihtiyaç duyduğu ver
 - Open Food Facts (Fransa): barkod taradığında ürün bilgileri; yalnızca barkod ve IP adresin iletilir
 - Kendin eklediğin ürünler (barkod, ad, marka, besin değerleri) tüm ODDO kullanıcılarına görünür. Hesabın bu kayıtla saklanır ama kimseye gösterilmez, böylece kaydını yalnızca sen değiştirebilirsin. Besin tablosunun fotoğrafı yalnızca değerleri okumak için Anthropic'e gönderilir ve saklanmaz
 - Resend (ABD): e-posta gönderimi, örneğin e-posta adresi kaydettiysen ücretsiz ay bitmeden hatırlatma
-- Lemon Squeezy (ABD): ödemeler ve abonelikler
+- Paddle (Birleşik Krallık): web üzerinden ödemeler ve abonelikler
 - Apple ve Google: uygulamayı mağazalarından indirirsen
 ABD'ye aktarımlarda, sağlayıcı sertifikalıysa AB-ABD Veri Gizliliği Çerçevesi'ne, değilse AB standart sözleşme maddelerine dayanırız.
 
@@ -212,10 +212,13 @@ Onur Ünal, {ADDR}, {MAIL}
 ODDO ist eine App für Training, Ernährung und Gewohnheiten mit KI-Schätzungen und Community. Free ist kostenlos. Pro und Ultimate sind Abos mit zusätzlichen Funktionen, wie in der App beschrieben; Pro gibt es monatlich oder jährlich. Neue Nutzer bekommen einmalig 7 Tage Pro gratis, ohne Zahlungsdaten und ohne automatische Verlängerung. Funktionen, die als „bald“ markiert sind, sind noch nicht enthalten.
 
 ## Kauf und Kündigung
-Abos verkauft und rechnet Lemon Squeezy als Verkäufer (Merchant of Record) ab; dabei gelten zusätzlich deren Bedingungen. Abos verlängern sich um ihren Zeitraum (Monat oder Jahr) und sind jederzeit zum Ende des Abrechnungszeitraums kündbar, über den Link in der Bestätigungs-Mail. Der Gründerpreis gilt, solange das Abo ohne Unterbrechung läuft. Belohnungen wie geschenkte Monate gibt es nicht als Geld.
+Im Web verkauft und rechnet Paddle (Paddle.com Market Ltd) die Abos als Verkäufer (Merchant of Record) ab; dabei gelten zusätzlich deren Bedingungen. In der iPhone- und Android-App laufen Käufe über Apple bzw. Google. Abos verlängern sich um ihren Zeitraum (Monat oder Jahr) und sind jederzeit zum Ende des Abrechnungszeitraums kündbar, über den Link in der Bestätigungs-Mail. Der Gründerpreis gilt, solange das Abo ohne Unterbrechung läuft. Belohnungen wie geschenkte Monate gibt es nicht als Geld.
 
 ## Widerrufsrecht
-Verbraucher in der EU haben ein gesetzliches Widerrufsrecht von 14 Tagen. Wenn du ausdrücklich zustimmst, dass die digitale Leistung sofort beginnt, kann es vorzeitig erlöschen; Details nennt der Checkout von Lemon Squeezy.
+Verbraucher in der EU haben ein gesetzliches Widerrufsrecht von 14 Tagen. Wenn du ausdrücklich zustimmst, dass die digitale Leistung sofort beginnt, kann es vorzeitig erlöschen; Details nennt der Checkout von Paddle.
+
+## Rückerstattung
+Innerhalb von 14 Tagen nach dem ersten Kauf eines Abos erstatten wir dir den vollen Betrag, ohne Begründung. Schreib dafür an {MAIL} oder nutze den Link in deiner Kauf-Bestätigung. Käufe über Apple oder Google erstatten Apple bzw. Google nach ihren Regeln.
 
 ## Gesundheit
 ODDO ersetzt keine ärztliche Beratung. Kalorien, Verbrauch und Kraftvergleiche sind Schätzungen. Trainiere nur, wenn du gesund bist, und hör bei Schmerzen auf.
@@ -240,10 +243,13 @@ Onur Ünal, {ADDR}, {MAIL}
 ODDO is an app for training, nutrition and habits with AI estimates and a community. Free costs nothing. Pro and Ultimate are subscriptions with extra features as described in the app; Pro is available monthly or yearly. New users get 7 days of Pro once for free, without payment details and without automatic renewal. Features marked "coming soon" are not yet included.
 
 ## Purchase and cancellation
-Subscriptions are sold and billed by Lemon Squeezy as merchant of record; their terms apply in addition. Subscriptions renew for their period (month or year) and can be cancelled at any time to the end of the billing period via the link in the confirmation email. The founder price applies as long as the subscription runs without interruption. Rewards such as free months are never paid out as money.
+On the web, subscriptions are sold and billed by Paddle (Paddle.com Market Ltd) as merchant of record; their terms apply in addition. In the iPhone and Android apps, purchases go through Apple or Google. Subscriptions renew for their period (month or year) and can be cancelled at any time to the end of the billing period via the link in the confirmation email. The founder price applies as long as the subscription runs without interruption. Rewards such as free months are never paid out as money.
 
 ## Right of withdrawal
-Consumers in the EU have a statutory 14-day right of withdrawal. If you expressly agree that the digital service starts immediately, it may end early; the Lemon Squeezy checkout gives details.
+Consumers in the EU have a statutory 14-day right of withdrawal. If you expressly agree that the digital service starts immediately, it may end early; the Paddle checkout gives details.
+
+## Refunds
+Within 14 days of your first subscription purchase we refund the full amount, no questions asked. Write to {MAIL} or use the link in your purchase confirmation. Purchases through Apple or Google are refunded by Apple or Google under their rules.
 
 ## Health
 ODDO is not medical advice. Calories, burn and strength comparisons are estimates. Only train when you are healthy and stop if you feel pain.
@@ -268,10 +274,13 @@ Onur Ünal, {ADDR}, {MAIL}
 ODDO; antrenman, beslenme ve alışkanlıklar için YZ tahminleri ve topluluk içeren bir uygulamadır. Free ücretsizdir. Pro ve Ultimate, uygulamada açıklanan ek özelliklere sahip aboneliklerdir; Pro aylık veya yıllık alınabilir. Yeni kullanıcılar bir kez 7 gün ücretsiz Pro alır; ödeme bilgisi gerekmez ve otomatik yenilenmez. "Yakında" olarak işaretlenen özellikler henüz dahil değildir.
 
 ## Satın alma ve iptal
-Abonelikler satıcı olarak Lemon Squeezy tarafından satılır ve faturalanır; ayrıca onların koşulları geçerlidir. Abonelikler kendi dönemleri (ay veya yıl) kadar yenilenir ve onay e-postasındaki bağlantıyla istediğin zaman dönem sonuna kadar iptal edilebilir. Kurucu fiyatı abonelik kesintisiz devam ettiği sürece geçerlidir. Hediye aylar gibi ödüller para olarak ödenmez.
+Web'de abonelikler satıcı olarak Paddle (Paddle.com Market Ltd) tarafından satılır ve faturalanır; ayrıca onların koşulları geçerlidir. iPhone ve Android uygulamasında satın alımlar Apple veya Google üzerinden yapılır. Abonelikler kendi dönemleri (ay veya yıl) kadar yenilenir ve onay e-postasındaki bağlantıyla istediğin zaman dönem sonuna kadar iptal edilebilir. Kurucu fiyatı abonelik kesintisiz devam ettiği sürece geçerlidir. Hediye aylar gibi ödüller para olarak ödenmez.
 
 ## Cayma hakkı
-AB'deki tüketicilerin yasal 14 günlük cayma hakkı vardır. Dijital hizmetin hemen başlamasını açıkça kabul edersen bu hak erken sona erebilir; ayrıntılar Lemon Squeezy ödeme sayfasındadır.
+AB'deki tüketicilerin yasal 14 günlük cayma hakkı vardır. Dijital hizmetin hemen başlamasını açıkça kabul edersen bu hak erken sona erebilir; ayrıntılar Paddle ödeme sayfasındadır.
+
+## İade
+Bir aboneliği ilk satın almandan sonraki 14 gün içinde, gerekçe sormadan tüm tutarı iade ederiz. Bunun için {MAIL} adresine yaz veya satın alma onayındaki bağlantıyı kullan. Apple veya Google üzerinden yapılan satın alımları Apple veya Google kendi kurallarına göre iade eder.
 
 ## Sağlık
 ODDO tıbbi tavsiye değildir. Kalori, harcama ve güç karşılaştırmaları tahmindir. Sadece sağlıklıysan antrenman yap ve ağrı hissedersen dur.
@@ -296,7 +305,7 @@ Diese Vereinbarung gilt zwischen Onur Ünal, Betreiber von ODDO ({ADDR}), und di
 - Personen, die mit deinem Code in ODDO starten, sind deine geworbenen Kunden. Es zählt der erste Code, mit dem jemand startet.
 - Geworbene Kunden bekommen den ersten Monat ODDO Pro gratis.
 - Danach erhältst du eine Provision auf jede bezahlte Abo-Zahlung deiner geworbenen Kunden, solange sie zahlen und du aktiv bist.
-- Bemessungsgrundlage ist der Nettobetrag, den ODDO tatsächlich erhält: Zahlung abzüglich Steuern und der Gebühren von Lemon Squeezy, Apple oder Google.
+- Bemessungsgrundlage ist der Nettobetrag, den ODDO tatsächlich erhält: Zahlung abzüglich Steuern und der Gebühren von Paddle, Apple oder Google.
 
 ## Provisionssätze
 - Gründungspartner: die ersten 20 Partner erhalten 50 % für die ersten 6 Monate ab Anlage ihres Codes.
@@ -346,7 +355,7 @@ This agreement is between Onur Ünal, operator of ODDO ({ADDR}), and you ("partn
 - People who start ODDO with your code are your referred clients. The first code someone starts with counts.
 - Referred clients get the first month of ODDO Pro free.
 - After that you earn a commission on every paid subscription payment of your referred clients, as long as they pay and you are active.
-- The basis is the net amount ODDO actually receives: the payment minus taxes and the fees of Lemon Squeezy, Apple or Google.
+- The basis is the net amount ODDO actually receives: the payment minus taxes and the fees of Paddle, Apple or Google.
 
 ## Commission rates
 - Founding partner: the first 20 partners get 50 % for the first 6 months after creating their code.
@@ -396,7 +405,7 @@ Bu sözleşme, ODDO işletmecisi Onur Ünal ({ADDR}) ile sen ("ortak") arasında
 - Kodunla ODDO'ya başlayan kişiler senin getirdiğin danışanlardır. Kişinin başladığı ilk kod geçerlidir.
 - Getirdiğin danışanlar ilk ay ODDO Pro'yu ücretsiz alır.
 - Sonrasında, ödedikleri ve sen aktif olduğun sürece, getirdiğin danışanların her abonelik ödemesinden komisyon alırsın.
-- Hesaplama esası ODDO'nun gerçekten aldığı net tutardır: ödeme eksi vergiler ve Lemon Squeezy, Apple veya Google ücretleri.
+- Hesaplama esası ODDO'nun gerçekten aldığı net tutardır: ödeme eksi vergiler ve Paddle, Apple veya Google ücretleri.
 
 ## Komisyon oranları
 - Kurucu ortak: ilk 20 ortak, kodunu oluşturduktan sonraki ilk 6 ay boyunca %50 alır.
