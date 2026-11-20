@@ -8,7 +8,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 import { creditCommission, upsertSubscription, userForStoreSubscription, voidCommission } from '../lib/supabase.mjs';
 
 // Public Paddle price ids; env vars can add more.
-const DEFAULTS = { PADDLE_PRICES_PRO: 'pri_01m7mzdnt9aswgqgr5t0yprh5z,pri_01m7qh29299dbbb1d12mwm4ywk', PADDLE_PRICES_ULTIMATE: '' };
+const DEFAULTS = { PADDLE_PRICES_PRO: 'pri_01m7mzdnt9aswgqgr5t0yprh5z,pri_01m7qh29299dbbb1d12mwm4ywk', PADDLE_PRICES_ULTIMATE: 'pri_01m7qh5c6aaf699tpk534zwn7b' };
 const ids = name => new Set(`${process.env[name] || ''},${DEFAULTS[name] || ''}`.split(',').map(s => s.trim()).filter(Boolean));
 const MAX_AGE = 5 * 60; // seconds; older signatures are replays
 

@@ -14,7 +14,7 @@ const PADDLE_TOKEN = process.env.EXPO_PUBLIC_PADDLE_TOKEN || 'live_a192fa5f650cb
 const CHECKOUT: Record<Plan, string> = {
   pro: PADDLE_TOKEN && (process.env.EXPO_PUBLIC_PADDLE_PRICE_PRO || 'pri_01m7mzdnt9aswgqgr5t0yprh5z'),
   proYear: PADDLE_TOKEN && (process.env.EXPO_PUBLIC_PADDLE_PRICE_PRO_YEAR || 'pri_01m7qh29299dbbb1d12mwm4ywk'),
-  ultimate: PADDLE_TOKEN && (process.env.EXPO_PUBLIC_PADDLE_PRICE_ULTIMATE || ''),
+  ultimate: PADDLE_TOKEN && (process.env.EXPO_PUBLIC_PADDLE_PRICE_ULTIMATE || 'pri_01m7qh5c6aaf699tpk534zwn7b'),
 };
 const FOUNDER_CODE = process.env.EXPO_PUBLIC_FOUNDER_CODE || 'FOUNDER100';
 // Web checkout only on the web: Apple and Google don't allow paying outside their store inside the app.
