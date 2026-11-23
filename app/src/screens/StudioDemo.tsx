@@ -3,7 +3,7 @@ import { Animated, Easing, Linking, Modal, Platform, Pressable, ScrollView, Text
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getLang, Lang, LOCALE, setLang } from '../i18n';
 import { CURVE, DEMO_ME, DEMO_STUDIO, demoCrowd, pick } from '../studioDemo';
-import { PassSheet, StudioCard, StudioRun } from '../sheets/Studio';
+import { PassSheet } from '../sheets/Studio';
 import { colors, fonts } from '../theme';
 import { QR } from '../ui/QR';
 import { Scanner } from '../ui/Scanner';
@@ -13,6 +13,10 @@ import { Logo } from './Onboarding';
 // What a gym owner is shown: the member's app, the screen at the turnstile and the studio's own view, all with sample data.
 const TX = {
   de: {
+    capMember: 'So sieht es dein Mitglied auf dem Handy.', capEntry: 'Das Tablet am Drehkreuz. Mitglieder scannen den Code und gehen durch.', capStudio: 'Das sieht dein Team. Die wichtigsten Zahlen auf einen Blick.',
+    plusOne: 'Dazu für jedes Mitglied: Trainingsplan, Kalorien per Foto und Challenges in derselben App.',
+    crowdT: 'Gerade im Studio', crowdN: '{n} Leute', classesT: 'Kurse heute', full: 'voll', free: '{n} Plätze frei', booked: 'Gebucht', book: 'Buchen',
+    kMembers: 'Mitglieder', kEnding: 'enden in 7 Tagen',
     forStudios: 'für Studios', preview: 'Vorschau mit Beispieldaten. Mit deinem Studio sind es deine echten Zahlen.',
     kicker: 'Sporium × ODDO', head: 'Dein Studio. In der Tasche jedes Mitglieds.', sub: 'Einlass per QR am Drehkreuz, Auslastung live, Kurse, Mitgliedschaften und für jedes Mitglied ein persönlicher Fitness-Coach.',
     tMember: 'Mitglied', tEntry: 'Eingang', tStudio: 'Studio',
@@ -34,6 +38,10 @@ const TX = {
     contact: 'Interesse? Schreib uns',
   },
   tr: {
+    capMember: 'Üyen telefonunda bunu görür.', capEntry: 'Turnikedeki tablet. Üyeler kodu okutur ve geçer.', capStudio: 'Ekibin bunu görür. En önemli rakamlar tek bakışta.',
+    plusOne: 'Üstelik her üyeye aynı uygulamada antrenman planı, fotoğrafla kalori ve challenge\'lar.',
+    crowdT: 'Şu an salonda', crowdN: '{n} kişi', classesT: 'Bugünkü dersler', full: 'dolu', free: '{n} yer boş', booked: 'Alındı', book: 'Rezerve et',
+    kMembers: 'üye', kEnding: '7 günde bitiyor',
     forStudios: 'spor salonları için', preview: 'Örnek verilerle önizleme. Salonunla birlikte senin gerçek rakamların.',
     kicker: 'Sporium × ODDO', head: 'Salonun, her üyenin cebinde.', sub: 'Turnikede QR ile giriş, canlı doluluk, dersler, üyelikler ve her üyeye kişisel fitness koçu.',
     tMember: 'Üye', tEntry: 'Giriş', tStudio: 'Salon',
@@ -55,6 +63,10 @@ const TX = {
     contact: 'İlgileniyor musun? Bize yaz',
   },
   en: {
+    capMember: 'This is what your member sees on their phone.', capEntry: 'The tablet at the turnstile. Members scan the code and walk through.', capStudio: 'This is what your team sees. The key numbers at a glance.',
+    plusOne: 'Plus for every member: training plan, calories by photo and challenges in the same app.',
+    crowdT: 'In the gym now', crowdN: '{n} people', classesT: 'Classes today', full: 'full', free: '{n} spots left', booked: 'Booked', book: 'Book',
+    kMembers: 'members', kEnding: 'end within 7 days',
     forStudios: 'for gyms', preview: 'Preview with sample data. With your gym, these are your real numbers.',
     kicker: 'Sporium × ODDO', head: 'Your gym. In every member\'s pocket.', sub: 'QR entry at the turnstile, live crowd level, classes, memberships and a personal fitness coach for every member.',
     tMember: 'Member', tEntry: 'Entrance', tStudio: 'Gym',
@@ -134,8 +146,6 @@ export function StudioDemo() {
               <Animated.View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colors.accent, opacity: glow.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 0.25, 1] }) }} />
               <Text style={{ fontFamily: fonts.heavy, fontSize: 12, letterSpacing: 2, color: colors.accent, textTransform: 'uppercase' }}>{T.kicker}</Text>
             </View>
-            <Text style={{ fontFamily: fonts.display, fontSize: 40, lineHeight: 46, color: colors.text, textTransform: 'uppercase' }}>{T.head}</Text>
-            <Text style={{ fontFamily: fonts.medium, fontSize: 15, lineHeight: 22, color: colors.muted }}>{T.sub}</Text>
           </View>
           <View style={{ flexDirection: 'row', backgroundColor: colors.surface, borderRadius: 999, padding: 4, borderWidth: 1, borderColor: colors.line }}>
             {(['member', 'entry', 'studio'] as View3[]).map(k => (
@@ -145,6 +155,7 @@ export function StudioDemo() {
               </Pressable>
             ))}
           </View>
+          <Text style={{ fontFamily: fonts.semibold, fontSize: 15, lineHeight: 21, color: colors.muted, textAlign: 'center' }}>{v === 'member' ? T.capMember : v === 'entry' ? T.capEntry : T.capStudio}</Text>
           {v === 'member' ? <MemberView /> : v === 'entry' ? <EntryView /> : <StudioView />}
           <Text style={{ fontFamily: fonts.medium, fontSize: 12, color: colors.dim, textAlign: 'center' }}>{T.preview}</Text>
         </View>
@@ -215,32 +226,61 @@ function MemberView() {
           </View>
         </Card>
       ) : null}
-      <View style={{ flexDirection: 'row', gap: 10 }}>
-        {[[13, T.sVisits], [4, T.sStreak], [8, T.sRank]].map(([n, l], i) => (
-          <View key={i} style={{ flex: 1, backgroundColor: colors.surface, borderRadius: 18, borderWidth: 1, borderColor: colors.line, padding: 14, gap: 2 }}>
-            <Text style={{ fontFamily: fonts.display, fontSize: 30, color: i === 1 ? colors.accent : colors.text }}>{i === 2 ? '#' : ''}{n}{i === 1 ? ' 🔥' : ''}</Text>
-            <Text style={{ fontFamily: fonts.semibold, fontSize: 12, color: colors.muted }}>{l}</Text>
-          </View>
-        ))}
+      <CrowdNow />
+      <DemoClasses />
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.surface, borderRadius: 18, borderWidth: 1, borderColor: colors.line, padding: 16 }}>
+        <Text style={{ fontSize: 26 }}>💪</Text>
+        <Text style={{ flex: 1, fontFamily: fonts.semibold, fontSize: 14, lineHeight: 20, color: colors.text }}>{T.plusOne}</Text>
       </View>
-      <BestTime />
-      <CoachToday />
-      <StudioCard refresh={0} />
-      <Card style={{ gap: 12 }}>
-        <Text style={{ fontFamily: fonts.heavy, fontSize: 17, color: colors.text }}>{T.plusT}</Text>
-        {T.plus.map((p, i) => (
-          <View key={i} style={{ flexDirection: 'row', gap: 12, alignItems: 'flex-start' }}>
-            <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ fontFamily: fonts.heavy, color: colors.ink, fontSize: 12 }}>✓</Text>
-            </View>
-            <Text style={{ flex: 1, fontFamily: fonts.medium, fontSize: 15, lineHeight: 21, color: colors.text }}>{p}</Text>
-          </View>
-        ))}
-        <Text style={{ fontFamily: fonts.medium, fontSize: 13, color: colors.muted }}>{T.plusS}</Text>
-      </Card>
       <OpenFlash visible={open} name={DEMO_ME} onDone={() => setOpen(false)} />
       {pass ? <PassSheet studio={{ id: DEMO_STUDIO.id, name: DEMO_STUDIO.name, city: DEMO_STUDIO.city, capacity: DEMO_STUDIO.capacity, crowd: 0, member_until: null, last_visit: null, classes: [] }} onClose={() => setPass(false)} /> : null}
     </View>
+  );
+}
+
+// One line: how full the gym is right now.
+function CrowdNow() {
+  const T = tx();
+  const n = demoCrowd(), pct = n / DEMO_STUDIO.capacity;
+  const c = pct < 0.3 ? colors.accent : pct < 0.7 ? colors.warn : colors.bad;
+  return (
+    <Card style={{ gap: 10 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <Text style={{ fontFamily: fonts.heavy, fontSize: 16, color: colors.text }}>{T.crowdT}</Text>
+        <Text style={{ fontFamily: fonts.heavy, fontSize: 16, color: c }}>{fill(T.crowdN, { n })}</Text>
+      </View>
+      <View style={{ height: 10, borderRadius: 5, backgroundColor: colors.surface2, overflow: 'hidden' }}>
+        <View style={{ width: `${Math.max(4, pct * 100)}%`, height: 10, backgroundColor: c }} />
+      </View>
+    </Card>
+  );
+}
+
+// The next classes, booked with one tap.
+function DemoClasses() {
+  const T = tx();
+  const [mine, setMine] = useState<Record<string, boolean>>({ c3: true });
+  const list = [['c3', '18:00', 'Functional', 'Kerem', 12], ['c1', '18:30', 'Spinning', 'Ece', 3], ['c2', '20:00', 'Pilates', 'Selin', 0]] as const;
+  return (
+    <Card style={{ gap: 4 }}>
+      <Text style={{ fontFamily: fonts.heavy, fontSize: 16, color: colors.text, marginBottom: 4 }}>{T.classesT}</Text>
+      {list.map(([id, time, title, coach, free], i) => {
+        const on = !!mine[id], full = free === 0 && !on;
+        return (
+          <View key={id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, borderTopWidth: i ? 1 : 0, borderTopColor: colors.line }}>
+            <Text style={{ width: 52, fontFamily: fonts.display, fontSize: 20, color: colors.text }}>{time}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontFamily: fonts.bold, fontSize: 15, color: colors.text }}>{title}</Text>
+              <Text style={{ fontFamily: fonts.medium, fontSize: 12, color: colors.muted }}>{coach} · {full ? T.full : fill(T.free, { n: free })}</Text>
+            </View>
+            <Pressable disabled={full} onPress={() => setMine(m => ({ ...m, [id]: !on }))}
+              style={{ paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, backgroundColor: on ? colors.accent : 'transparent', borderWidth: 1, borderColor: on ? colors.accent : colors.line, opacity: full ? 0.4 : 1 }}>
+              <Text style={{ fontFamily: fonts.heavy, fontSize: 13, color: on ? colors.ink : colors.text }}>{on ? `✓ ${T.booked}` : full ? T.full : T.book}</Text>
+            </Pressable>
+          </View>
+        );
+      })}
+    </Card>
   );
 }
 
@@ -260,69 +300,6 @@ function HourChart({ height = 90, dark }: { height?: number; dark?: boolean }) {
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         {[6, 10, 14, 18, 22].map(x => <Text key={x} style={{ fontFamily: fonts.semibold, fontSize: 11, color: colors.dim }}>{x}:00</Text>)}
       </View>
-    </View>
-  );
-}
-
-function BestTime() {
-  const T = tx();
-  const h = new Date().getHours();
-  const later = Object.keys(CURVE).map(Number).filter(x => x >= h && x <= 22);
-  const best = (later.length ? later : [14]).reduce((a, b) => (CURVE[b] < CURVE[a] ? b : a));
-  return (
-    <Card style={{ gap: 12 }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Text style={{ fontFamily: fonts.heavy, fontSize: 17, color: colors.text }}>{T.bestT}</Text>
-        <Text style={{ fontFamily: fonts.bold, fontSize: 13, color: colors.accent }}>{fill(T.bestNow, { n: demoCrowd() })}</Text>
-      </View>
-      <HourChart />
-      <Text style={{ fontFamily: fonts.semibold, fontSize: 14, color: colors.muted }}>💡 {fill(T.bestTip, { h: best })}</Text>
-    </Card>
-  );
-}
-
-// A glimpse of the personal coach: today's workout and the day's food so far.
-function CoachToday() {
-  const T = tx();
-  return (
-    <Card style={{ gap: 14 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-        <Ring pct={0.62} label="62%" />
-        <View style={{ flex: 1, gap: 3 }}>
-          <Text style={{ fontFamily: fonts.bold, fontSize: 12, letterSpacing: 1, color: colors.accent, textTransform: 'uppercase' }}>{T.coachT}</Text>
-          <Text style={{ fontFamily: fonts.heavy, fontSize: 17, color: colors.text }}>{T.coachW}</Text>
-          <Text style={{ fontFamily: fonts.medium, fontSize: 13, color: colors.muted }}>{T.coachM}</Text>
-        </View>
-      </View>
-      <View style={{ flexDirection: 'row', gap: 12 }}>
-        {[[T.kcal, 1240, 2100, colors.accent], [T.protein, 96, 150, colors.warn]].map(([l, n, of, c]) => (
-          <View key={String(l)} style={{ flex: 1, gap: 6 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text style={{ fontFamily: fonts.semibold, fontSize: 12, color: colors.muted }}>{l}</Text>
-              <Text style={{ fontFamily: fonts.bold, fontSize: 12, color: colors.text }}>{n} / {of}{l === T.protein ? ' g' : ''}</Text>
-            </View>
-            <View style={{ height: 6, borderRadius: 3, backgroundColor: colors.surface2, overflow: 'hidden' }}>
-              <View style={{ width: `${(Number(n) / Number(of)) * 100}%`, height: 6, backgroundColor: c as string }} />
-            </View>
-          </View>
-        ))}
-      </View>
-      <View style={{ backgroundColor: colors.surface2, borderRadius: 14, paddingVertical: 12, alignItems: 'center' }}>
-        <Text style={{ fontFamily: fonts.heavy, fontSize: 14, color: colors.text }}>▶  {T.coachGo}</Text>
-      </View>
-    </Card>
-  );
-}
-
-// A progress ring made of two half discs, so it needs no SVG.
-function Ring({ pct, label }: { pct: number; label: string }) {
-  const size = 66, w = 8;
-  return (
-    <View style={{ width: size, height: size, borderRadius: size / 2, borderWidth: w, borderColor: colors.surface2, alignItems: 'center', justifyContent: 'center' }}>
-      <View style={{ position: 'absolute', top: -w, left: -w, width: size, height: size, borderRadius: size / 2, borderWidth: w,
-        borderTopColor: colors.accent, borderRightColor: colors.accent, borderBottomColor: pct > 0.5 ? colors.accent : 'transparent', borderLeftColor: pct > 0.75 ? colors.accent : 'transparent',
-        transform: [{ rotate: '-45deg' }] }} />
-      <Text style={{ fontFamily: fonts.display, fontSize: 18, color: colors.text }}>{label}</Text>
     </View>
   );
 }
@@ -475,10 +452,12 @@ function EntryPanel({ big }: { big?: boolean }) {
           </View>
         </View>
       </View>
-      <View style={{ gap: 8 }}>
-        <Text style={{ fontFamily: fonts.bold, fontSize: 11, letterSpacing: 1.5, color: colors.dim, textTransform: 'uppercase' }}>{T.hours}</Text>
-        <HourChart height={56} dark />
-      </View>
+      {big ? (
+        <View style={{ gap: 8 }}>
+          <Text style={{ fontFamily: fonts.bold, fontSize: 11, letterSpacing: 1.5, color: colors.dim, textTransform: 'uppercase' }}>{T.hours}</Text>
+          <HourChart height={56} dark />
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -492,7 +471,14 @@ function StudioView() {
   const send = (k: string, n: number) => { setSent(s => ({ ...s, [k]: true })); toast(fill(T.reminded, { n })); };
   return (
     <View style={{ gap: 16 }}>
-      <Text style={{ fontFamily: fonts.medium, fontSize: 15, lineHeight: 22, color: colors.muted }}>{T.studioHint}</Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+        {([[demoCrowd(), T.inside, colors.accent], [66, T.todayIn, colors.text], [286, T.kMembers, colors.text], [14, T.kEnding, colors.warn]] as const).map(([n, l, c], i) => (
+          <View key={i} style={{ flexBasis: '47%', flexGrow: 1, backgroundColor: colors.surface, borderRadius: 20, borderWidth: 1, borderColor: colors.line, padding: 16 }}>
+            <CountUp to={n} style={{ fontFamily: fonts.display, fontSize: 42, color: c }} />
+            <Text style={{ fontFamily: fonts.semibold, fontSize: 13, color: colors.muted }}>{l}</Text>
+          </View>
+        ))}
+      </View>
       <View style={{ backgroundColor: colors.surface, borderRadius: 22, borderWidth: 1, borderColor: colors.warn, padding: 18, gap: 14 }}>
         <Text style={{ fontFamily: fonts.heavy, fontSize: 18, color: colors.text }}>💰 {T.riskT}</Text>
         {([['quiet', 9, T.risk1, T.risk1s, colors.bad], ['ending', 14, T.risk2, T.risk2s, colors.warn]] as const).map(([k, n, title, sub, c]) => (
@@ -509,14 +495,6 @@ function StudioView() {
           </View>
         ))}
       </View>
-      <Card style={{ gap: 12 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Text style={{ fontFamily: fonts.heavy, fontSize: 17, color: colors.text }}>{T.hours}</Text>
-          <Text style={{ fontFamily: fonts.bold, fontSize: 13, color: colors.accent }}>{demoCrowd()} {T.inside}</Text>
-        </View>
-        <HourChart />
-      </Card>
-      <StudioRun s={{ id: DEMO_STUDIO.id, name: DEMO_STUDIO.name, city: DEMO_STUDIO.city, code: DEMO_STUDIO.code, capacity: DEMO_STUDIO.capacity, role: 'trainer' }} />
       <Card style={{ gap: 12, borderColor: colors.accent }}>
         <Text style={{ fontFamily: fonts.heavy, fontSize: 17, color: colors.text }}>{T.priceT}</Text>
         {T.price.map((p, i) => (
