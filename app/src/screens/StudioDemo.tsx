@@ -3,6 +3,7 @@ import { Animated, Easing, Image, Linking, Modal, Platform, Pressable, ScrollVie
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Lang, LOCALE } from '../i18n';
 import { Icon, IconName } from '../ui/icons';
+import Svg, { Path, Rect } from 'react-native-svg';
 import { CURVE, DEMO_ME, DEMO_STUDIO, demoCrowd, pick } from '../studioDemo';
 import { PassSheet } from '../sheets/Studio';
 import { colors, fonts } from '../theme';
@@ -13,6 +14,10 @@ import { Card, ToastHost, useToast } from '../ui/kit';
 // What a gym owner is shown: the member's app, the screen at the turnstile and the studio's own view, all with sample data.
 const TX = {
   de: {
+    women: 'Frauen', men: 'Männer', quiet: 'Ruhig', busy: 'Mittel', fullC: 'Voll', pctFull: '{p} % ausgelastet',
+    balance: 'Guthaben', noLate: 'Keine offenen Raten', subActive: 'Mitgliedschaft aktiv', subDays: '{n} Tage',
+    qAppt: 'Termin', qApptV: 'Do 18:00 PT', qApptT: 'Termine mit Trainern buchen', qClasses: 'Kurse', qClassesV: '3 heute', qClassesT: 'Alle Kurse der Woche',
+    qSub: 'Vertrag', qSubT: 'Laufzeit, Paket und Verlängern', qWallet: 'E-Wallet', qWalletT: 'Guthaben für Getränke und Shop', qWater: 'Wasser', qQr: 'Mein QR', qQrV: 'Öffnen',
     notice: 'Heute 18:30 Spinning mit Ece. Nur noch 3 Plätze frei, jetzt buchen!', noticeAgo: 'vor 5 Min',
     capMember: 'So sieht es dein Mitglied auf dem Handy.', capEntry: 'Das Tablet am Drehkreuz. Mitglieder scannen den Code und gehen durch.', capStudio: 'Das sieht dein Team. Die wichtigsten Zahlen auf einen Blick.',
     plusOne: 'Dazu für jedes Mitglied: Trainingsplan, Kalorien per Foto und Challenges in derselben App.',
@@ -39,6 +44,10 @@ const TX = {
     contact: 'Interesse? Schreib uns',
   },
   tr: {
+    women: 'Kadın', men: 'Erkek', quiet: 'Sakin', busy: 'Orta', fullC: 'Dolu', pctFull: '%{p} dolu',
+    balance: 'Bakiye', noLate: 'Gecikmiş taksit yok', subActive: 'Üyelik aktif', subDays: '{n} gün',
+    qAppt: 'Randevu', qApptV: 'Per 18:00 PT', qApptT: 'Antrenörle randevu al', qClasses: 'Dersler', qClassesV: 'Bugün 3', qClassesT: 'Haftanın tüm dersleri',
+    qSub: 'Üyelik', qSubT: 'Süre, paket ve yenileme', qWallet: 'E-Cüzdan', qWalletT: 'İçecek ve mağaza için bakiye', qWater: 'Su', qQr: 'QR kodum', qQrV: 'Aç',
     notice: 'Bugün 18:30\'da Ece ile Spinning. Sadece 3 yer kaldı, hemen rezerve et!', noticeAgo: '5 dk önce',
     capMember: 'Üyen telefonunda bunu görür.', capEntry: 'Turnikedeki tablet. Üyeler kodu okutur ve geçer.', capStudio: 'Ekibin bunu görür. En önemli rakamlar tek bakışta.',
     plusOne: 'Üstelik her üyeye aynı uygulamada antrenman planı, fotoğrafla kalori ve challenge\'lar.',
@@ -65,6 +74,10 @@ const TX = {
     contact: 'İlgileniyor musun? Bize yaz',
   },
   en: {
+    women: 'Women', men: 'Men', quiet: 'Quiet', busy: 'Busy', fullC: 'Full', pctFull: '{p} % full',
+    balance: 'Balance', noLate: 'No overdue instalments', subActive: 'Membership active', subDays: '{n} days',
+    qAppt: 'Trainer', qApptV: 'Thu 18:00 PT', qApptT: 'Book sessions with a trainer', qClasses: 'Classes', qClassesV: '3 today', qClassesT: 'All classes this week',
+    qSub: 'Plan', qSubT: 'Term, plan and renewal', qWallet: 'E-Wallet', qWalletT: 'Balance for drinks and the shop', qWater: 'Water', qQr: 'My QR', qQrV: 'Open',
     notice: 'Spinning with Ece today at 18:30. Only 3 spots left, book now!', noticeAgo: '5 min ago',
     capMember: 'This is what your member sees on their phone.', capEntry: 'The tablet at the turnstile. Members scan the code and walk through.', capStudio: 'This is what your team sees. The key numbers at a glance.',
     plusOne: 'Plus for every member: training plan, calories by photo and challenges in the same app.',
@@ -97,6 +110,7 @@ const tx = () => TX[demoLang];
 const fill = (s: string, v: Record<string, string | number>) => Object.entries(v).reduce((a, [k, x]) => a.split(`{${k}}`).join(String(x)), s);
 const fmt = (d: Date | string) => new Date(d).toLocaleDateString(LOCALE[demoLang], { day: 'numeric', month: 'short', year: 'numeric' });
 const ND = Platform.OS !== 'web';
+const WOMEN = '#ff7ab8', MEN = '#5aa9ff';
 // Sample member photo for the preview only.
 const PHOTO = require('../../assets/demo/member.jpg');
 const initials = (n: string) => n.split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase();
@@ -224,11 +238,12 @@ function MemberView() {
           <View style={{ width: '76%', height: 6, backgroundColor: colors.ink }} />
         </View>
         <View style={{ flexDirection: 'row', gap: 10 }}>
-          <Pressable testID="demo-scan" onPress={() => setScan(true)} style={({ pressed }) => ({ flex: 1.4, backgroundColor: colors.ink, borderRadius: 16, paddingVertical: 16, alignItems: 'center', transform: [{ scale: pressed ? 0.97 : 1 }] })}>
-            <Text style={{ fontFamily: fonts.heavy, fontSize: 15, color: colors.accent }}>▦  {T.scan}</Text>
+          <Pressable testID="demo-scan" onPress={() => setScan(true)} style={({ pressed }) => ({ flex: 1.4, flexDirection: 'row', gap: 10, justifyContent: 'center', backgroundColor: colors.ink, borderRadius: 16, paddingVertical: 15, alignItems: 'center', transform: [{ scale: pressed ? 0.97 : 1 }] })}>
+            <QrIcon size={22} color={colors.accent} />
+            <Text style={{ fontFamily: fonts.display, fontSize: 20, letterSpacing: 1, color: colors.accent, textTransform: 'uppercase' }}>{T.scan}</Text>
           </Pressable>
           <Pressable onPress={() => setPass(true)} style={({ pressed }) => ({ flex: 1, borderWidth: 2, borderColor: colors.ink, borderRadius: 16, paddingVertical: 14, alignItems: 'center', transform: [{ scale: pressed ? 0.97 : 1 }] })}>
-            <Text style={{ fontFamily: fonts.heavy, fontSize: 15, color: colors.ink }}>{T.pass}</Text>
+            <Text style={{ fontFamily: fonts.display, fontSize: 20, letterSpacing: 1, color: colors.ink, textTransform: 'uppercase' }}>{T.pass}</Text>
           </Pressable>
         </View>
       </View>
@@ -246,8 +261,10 @@ function MemberView() {
           </View>
         </Card>
       ) : null}
-      <Notice />
       <CrowdNow />
+      <AccountCard />
+      <QuickTiles onQr={() => setPass(true)} />
+      <Notice />
       <DemoClasses />
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.surface, borderRadius: 18, borderWidth: 1, borderColor: colors.line, padding: 16 }}>
         <Text style={{ fontSize: 26 }}>💪</Text>
@@ -282,17 +299,99 @@ function Notice() {
 function CrowdNow() {
   const T = tx();
   const n = demoCrowd(), pct = n / DEMO_STUDIO.capacity;
+  const women = Math.round(n * 0.38), men = n - women;
+  const lvl = pct < 0.3 ? T.quiet : pct < 0.7 ? T.busy : T.fullC;
   const c = pct < 0.3 ? colors.accent : pct < 0.7 ? colors.warn : colors.bad;
   return (
-    <Card style={{ gap: 10 }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
-        <Text style={{ fontFamily: fonts.heavy, fontSize: 16, color: colors.text }}>{T.crowdT}</Text>
-        <Text style={{ fontFamily: fonts.heavy, fontSize: 16, color: c }}>{fill(T.crowdN, { n })}</Text>
+    <Card style={{ gap: 14 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c }} />
+          <Text style={{ fontFamily: fonts.heavy, fontSize: 16, color: colors.text }}>{T.crowdT}</Text>
+        </View>
+        <View style={{ backgroundColor: c, borderRadius: 999, paddingVertical: 4, paddingHorizontal: 10 }}>
+          <Text style={{ fontFamily: fonts.heavy, fontSize: 12, color: colors.ink }}>{lvl}</Text>
+        </View>
       </View>
-      <View style={{ height: 10, borderRadius: 5, backgroundColor: colors.surface2, overflow: 'hidden' }}>
-        <View style={{ width: `${Math.max(4, pct * 100)}%`, height: 10, backgroundColor: c }} />
+      <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+        <Text style={{ fontFamily: fonts.display, fontSize: 52, lineHeight: 56, color: colors.text }}>{n}<Text style={{ fontSize: 22, color: colors.dim }}> / {DEMO_STUDIO.capacity}</Text></Text>
+        <View style={{ flexDirection: 'row', gap: 16, paddingBottom: 6 }}>
+          <View style={{ alignItems: 'center' }}>
+            <Text style={{ fontFamily: fonts.display, fontSize: 28, color: WOMEN }}>♀ {women}</Text>
+            <Text style={{ fontFamily: fonts.semibold, fontSize: 11, color: colors.muted }}>{T.women}</Text>
+          </View>
+          <View style={{ alignItems: 'center' }}>
+            <Text style={{ fontFamily: fonts.display, fontSize: 28, color: MEN }}>♂ {men}</Text>
+            <Text style={{ fontFamily: fonts.semibold, fontSize: 11, color: colors.muted }}>{T.men}</Text>
+          </View>
+        </View>
       </View>
+      <View style={{ height: 12, borderRadius: 6, backgroundColor: colors.surface2, overflow: 'hidden', flexDirection: 'row' }}>
+        <View style={{ width: `${(women / DEMO_STUDIO.capacity) * 100}%`, backgroundColor: WOMEN }} />
+        <View style={{ width: `${(men / DEMO_STUDIO.capacity) * 100}%`, backgroundColor: MEN }} />
+      </View>
+      <Text style={{ fontFamily: fonts.semibold, fontSize: 12, color: colors.muted }}>{fill(T.pctFull, { p: Math.round(pct * 100) })}</Text>
     </Card>
+  );
+}
+
+// Balance, instalments and membership, each with a clear tick.
+function AccountCard() {
+  const T = tx();
+  const rows: [string, string, string][] = [['💳', T.balance, '70 TL'], ['✓', T.noLate, ''], ['✓', T.subActive, fill(T.subDays, { n: 91 })]];
+  return (
+    <Card style={{ gap: 0, paddingVertical: 6 }}>
+      {rows.map(([icon, label, value], i) => (
+        <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 12, borderTopWidth: i ? 1 : 0, borderTopColor: colors.line }}>
+          <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: icon === '✓' ? colors.accent : colors.surface2, alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{ fontFamily: fonts.heavy, fontSize: icon === '✓' ? 16 : 16, color: colors.ink }}>{icon}</Text>
+          </View>
+          <Text style={{ flex: 1, fontFamily: fonts.semibold, fontSize: 15, color: colors.text }}>{label}</Text>
+          {value ? <Text style={{ fontFamily: fonts.display, fontSize: 20, color: colors.accent }}>{value}</Text> : null}
+        </View>
+      ))}
+    </Card>
+  );
+}
+
+// Everything else the studio app offers, one tap each.
+function QuickTiles({ onQr }: { onQr: () => void }) {
+  const T = tx();
+  const toast = useToast();
+  const [water, setWater] = useState(1.25);
+  const tiles: { e: string; l: string; v: string; on: () => void }[] = [
+    { e: '📅', l: T.qAppt, v: T.qApptV, on: () => toast(T.qApptT) },
+    { e: '👥', l: T.qClasses, v: T.qClassesV, on: () => toast(T.qClassesT) },
+    { e: '🪪', l: T.qSub, v: fill(T.subDays, { n: 91 }), on: () => toast(T.qSubT) },
+    { e: '💳', l: T.qWallet, v: '70 TL', on: () => toast(T.qWalletT) },
+    { e: '💧', l: T.qWater, v: `${water.toFixed(2).replace(/0$/, '')} / 2.5 L`, on: () => setWater(w => Math.min(2.5, w + 0.25)) },
+    { e: '▦', l: T.qQr, v: T.qQrV, on: onQr },
+  ];
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+      {tiles.map(x => (
+        <Pressable key={x.l} onPress={x.on} style={({ pressed }) => ({ flexBasis: '30%', flexGrow: 1, backgroundColor: colors.surface, borderRadius: 18, borderWidth: 1, borderColor: colors.line, padding: 14, gap: 8, transform: [{ scale: pressed ? 0.96 : 1 }] })}>
+          <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: colors.surface2, alignItems: 'center', justifyContent: 'center' }}>
+            {x.e === '▦' ? <QrIcon size={22} color={colors.accent} /> : <Text style={{ fontSize: 20 }}>{x.e}</Text>}
+          </View>
+          <View style={{ gap: 1 }}>
+            <Text numberOfLines={1} style={{ fontFamily: fonts.bold, fontSize: 13, color: colors.text }}>{x.l}</Text>
+            <Text numberOfLines={1} style={{ fontFamily: fonts.semibold, fontSize: 12, color: colors.accent }}>{x.v}</Text>
+          </View>
+        </Pressable>
+      ))}
+    </View>
+  );
+}
+
+// A small QR mark, drawn so it looks the same on every phone.
+function QrIcon({ size = 22, color }: { size?: number; color: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      {[[3, 3], [14, 3], [3, 14]].map(([x, y]) => <Rect key={`${x}${y}`} x={x} y={y} width={7} height={7} rx={1.5} fill="none" stroke={color} strokeWidth={2} />)}
+      {[[5.5, 5.5], [16.5, 5.5], [5.5, 16.5]].map(([x, y]) => <Rect key={`i${x}${y}`} x={x} y={y} width={2} height={2} fill={color} />)}
+      <Path d="M14 14h3v3h-3zM18 18h3v3h-3zM18 14h3M14 19v2" stroke={color} strokeWidth={2} fill="none" />
+    </Svg>
   );
 }
 
