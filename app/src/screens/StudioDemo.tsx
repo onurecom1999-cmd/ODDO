@@ -1,18 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Linking, Modal, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { Animated, Easing, Image, Linking, Modal, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getLang, Lang, LOCALE, setLang } from '../i18n';
+import { Lang, LOCALE } from '../i18n';
+import { Icon, IconName } from '../ui/icons';
 import { CURVE, DEMO_ME, DEMO_STUDIO, demoCrowd, pick } from '../studioDemo';
 import { PassSheet } from '../sheets/Studio';
 import { colors, fonts } from '../theme';
 import { QR } from '../ui/QR';
 import { Scanner } from '../ui/Scanner';
 import { Card, ToastHost, useToast } from '../ui/kit';
-import { Logo } from './Onboarding';
 
 // What a gym owner is shown: the member's app, the screen at the turnstile and the studio's own view, all with sample data.
 const TX = {
   de: {
+    notice: 'Heute 18:30 Spinning mit Ece. Nur noch 3 Plätze frei, jetzt buchen!', noticeAgo: 'vor 5 Min',
     capMember: 'So sieht es dein Mitglied auf dem Handy.', capEntry: 'Das Tablet am Drehkreuz. Mitglieder scannen den Code und gehen durch.', capStudio: 'Das sieht dein Team. Die wichtigsten Zahlen auf einen Blick.',
     plusOne: 'Dazu für jedes Mitglied: Trainingsplan, Kalorien per Foto und Challenges in derselben App.',
     crowdT: 'Gerade im Studio', crowdN: '{n} Leute', classesT: 'Kurse heute', full: 'voll', free: '{n} Plätze frei', booked: 'Gebucht', book: 'Buchen',
@@ -21,7 +22,7 @@ const TX = {
     kicker: 'Sporium × ODDO', head: 'Dein Studio. In der Tasche jedes Mitglieds.', sub: 'Einlass per QR am Drehkreuz, Auslastung live, Kurse, Mitgliedschaften und für jedes Mitglied ein persönlicher Fitness-Coach.',
     tMember: 'Mitglied', tEntry: 'Eingang', tStudio: 'Studio',
     member: 'Mitglied', active: 'Aktiv', validUntil: 'Gültig bis {d}', days: 'Tage',
-    scan: 'Am Eingang scannen', pass: 'Mein Pass', scanHint: 'Halte die Kamera auf den Code am Eingang.', noCam: 'Ohne Kamera testen', close: 'Schließen',
+    scan: 'Einchecken', pass: 'Mein Pass', scanHint: 'Halte die Kamera auf den Code am Eingang.', noCam: 'Ohne Kamera testen', close: 'Schließen',
     open: 'Drehkreuz offen', welcome: 'Willkommen, {n}!', welcomeSub: 'Besuch Nr. 13 diesen Monat · 4 Tage Serie 🔥',
     sVisits: 'Besuche im Monat', sStreak: 'Tage Serie', sRank: 'aktivste im Studio',
     bestT: 'Wann ist es leer?', bestNow: 'Jetzt: {n} Leute', bestTip: 'Am ruhigsten heute um {h} Uhr',
@@ -38,6 +39,7 @@ const TX = {
     contact: 'Interesse? Schreib uns',
   },
   tr: {
+    notice: 'Bugün 18:30\'da Ece ile Spinning. Sadece 3 yer kaldı, hemen rezerve et!', noticeAgo: '5 dk önce',
     capMember: 'Üyen telefonunda bunu görür.', capEntry: 'Turnikedeki tablet. Üyeler kodu okutur ve geçer.', capStudio: 'Ekibin bunu görür. En önemli rakamlar tek bakışta.',
     plusOne: 'Üstelik her üyeye aynı uygulamada antrenman planı, fotoğrafla kalori ve challenge\'lar.',
     crowdT: 'Şu an salonda', crowdN: '{n} kişi', classesT: 'Bugünkü dersler', full: 'dolu', free: '{n} yer boş', booked: 'Alındı', book: 'Rezerve et',
@@ -46,7 +48,7 @@ const TX = {
     kicker: 'Sporium × ODDO', head: 'Salonun, her üyenin cebinde.', sub: 'Turnikede QR ile giriş, canlı doluluk, dersler, üyelikler ve her üyeye kişisel fitness koçu.',
     tMember: 'Üye', tEntry: 'Giriş', tStudio: 'Salon',
     member: 'Üye', active: 'Aktif', validUntil: '{d} tarihine kadar geçerli', days: 'Gün',
-    scan: 'Girişte okut', pass: 'Kartım', scanHint: 'Kamerayı girişteki koda tut.', noCam: 'Kamerasız dene', close: 'Kapat',
+    scan: 'Giriş yap', pass: 'Kartım', scanHint: 'Kamerayı girişteki koda tut.', noCam: 'Kamerasız dene', close: 'Kapat',
     open: 'Turnike açık', welcome: 'Hoş geldin, {n}!', welcomeSub: 'Bu ay 13. ziyaret · 4 günlük seri 🔥',
     sVisits: 'bu ay ziyaret', sStreak: 'günlük seri', sRank: 'salonun en aktifi',
     bestT: 'Salon ne zaman boş?', bestNow: 'Şu an: {n} kişi', bestTip: 'Bugün en sakin saat {h}:00',
@@ -63,6 +65,7 @@ const TX = {
     contact: 'İlgileniyor musun? Bize yaz',
   },
   en: {
+    notice: 'Spinning with Ece today at 18:30. Only 3 spots left, book now!', noticeAgo: '5 min ago',
     capMember: 'This is what your member sees on their phone.', capEntry: 'The tablet at the turnstile. Members scan the code and walk through.', capStudio: 'This is what your team sees. The key numbers at a glance.',
     plusOne: 'Plus for every member: training plan, calories by photo and challenges in the same app.',
     crowdT: 'In the gym now', crowdN: '{n} people', classesT: 'Classes today', full: 'full', free: '{n} spots left', booked: 'Booked', book: 'Book',
@@ -71,7 +74,7 @@ const TX = {
     kicker: 'Sporium × ODDO', head: 'Your gym. In every member\'s pocket.', sub: 'QR entry at the turnstile, live crowd level, classes, memberships and a personal fitness coach for every member.',
     tMember: 'Member', tEntry: 'Entrance', tStudio: 'Gym',
     member: 'Member', active: 'Active', validUntil: 'Valid until {d}', days: 'Days',
-    scan: 'Scan at the entrance', pass: 'My pass', scanHint: 'Point the camera at the code at the entrance.', noCam: 'Try without camera', close: 'Close',
+    scan: 'Check in', pass: 'My pass', scanHint: 'Point the camera at the code at the entrance.', noCam: 'Try without camera', close: 'Close',
     open: 'Turnstile open', welcome: 'Welcome, {n}!', welcomeSub: 'Visit no. 13 this month · 4-day streak 🔥',
     sVisits: 'visits this month', sStreak: 'day streak', sRank: 'most active',
     bestT: 'When is it quiet?', bestNow: 'Now: {n} people', bestTip: 'Quietest today at {h}:00',
@@ -88,10 +91,14 @@ const TX = {
     contact: 'Interested? Write to us',
   },
 };
-const tx = () => TX[getLang()];
+// The preview speaks English first; the switch at the bottom changes only the preview, not the app's own language.
+let demoLang: Lang = 'en';
+const tx = () => TX[demoLang];
 const fill = (s: string, v: Record<string, string | number>) => Object.entries(v).reduce((a, [k, x]) => a.split(`{${k}}`).join(String(x)), s);
-const fmt = (d: Date | string) => new Date(d).toLocaleDateString(LOCALE[getLang()], { day: 'numeric', month: 'short', year: 'numeric' });
+const fmt = (d: Date | string) => new Date(d).toLocaleDateString(LOCALE[demoLang], { day: 'numeric', month: 'short', year: 'numeric' });
 const ND = Platform.OS !== 'web';
+// Sample member photo for the preview only.
+const PHOTO = require('../../assets/demo/member.jpg');
 const initials = (n: string) => n.split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase();
 
 // A value that keeps cycling 0 -> 1, for shine and pulse effects.
@@ -117,50 +124,65 @@ function CountUp({ to, style }: { to: number; style: object }) {
 
 type View3 = 'member' | 'entry' | 'studio';
 
+const NAV: { k: View3; icon: IconName }[] = [{ k: 'member', icon: 'me' }, { k: 'entry', icon: 'studio' }, { k: 'studio', icon: 'briefcase' }];
+
 export function StudioDemo() {
   const insets = useSafeAreaInsets();
   const [v, setV] = useState<View3>('member');
   const [, rerender] = useState(0);
   const T = tx();
-  const glow = useLoop(2600);
+  const pick3 = (l: Lang) => {
+    demoLang = l;
+    try { if (typeof document !== 'undefined') document.documentElement.lang = l; } catch {}
+    rerender(n => n + 1);
+  };
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 12, paddingBottom: insets.bottom + 60 }}>
+      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 14, paddingBottom: insets.bottom + 120 }}>
         <View style={{ width: '100%', maxWidth: v === 'entry' ? 960 : 560, alignSelf: 'center', paddingHorizontal: 20, gap: 18 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Logo />
-              <Text style={{ fontFamily: fonts.bold, fontSize: 13, color: colors.muted }}>{T.forStudios}</Text>
-            </View>
-            <View style={{ flexDirection: 'row', gap: 6 }}>
-              {(['tr', 'en', 'de'] as Lang[]).map(l => (
-                <Pressable key={l} onPress={() => { setLang(l); rerender(n => n + 1); }}
-                  style={{ borderWidth: 1, borderColor: getLang() === l ? colors.accent : colors.line, borderRadius: 999, paddingVertical: 4, paddingHorizontal: 10 }}>
-                  <Text style={{ color: getLang() === l ? colors.accent : colors.muted, fontFamily: fonts.heavy, fontSize: 12 }}>{l.toUpperCase()}</Text>
-                </Pressable>
-              ))}
-            </View>
-          </View>
-          <View style={{ gap: 10 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Animated.View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colors.accent, opacity: glow.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 0.25, 1] }) }} />
-              <Text style={{ fontFamily: fonts.heavy, fontSize: 12, letterSpacing: 2, color: colors.accent, textTransform: 'uppercase' }}>{T.kicker}</Text>
-            </View>
-          </View>
-          <View style={{ flexDirection: 'row', backgroundColor: colors.surface, borderRadius: 999, padding: 4, borderWidth: 1, borderColor: colors.line }}>
-            {(['member', 'entry', 'studio'] as View3[]).map(k => (
-              <Pressable key={k} accessibilityRole="tab" accessibilityState={{ selected: v === k }} onPress={() => setV(k)} testID={`demo-${k}`}
-                style={{ flex: 1, alignItems: 'center', paddingVertical: 12, borderRadius: 999, backgroundColor: v === k ? colors.accent : 'transparent' }}>
-                <Text style={{ fontFamily: fonts.heavy, fontSize: 14, color: v === k ? colors.ink : colors.muted }}>{k === 'member' ? T.tMember : k === 'entry' ? T.tEntry : T.tStudio}</Text>
+          <CoBrand />
+          <Text style={{ fontFamily: fonts.semibold, fontSize: 14, lineHeight: 20, color: colors.muted, textAlign: 'center' }}>{v === 'member' ? T.capMember : v === 'entry' ? T.capEntry : T.capStudio}</Text>
+          {v === 'member' ? <MemberView /> : v === 'entry' ? <EntryView /> : <StudioView />}
+          <Text style={{ fontFamily: fonts.medium, fontSize: 12, color: colors.dim, textAlign: 'center' }}>{T.preview}</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 14 }}>
+            {(['en', 'tr', 'de'] as Lang[]).map(l => (
+              <Pressable key={l} onPress={() => pick3(l)} hitSlop={8}>
+                <Text style={{ fontFamily: fonts.heavy, fontSize: 12, color: demoLang === l ? colors.accent : colors.dim }}>{l.toUpperCase()}</Text>
               </Pressable>
             ))}
           </View>
-          <Text style={{ fontFamily: fonts.semibold, fontSize: 15, lineHeight: 21, color: colors.muted, textAlign: 'center' }}>{v === 'member' ? T.capMember : v === 'entry' ? T.capEntry : T.capStudio}</Text>
-          {v === 'member' ? <MemberView /> : v === 'entry' ? <EntryView /> : <StudioView />}
-          <Text style={{ fontFamily: fonts.medium, fontSize: 12, color: colors.dim, textAlign: 'center' }}>{T.preview}</Text>
         </View>
       </ScrollView>
+      <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingBottom: insets.bottom + 12, paddingTop: 10, alignItems: 'center' }}>
+        <View style={{ flexDirection: 'row', gap: 6, backgroundColor: 'rgba(21,21,19,0.96)', borderRadius: 999, padding: 6, borderWidth: 1, borderColor: colors.line,
+          shadowColor: '#000', shadowOpacity: 0.5, shadowRadius: 20, shadowOffset: { width: 0, height: 8 } }}>
+          {NAV.map(({ k, icon }) => {
+            const on = v === k;
+            return (
+              <Pressable key={k} accessibilityRole="tab" accessibilityState={{ selected: on }} onPress={() => setV(k)} testID={`demo-${k}`}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12, paddingHorizontal: on ? 20 : 16, borderRadius: 999, backgroundColor: on ? colors.accent : 'transparent' }}>
+                <Icon name={icon} size={20} color={on ? colors.ink : colors.muted} />
+                {on ? <Text style={{ fontFamily: fonts.heavy, fontSize: 14, color: colors.ink }}>{k === 'member' ? T.tMember : k === 'entry' ? T.tEntry : T.tStudio}</Text> : null}
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
       <ToastHost />
+    </View>
+  );
+}
+
+// "ODDO × SPORIUM FITNESS GIRNE": the gym's own name next to ours, so it feels like their app.
+function CoBrand() {
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 14, paddingVertical: 6 }}>
+      <Text style={{ fontFamily: fonts.display, fontSize: 30, letterSpacing: 1.5, color: colors.text }}>ODD<Text style={{ color: colors.accent }}>O</Text></Text>
+      <Text style={{ fontFamily: fonts.heavy, fontSize: 18, color: colors.dim }}>×</Text>
+      <View>
+        <Text style={{ fontFamily: fonts.display, fontSize: 30, lineHeight: 32, letterSpacing: 1.5, color: colors.text }}>SPORIUM</Text>
+        <Text style={{ fontFamily: fonts.heavy, fontSize: 10, letterSpacing: 3.2, color: colors.accent }}>FITNESS GIRNE</Text>
+      </View>
     </View>
   );
 }
@@ -187,13 +209,11 @@ function MemberView() {
             <Text style={{ fontFamily: fonts.bold, fontSize: 12, color: colors.accent }}>{T.active}</Text>
           </View>
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-          <View style={{ width: 62, height: 62, borderRadius: 31, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ fontFamily: fonts.display, fontSize: 26, color: colors.accent }}>{initials(DEMO_ME)}</Text>
-          </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+          <Image source={PHOTO} accessibilityLabel={DEMO_ME} style={{ width: 104, height: 104, borderRadius: 24, borderWidth: 3, borderColor: colors.ink }} />
           <View style={{ flex: 1 }}>
             <Text style={{ fontFamily: fonts.bold, fontSize: 12, color: 'rgba(11,11,10,0.6)', textTransform: 'uppercase', letterSpacing: 1 }}>{T.member}</Text>
-            <Text style={{ fontFamily: fonts.display, fontSize: 32, color: colors.ink, textTransform: 'uppercase' }}>{DEMO_ME}</Text>
+            <Text style={{ fontFamily: fonts.display, fontSize: 34, lineHeight: 38, color: colors.ink, textTransform: 'uppercase' }}>{DEMO_ME}</Text>
           </View>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
@@ -226,6 +246,7 @@ function MemberView() {
           </View>
         </Card>
       ) : null}
+      <Notice />
       <CrowdNow />
       <DemoClasses />
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.surface, borderRadius: 18, borderWidth: 1, borderColor: colors.line, padding: 16 }}>
@@ -234,6 +255,25 @@ function MemberView() {
       </View>
       <OpenFlash visible={open} name={DEMO_ME} onDone={() => setOpen(false)} />
       {pass ? <PassSheet studio={{ id: DEMO_STUDIO.id, name: DEMO_STUDIO.name, city: DEMO_STUDIO.city, capacity: DEMO_STUDIO.capacity, crowd: 0, member_until: null, last_visit: null, classes: [] }} onClose={() => setPass(false)} /> : null}
+    </View>
+  );
+}
+
+// A message from the gym, like the studio app's own notifications.
+function Notice() {
+  const T = tx();
+  return (
+    <View style={{ flexDirection: 'row', gap: 14, backgroundColor: colors.surface, borderRadius: 20, borderWidth: 1, borderColor: colors.line, padding: 16 }}>
+      <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' }}>
+        <Icon name="bell" size={22} color={colors.ink} />
+      </View>
+      <View style={{ flex: 1, gap: 3 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <Text style={{ fontFamily: fonts.heavy, fontSize: 13, color: colors.text }}>{DEMO_STUDIO.name}</Text>
+          <Text style={{ fontFamily: fonts.medium, fontSize: 12, color: colors.dim }}>{T.noticeAgo}</Text>
+        </View>
+        <Text style={{ fontFamily: fonts.medium, fontSize: 14, lineHeight: 20, color: colors.text }}>{T.notice}</Text>
+      </View>
     </View>
   );
 }
@@ -321,10 +361,13 @@ function OpenFlash({ visible, name, onDone }: { visible: boolean; name: string; 
     <Modal visible transparent animationType="fade" onRequestClose={onDone}>
       <Pressable testID="demo-open" onPress={onDone} style={{ flex: 1, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center', padding: 28, gap: 18 }}>
         <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-          <Animated.View style={{ position: 'absolute', width: 150, height: 150, borderRadius: 75, borderWidth: 4, borderColor: colors.ink,
+          <Animated.View style={{ position: 'absolute', width: 170, height: 170, borderRadius: 85, borderWidth: 4, borderColor: colors.ink,
             opacity: ring.interpolate({ inputRange: [0, 1], outputRange: [0.5, 0] }), transform: [{ scale: ring.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1.6] }) }] }} />
-          <Animated.View style={{ width: 130, height: 130, borderRadius: 65, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center', transform: [{ scale: a }] }}>
-            <Text style={{ fontSize: 70, color: colors.accent, fontFamily: fonts.heavy }}>✓</Text>
+          <Animated.View style={{ transform: [{ scale: a }] }}>
+            <Image source={PHOTO} style={{ width: 150, height: 150, borderRadius: 75, borderWidth: 6, borderColor: colors.ink }} />
+            <View style={{ position: 'absolute', right: -4, bottom: -4, width: 56, height: 56, borderRadius: 28, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center', borderWidth: 4, borderColor: colors.accent }}>
+              <Text style={{ fontSize: 28, color: colors.accent, fontFamily: fonts.heavy }}>✓</Text>
+            </View>
           </Animated.View>
         </View>
         <Animated.Text style={{ fontFamily: fonts.display, fontSize: 56, lineHeight: 62, color: colors.ink, textTransform: 'uppercase', textAlign: 'center',
@@ -345,8 +388,9 @@ function useEntries() {
   const [feed, setFeed] = useState<Entry[]>([]);
   const [count, setCount] = useState(64);
   useEffect(() => {
+    let n = 0;
     const add = () => {
-      const m = pick(); const ok = !m.member_until || Date.parse(m.member_until) > Date.now();
+      const m = n++ % 4 === 0 ? { name: DEMO_ME, member_until: new Date(Date.now() + 91 * 86400000).toISOString().slice(0, 10) } : pick(); const ok = !m.member_until || Date.parse(m.member_until) > Date.now();
       setFeed(f => [{ name: m.name, ok, until: m.member_until, at: Date.now() }, ...f].slice(0, 6));
       if (ok) setCount(c => c + 1);
     };
@@ -389,7 +433,7 @@ function EntryPanel({ big }: { big?: boolean }) {
   const left = ROTATE - Math.floor((now / 1000) % ROTATE);
   const latest = feed[0];
   const fresh = !!latest && now - latest.at < 4000;
-  const clock = new Date(now).toLocaleTimeString(LOCALE[getLang()], { hour: '2-digit', minute: '2-digit' });
+  const clock = new Date(now).toLocaleTimeString(LOCALE[demoLang], { hour: '2-digit', minute: '2-digit' });
   const tone = fresh ? (latest.ok ? colors.accent : colors.bad) : colors.accent;
   const qr = big ? 300 : 230;
   return (
@@ -417,9 +461,13 @@ function EntryPanel({ big }: { big?: boolean }) {
         <View style={{ flex: 1, minWidth: 250, maxWidth: 420, gap: 16 }}>
           {fresh ? (
             <View testID="demo-entry-hit" style={{ backgroundColor: tone, borderRadius: 22, padding: 18, flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-              <View style={{ width: 58, height: 58, borderRadius: 29, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontFamily: fonts.display, fontSize: 24, color: tone }}>{initials(latest.name)}</Text>
-              </View>
+              {latest.name === DEMO_ME ? (
+                <Image source={PHOTO} style={{ width: big ? 120 : 92, height: big ? 120 : 92, borderRadius: 22, borderWidth: 3, borderColor: colors.ink }} />
+              ) : (
+                <View style={{ width: big ? 120 : 92, height: big ? 120 : 92, borderRadius: 22, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center' }}>
+                  <Text style={{ fontFamily: fonts.display, fontSize: big ? 48 : 38, color: tone }}>{initials(latest.name)}</Text>
+                </View>
+              )}
               <View style={{ flex: 1 }}>
                 <Text style={{ fontFamily: fonts.display, fontSize: 28, color: colors.ink, textTransform: 'uppercase' }}>{latest.ok ? '✓ ' : '✕ '}{latest.name}</Text>
                 <Text style={{ fontFamily: fonts.bold, fontSize: 14, color: colors.ink }}>{latest.ok ? fill(T.ok, { d: fmt(latest.until!) }) : T.expired}</Text>
@@ -446,7 +494,7 @@ function EntryPanel({ big }: { big?: boolean }) {
             {feed.slice(0, 4).map(f => (
               <View key={f.at} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 <Text style={{ fontFamily: fonts.semibold, fontSize: 14, color: f.ok ? colors.text : colors.bad }}>{f.ok ? '✓' : '✕'}  {f.name}</Text>
-                <Text style={{ fontFamily: fonts.medium, fontSize: 13, color: colors.dim }}>{new Date(f.at).toLocaleTimeString(LOCALE[getLang()], { hour: '2-digit', minute: '2-digit' })}</Text>
+                <Text style={{ fontFamily: fonts.medium, fontSize: 13, color: colors.dim }}>{new Date(f.at).toLocaleTimeString(LOCALE[demoLang], { hour: '2-digit', minute: '2-digit' })}</Text>
               </View>
             ))}
           </View>
