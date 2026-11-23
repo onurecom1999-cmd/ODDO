@@ -1,6 +1,7 @@
 import { userId } from './cloud';
 import { SITE } from './site';
 import { supabase } from './supabase';
+import { demoRpc, isStudioDemo } from './studioDemo';
 
 // Studios (gyms): members check in with a code, see the crowd and book classes; staff run the studio.
 export type StudioClass = { id: string; title: string; trainer: string; starts_at: string; minutes: number; capacity: number; booked: number; mine?: boolean; names?: string[] };
@@ -15,6 +16,7 @@ export class StudioError extends Error {
 }
 
 async function rpc<T>(fn: string, args?: Record<string, unknown>): Promise<T> {
+  if (isStudioDemo()) return demoRpc(fn, args) as Promise<T>;
   const id = await userId();
   if (!supabase) throw new StudioError('offline');
   if (!id) throw new StudioError('signin');

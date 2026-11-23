@@ -166,7 +166,7 @@ export function StudioCard({ refresh }: { refresh: number }) {
 }
 
 // The member's check-in code: QR plus digits, renewed every 2 minutes.
-function PassSheet({ studio, onClose }: { studio: MyStudio; onClose: () => void }) {
+export function PassSheet({ studio, onClose }: { studio: MyStudio; onClose: () => void }) {
   const toast = useToast();
   const [p, setP] = useState<{ code: string; expires_at: string } | null>(null);
   const [now, setNow] = useState(Date.now());
@@ -257,7 +257,6 @@ export function StudioAdminSheet({ onClose }: { onClose: () => void }) {
   const toast = useToast();
   const [list, setList] = useState<RunStudio[] | null | undefined>(undefined);
   const [cur, setCur] = useState<RunStudio | null>(null);
-  const [tab, setTab] = useState<Tab>('overview');
   const [name, setName] = useState('');
   const [city, setCity] = useState('');
   const [cap, setCap] = useState('100');
@@ -297,18 +296,28 @@ export function StudioAdminSheet({ onClose }: { onClose: () => void }) {
       ) : (
         <Stack gap={16}>
           {list && list.length > 1 ? <Chips>{list.map(s => <Chip key={s.id} label={s.name} on={s.id === cur.id} onPress={() => setCur(s)} />)}</Chips> : null}
-          <View style={{ flexDirection: 'row', backgroundColor: colors.surface, borderRadius: 999, padding: 4, borderWidth: 1, borderColor: colors.line }}>
-            {(['overview', 'checkin', 'members', 'classes'] as Tab[]).map(k => (
-              <Pressable key={k} accessibilityRole="tab" accessibilityState={{ selected: tab === k }} onPress={() => setTab(k)}
-                style={{ flex: 1, alignItems: 'center', paddingVertical: 9, borderRadius: 999, backgroundColor: tab === k ? colors.accent : 'transparent' }}>
-                <Text numberOfLines={1} style={{ fontFamily: fonts.bold, fontSize: 12, color: tab === k ? colors.ink : colors.muted }}>{t(`studio.tab.${k}` as Key)}</Text>
-              </Pressable>
-            ))}
-          </View>
-          {tab === 'overview' ? <OverviewTab s={cur} /> : tab === 'checkin' ? <CheckinTab s={cur} /> : tab === 'members' ? <MembersTab s={cur} /> : <ClassesTab s={cur} />}
+          <StudioRun s={cur} />
         </Stack>
       )}
     </Sheet>
+  );
+}
+
+// The four tabs a studio runs on: overview, check-in, members, classes.
+export function StudioRun({ s }: { s: RunStudio }) {
+  const [tab, setTab] = useState<Tab>('overview');
+  return (
+    <Stack gap={16}>
+      <View style={{ flexDirection: 'row', backgroundColor: colors.surface, borderRadius: 999, padding: 4, borderWidth: 1, borderColor: colors.line }}>
+        {(['overview', 'checkin', 'members', 'classes'] as Tab[]).map(k => (
+          <Pressable key={k} accessibilityRole="tab" accessibilityState={{ selected: tab === k }} onPress={() => setTab(k)}
+            style={{ flex: 1, alignItems: 'center', paddingVertical: 9, borderRadius: 999, backgroundColor: tab === k ? colors.accent : 'transparent' }}>
+            <Text numberOfLines={1} style={{ fontFamily: fonts.bold, fontSize: 12, color: tab === k ? colors.ink : colors.muted }}>{t(`studio.tab.${k}` as Key)}</Text>
+          </Pressable>
+        ))}
+      </View>
+      {tab === 'overview' ? <OverviewTab s={s} /> : tab === 'checkin' ? <CheckinTab s={s} /> : tab === 'members' ? <MembersTab s={s} /> : <ClassesTab s={s} />}
+    </Stack>
   );
 }
 
