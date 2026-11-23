@@ -3,14 +3,17 @@
 import type { CheckinResult, Member, MyStudio, Overview, RunStudio, StudioClass } from './studio';
 
 const FLAG = 'oddo.studioDemo';
-export function isStudioDemo(): boolean {
+// 'studio' shows the sales preview; 'member' keeps the normal app but fills the studio card on Today with sample data.
+export function studioDemoMode(): 'studio' | 'member' | null {
   try {
     const q = new URLSearchParams((globalThis as { location?: { search?: string } }).location?.search || '').get('demo');
-    if (q === 'studio') { globalThis.sessionStorage?.setItem(FLAG, '1'); return true; }
-    if (q === 'off') { globalThis.sessionStorage?.removeItem(FLAG); return false; }
-    return globalThis.sessionStorage?.getItem(FLAG) === '1';
-  } catch { return false; }
+    if (q === 'studio' || q === 'member') { globalThis.sessionStorage?.setItem(FLAG, q); return q; }
+    if (q === 'off') { globalThis.sessionStorage?.removeItem(FLAG); return null; }
+    const v = globalThis.sessionStorage?.getItem(FLAG);
+    return v === '1' || v === 'studio' ? 'studio' : v === 'member' ? 'member' : null;
+  } catch { return null; }
 }
+export const isStudioDemo = () => studioDemoMode() !== null;
 
 export const DEMO_STUDIO = { id: 'demo', name: 'Sporium Fitness Girne', city: 'Girne', code: 'SPRM24', capacity: 300 };
 export const DEMO_ME = 'Onur Ünal';
@@ -22,6 +25,7 @@ const NAMES = ['Mert Kaya', 'Elif Demir', 'Can Yılmaz', 'Zeynep Arslan', 'Emre 
 const day = (offset: number) => { const d = new Date(); d.setDate(d.getDate() + offset); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 const at = (dayOffset: number, h: number, m = 0) => { const d = new Date(); d.setDate(d.getDate() + dayOffset); d.setHours(h, m, 0, 0); return d.toISOString(); };
 const ago = (min: number) => new Date(Date.now() - min * 60000).toISOString();
+let myLast = ago(60 * 24), passAt = 0;
 
 // Fixed per page load so the numbers do not jump between tabs.
 const members: Member[] = NAMES.map((name, i) => ({
@@ -63,10 +67,13 @@ export async function demoRpc(fn: string, args: Record<string, unknown> = {}): P
   const c = () => classes.map(x => ({ ...x, mine: myBooked.has(x.id), booked: x.booked + (myBooked.has(x.id) ? 1 : 0) }));
   switch (fn) {
     case 'studio_home': {
-      const s: MyStudio = { id: DEMO_STUDIO.id, name: DEMO_STUDIO.name, city: DEMO_STUDIO.city, capacity: DEMO_STUDIO.capacity, crowd: demoCrowd(), member_until: day(91), last_visit: ago(60 * 24), classes: c() };
+      const n = demoCrowd();
+      // The desk "scans" the pass five seconds after it was opened, so the preview shows the welcome screen.
+      if (passAt && Date.now() - passAt > 5000) { myLast = new Date(passAt + 5000).toISOString(); passAt = 0; }
+      const s: MyStudio = { id: DEMO_STUDIO.id, name: DEMO_STUDIO.name, city: DEMO_STUDIO.city, capacity: DEMO_STUDIO.capacity, crowd: n, crowd_f: Math.round(n * 0.38), crowd_m: n - Math.round(n * 0.38), member_until: day(91), joined_at: day(-274), last_visit: myLast, classes: c() };
       return [s];
     }
-    case 'my_pass': return { code: code6(), expires_at: new Date(Date.now() + 120000).toISOString() };
+    case 'my_pass': passAt = Date.now(); return { code: code6(), expires_at: new Date(Date.now() + 120000).toISOString() };
     case 'book_class': myBooked.add(String(args.p_class)); return null;
     case 'unbook_class': myBooked.delete(String(args.p_class)); return null;
     case 'my_studios': { const r: RunStudio = { id: DEMO_STUDIO.id, name: DEMO_STUDIO.name, city: DEMO_STUDIO.city, code: DEMO_STUDIO.code, capacity: DEMO_STUDIO.capacity, role: 'trainer' }; return [r]; }

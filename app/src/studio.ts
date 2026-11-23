@@ -5,7 +5,7 @@ import { demoRpc, isStudioDemo } from './studioDemo';
 
 // Studios (gyms): members check in with a code, see the crowd and book classes; staff run the studio.
 export type StudioClass = { id: string; title: string; trainer: string; starts_at: string; minutes: number; capacity: number; booked: number; mine?: boolean; names?: string[] };
-export type MyStudio = { id: string; name: string; city: string; capacity: number; crowd: number; member_until: string | null; last_visit: string | null; classes: StudioClass[] };
+export type MyStudio = { id: string; name: string; city: string; capacity: number; crowd: number; crowd_f?: number; crowd_m?: number; member_until: string | null; joined_at?: string; last_visit: string | null; classes: StudioClass[] };
 export type RunStudio = { id: string; name: string; city: string; code: string; capacity: number; role: 'admin' | 'trainer' };
 export type Overview = { crowd: number; today: number; week: number; members: number; expiring: number; expired: number; recent: { name: string; at: string }[] };
 export type Member = { user_id: string; name: string; member_until: string | null; joined_at: string; last_visit: string | null; visits_30: number; streak: number };

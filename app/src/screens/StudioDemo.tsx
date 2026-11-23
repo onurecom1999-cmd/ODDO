@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Image, Linking, Modal, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { Animated, Image, Linking, Modal, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Lang, LOCALE } from '../i18n';
 import { Icon, IconName } from '../ui/icons';
-import Svg, { Path, Rect } from 'react-native-svg';
 import { CURVE, DEMO_ME, DEMO_STUDIO, demoCrowd, pick } from '../studioDemo';
 import { PassSheet } from '../sheets/Studio';
+import { initials, MEN, QrIcon, useLoop, WelcomeFlash, WOMEN } from '../ui/studioBits';
 import { colors, fonts } from '../theme';
 import { QR } from '../ui/QR';
 import { Scanner } from '../ui/Scanner';
@@ -110,21 +110,9 @@ const tx = () => TX[demoLang];
 const fill = (s: string, v: Record<string, string | number>) => Object.entries(v).reduce((a, [k, x]) => a.split(`{${k}}`).join(String(x)), s);
 const fmt = (d: Date | string) => new Date(d).toLocaleDateString(LOCALE[demoLang], { day: 'numeric', month: 'short', year: 'numeric' });
 const ND = Platform.OS !== 'web';
-const WOMEN = '#ff7ab8', MEN = '#5aa9ff';
 // Sample member photo for the preview only.
 const PHOTO = require('../../assets/demo/member.jpg');
-const initials = (n: string) => n.split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase();
 
-// A value that keeps cycling 0 -> 1, for shine and pulse effects.
-function useLoop(ms: number) {
-  const v = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    const a = Animated.loop(Animated.timing(v, { toValue: 1, duration: ms, easing: Easing.inOut(Easing.quad), useNativeDriver: ND }));
-    a.start();
-    return () => a.stop();
-  }, [v, ms]);
-  return v;
-}
 // A number that counts up when it first shows.
 function CountUp({ to, style }: { to: number; style: object }) {
   const [n, setN] = useState(0);
@@ -270,7 +258,7 @@ function MemberView() {
         <Text style={{ fontSize: 26 }}>💪</Text>
         <Text style={{ flex: 1, fontFamily: fonts.semibold, fontSize: 14, lineHeight: 20, color: colors.text }}>{T.plusOne}</Text>
       </View>
-      <OpenFlash visible={open} name={DEMO_ME} onDone={() => setOpen(false)} />
+      <WelcomeFlash visible={open} name={DEMO_ME} photo={PHOTO} title={T.open} line={fill(T.welcome, { n: DEMO_ME.split(' ')[0] })} sub={T.welcomeSub} onDone={() => setOpen(false)} />
       {pass ? <PassSheet studio={{ id: DEMO_STUDIO.id, name: DEMO_STUDIO.name, city: DEMO_STUDIO.city, capacity: DEMO_STUDIO.capacity, crowd: 0, member_until: null, last_visit: null, classes: [] }} onClose={() => setPass(false)} /> : null}
     </View>
   );
@@ -384,16 +372,6 @@ function QuickTiles({ onQr }: { onQr: () => void }) {
   );
 }
 
-// A small QR mark, drawn so it looks the same on every phone.
-function QrIcon({ size = 22, color }: { size?: number; color: string }) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24">
-      {[[3, 3], [14, 3], [3, 14]].map(([x, y]) => <Rect key={`${x}${y}`} x={x} y={y} width={7} height={7} rx={1.5} fill="none" stroke={color} strokeWidth={2} />)}
-      {[[5.5, 5.5], [16.5, 5.5], [5.5, 16.5]].map(([x, y]) => <Rect key={`i${x}${y}`} x={x} y={y} width={2} height={2} fill={color} />)}
-      <Path d="M14 14h3v3h-3zM18 18h3v3h-3zM18 14h3M14 19v2" stroke={color} strokeWidth={2} fill="none" />
-    </Svg>
-  );
-}
 
 // The next classes, booked with one tap.
 function DemoClasses() {
@@ -443,40 +421,6 @@ function HourChart({ height = 90, dark }: { height?: number; dark?: boolean }) {
   );
 }
 
-// The full-screen "you are in" moment after scanning at the turnstile.
-function OpenFlash({ visible, name, onDone }: { visible: boolean; name: string; onDone: () => void }) {
-  const T = tx();
-  const a = useRef(new Animated.Value(0)).current;
-  const ring = useLoop(1400);
-  useEffect(() => {
-    if (!visible) return;
-    a.setValue(0);
-    Animated.spring(a, { toValue: 1, useNativeDriver: ND, friction: 5, tension: 60 }).start();
-    const id = setTimeout(onDone, 3400);
-    return () => clearTimeout(id);
-  }, [visible]); // eslint-disable-line react-hooks/exhaustive-deps
-  if (!visible) return null;
-  return (
-    <Modal visible transparent animationType="fade" onRequestClose={onDone}>
-      <Pressable testID="demo-open" onPress={onDone} style={{ flex: 1, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center', padding: 28, gap: 18 }}>
-        <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-          <Animated.View style={{ position: 'absolute', width: 170, height: 170, borderRadius: 85, borderWidth: 4, borderColor: colors.ink,
-            opacity: ring.interpolate({ inputRange: [0, 1], outputRange: [0.5, 0] }), transform: [{ scale: ring.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1.6] }) }] }} />
-          <Animated.View style={{ transform: [{ scale: a }] }}>
-            <Image source={PHOTO} style={{ width: 150, height: 150, borderRadius: 75, borderWidth: 6, borderColor: colors.ink }} />
-            <View style={{ position: 'absolute', right: -4, bottom: -4, width: 56, height: 56, borderRadius: 28, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center', borderWidth: 4, borderColor: colors.accent }}>
-              <Text style={{ fontSize: 28, color: colors.accent, fontFamily: fonts.heavy }}>✓</Text>
-            </View>
-          </Animated.View>
-        </View>
-        <Animated.Text style={{ fontFamily: fonts.display, fontSize: 56, lineHeight: 62, color: colors.ink, textTransform: 'uppercase', textAlign: 'center',
-          opacity: a, transform: [{ translateY: a.interpolate({ inputRange: [0, 1], outputRange: [30, 0] }) }] }}>{T.open}</Animated.Text>
-        <Text style={{ fontFamily: fonts.heavy, fontSize: 22, color: colors.ink, textAlign: 'center' }}>{fill(T.welcome, { n: name.split(' ')[0] })}</Text>
-        <Text style={{ fontFamily: fonts.bold, fontSize: 15, color: 'rgba(11,11,10,0.7)', textAlign: 'center' }}>{T.welcomeSub}</Text>
-      </Pressable>
-    </Modal>
-  );
-}
 
 // ---------- entrance tablet ----------
 
