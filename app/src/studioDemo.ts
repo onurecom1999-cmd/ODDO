@@ -47,11 +47,13 @@ let classes = demoClasses();
 let myBooked = new Set<string>(['c3']);
 let checkins: { name: string; at: string }[] = [0, 4, 9, 13, 21, 34].map((m, i) => ({ name: NAMES[i * 3 % NAMES.length], at: ago(m) }));
 
-// The crowd follows the time of day like a real gym: quiet at noon, full after work.
+// Share of the capacity in the gym per hour, like a real gym: quiet at noon, full after work.
+export const CURVE: Record<number, number> = { 6: 0.06, 7: 0.12, 8: 0.2, 9: 0.17, 10: 0.11, 11: 0.09, 12: 0.13, 13: 0.11, 14: 0.09, 15: 0.13,
+  16: 0.21, 17: 0.33, 18: 0.44, 19: 0.47, 20: 0.38, 21: 0.24, 22: 0.12, 23: 0.04 };
 export function demoCrowd(capacity = DEMO_STUDIO.capacity) {
-  const h = new Date().getHours() + new Date().getMinutes() / 60;
-  const curve = h < 7 ? 0.03 : h < 10 ? 0.18 : h < 16 ? 0.12 : h < 21 ? 0.42 : h < 23 ? 0.2 : 0.04;
-  return Math.max(3, Math.round(capacity * curve + (Math.sin(Date.now() / 60000) * 4)));
+  const d = new Date(), h = d.getHours(), f = d.getMinutes() / 60;
+  const a = CURVE[h] ?? 0.02, b = CURVE[h + 1] ?? 0.02;
+  return Math.max(3, Math.round(capacity * (a + (b - a) * f) + Math.sin(Date.now() / 60000) * 3));
 }
 export const pick = () => members[Math.floor(Math.random() * members.length)];
 const code6 = () => String(Math.floor(100000 + Math.random() * 900000));
