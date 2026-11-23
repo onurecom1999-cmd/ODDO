@@ -607,11 +607,23 @@ language sql security definer set search_path = public as $$
 $$;
 
 -- The member's view: each studio with crowd, membership and the classes of the next 7 days.
+-- Women and men among the people in right now, from the sex each member gave in the app (others are not counted).
+create or replace function public.studio_crowd_split(p_studio uuid) returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object(
+    'f', count(*) filter (where a.data->'profile'->>'sex' = 'f'),
+    'm', count(*) filter (where a.data->'profile'->>'sex' = 'm'))
+  from (select distinct user_id from studio_checkins where studio_id = p_studio and at > now() - interval '90 minutes') c
+  left join app_state a on a.user_id = c.user_id
+$$;
+revoke all on function public.studio_crowd_split(uuid) from public, anon, authenticated;
+
 create or replace function public.studio_home() returns jsonb
 language sql stable security definer set search_path = public as $$
   select coalesce(jsonb_agg(jsonb_build_object(
     'id', s.id, 'name', s.name, 'city', s.city, 'capacity', s.capacity, 'crowd', public.studio_crowd(s.id),
-    'member_until', m.member_until,
+    'member_until', m.member_until, 'joined_at', m.joined_at,
+    'crowd_f', (public.studio_crowd_split(s.id)->>'f')::int, 'crowd_m', (public.studio_crowd_split(s.id)->>'m')::int,
     'last_visit', (select max(at) from studio_checkins c where c.studio_id = s.id and c.user_id = auth.uid()),
     'classes', (select coalesce(jsonb_agg(jsonb_build_object('id', k.id, 'title', k.title, 'trainer', k.trainer, 'starts_at', k.starts_at,
                   'minutes', k.minutes, 'capacity', k.capacity,

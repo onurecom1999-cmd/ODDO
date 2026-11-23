@@ -28,6 +28,8 @@ import { IdeaSheet } from './src/sheets/Idea';
 import { FastSheet } from './src/sheets/Fast';
 import { RecipesSheet } from './src/sheets/Recipes';
 import { BizHome } from './src/screens/BizHome';
+import { StudioDemo } from './src/screens/StudioDemo';
+import { studioDemoMode } from './src/studioDemo';
 import { CardioSheet } from './src/sheets/Cardio';
 import { CreatorSheet } from './src/sheets/Creator';
 import { AccountSheet } from './src/sheets/Account';
@@ -92,6 +94,8 @@ function Root() {
   const [login, setLogin] = useState(false);
   const [ownPlan, setOwnPlan] = useState(false);
   const ready = S.profile && S.plan && S.onboarded;
+  // A gym owner's preview (/app/?demo=studio) with sample data, whatever this device has stored.
+  if (studioDemoMode() === 'studio') return <StudioDemo />;
   if (!ready && S.biz && !ownPlan) return (
     <View style={{ flex: 1 }}>
       <BizHome onOwnPlan={() => setOwnPlan(true)} />

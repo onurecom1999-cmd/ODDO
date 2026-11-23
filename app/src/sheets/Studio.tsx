@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Linking, Pressable, Share, Text, View } from 'react-native';
+import { ActivityIndicator, Animated, Linking, Pressable, Share, Text, View } from 'react-native';
 import { getLang, Key, LOCALE, t } from '../i18n';
 import {
   addClass, bookClass, checkin, CheckinResult, classes, clearPendingStudioCode, createStudio, crowdLevel, daysLeft, deleteClass, extend,
@@ -15,6 +15,7 @@ import { Scanner } from '../ui/Scanner';
 import { CoachError, joinCoach } from '../coach';
 import { INVITE_RE, redeemInvite } from '../partner';
 import { CoachSheet } from './Coach';
+import { Avatar, MEN, QrIcon, useLoop, WelcomeFlash, WOMEN } from '../ui/studioBits';
 
 const errText = (e: unknown) => t(`studio.err.${e instanceof StudioError ? e.code : 'failed'}` as Key);
 const fmtDate = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString(LOCALE[getLang()], { day: 'numeric', month: 'short', year: 'numeric' });
@@ -86,87 +87,170 @@ export function useStartCode(onStudio: () => void, onCoach: () => Promise<unknow
 
 // ---------- the member's side ----------
 
-// On Today: crowd, membership, check-in and the next classes, like the studio's own app.
+// On Today: the membership card, how busy the gym is and the next classes, like the studio's own app.
 export function StudioCard({ refresh }: { refresh: number }) {
   const { S } = useApp();
   const toast = useToast();
   const [list, setList] = useState<MyStudio[]>([]);
   const [pass, setPass] = useState<MyStudio | null>(null);
+  const [inside, setInside] = useState<MyStudio | null>(null);
   const load = useCallback(() => studioHome().then(setList, () => {}), []);
   useEffect(() => { if (!S.example) load(); }, [load, refresh, S.example]);
   if (!list.length) return null;
+  const name = S.profile?.name?.trim() || t('studio.member');
   const toggle = async (c: StudioClass) => {
     try { if (c.mine) { await unbookClass(c.id); toast(t('studio.unbooked')); } else { await bookClass(c.id); toast(t('studio.booked', { title: c.title })); } load(); }
     catch (e) { toast(errText(e)); }
   };
   return (
     <>
-      {list.map(s => {
-        const lvl = crowdLevel(s.crowd, s.capacity);
-        const left = s.member_until ? daysLeft(s.member_until) : null;
-        const pct = Math.min(100, Math.max(3, (s.crowd / Math.max(1, s.capacity)) * 100));
-        return (
-          <Card key={s.id} style={{ gap: 14 }}>
-            <Row style={{ justifyContent: 'space-between', gap: 10 }}>
-              <View style={{ flex: 1, gap: 2 }}>
-                <Eyebrow>{t('studio.mine')}</Eyebrow>
-                <Bold style={{ fontSize: 17 }}>{s.name}</Bold>
-              </View>
-              <Pressable accessibilityRole="button" testID="studio-checkin" onPress={() => setPass(s)}
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.accent, borderRadius: 999, paddingVertical: 10, paddingHorizontal: 16 }}>
-                <Text style={{ fontSize: 16 }}>▦</Text>
-                <Text style={{ fontFamily: fonts.heavy, fontSize: 14, color: colors.ink }}>{t('studio.checkin')}</Text>
-              </Pressable>
-            </Row>
-            <View style={{ gap: 6 }}>
-              <Row style={{ justifyContent: 'space-between' }}>
-                <Small>{t('studio.crowdNow')}</Small>
-                <Small><Text style={{ color: crowdColor[lvl], fontFamily: fonts.bold }}>{t(`studio.crowd.${lvl}` as Key)}</Text> · {s.crowd === 1 ? t('studio.people1') : t('studio.people', { n: s.crowd })}</Small>
-              </Row>
-              <View style={{ height: 8, borderRadius: 4, backgroundColor: colors.surface2, overflow: 'hidden' }}>
-                <View style={{ width: `${pct}%`, height: 8, backgroundColor: crowdColor[lvl] }} />
-              </View>
-            </View>
-            <Row style={{ gap: 8 }}>
-              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: left == null || left > 7 ? colors.accent : left >= 0 ? colors.warn : colors.bad }} />
-              <Small style={{ color: left != null && left < 0 ? colors.bad : colors.muted }}>
-                {left == null ? t('studio.memberOpen') : left < 0 ? t('studio.memberExpired', { date: fmtDate(s.member_until!) }) : t('studio.memberUntil', { date: fmtDate(s.member_until!), n: left })}
-              </Small>
-            </Row>
-            {s.classes.length ? (
-              <View style={{ gap: 0 }}>
-                <Eyebrow style={{ marginBottom: 4 }}>{t('studio.classes')}</Eyebrow>
-                {s.classes.slice(0, 3).map((c, i) => {
-                  const full = c.booked >= c.capacity && !c.mine;
-                  return (
-                    <Row key={c.id} style={{ gap: 10, paddingVertical: 10, borderTopWidth: i ? 1 : 0, borderTopColor: colors.line }}>
-                      <View style={{ width: 58 }}>
-                        <Bold>{fmtTime(c.starts_at)}</Bold>
-                        <Small style={{ fontSize: 11 }}>{fmtDay(c.starts_at)}</Small>
-                      </View>
-                      <View style={{ flex: 1 }}>
-                        <Bold>{c.title}</Bold>
-                        <Small>{[c.trainer, `${c.minutes} min`, t('studio.spots', { n: Math.max(0, c.capacity - c.booked) })].filter(Boolean).join(' · ')}</Small>
-                      </View>
-                      <Pressable accessibilityRole="button" disabled={full} onPress={() => toggle(c)}
-                        style={{ paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: c.mine ? colors.accent : colors.line, backgroundColor: c.mine ? colors.accent : 'transparent', opacity: full ? 0.4 : 1 }}>
-                        <Text style={{ fontFamily: fonts.bold, fontSize: 12, color: c.mine ? colors.ink : colors.text }}>{c.mine ? t('studio.bookedShort') : full ? t('studio.full') : t('studio.book')}</Text>
-                      </Pressable>
-                    </Row>
-                  );
-                })}
-              </View>
-            ) : null}
-          </Card>
-        );
-      })}
-      {pass ? <PassSheet studio={pass} onClose={() => { setPass(null); load(); }} /> : null}
+      {list.map(s => (
+        <View key={s.id} style={{ gap: 12 }}>
+          <MemberCard s={s} name={name} onCheckin={() => setPass(s)} />
+          <CrowdCard s={s} />
+          {s.classes.length ? <ClassList s={s} onToggle={toggle} /> : null}
+        </View>
+      ))}
+      {pass ? <PassSheet studio={pass} onClose={() => { setPass(null); load(); }} onCheckedIn={() => { setInside(pass); setPass(null); load(); }} /> : null}
+      <WelcomeFlash visible={!!inside} name={name} title={t('studio.inTitle')} line={t('studio.welcome', { n: name.split(' ')[0] })}
+        sub={inside ? t('studio.welcomeSub', { name: inside.name }) : undefined} onDone={() => setInside(null)} />
     </>
   );
 }
 
+// The lime membership card: who, until when, and the one button that matters at the door.
+function MemberCard({ s, name, onCheckin }: { s: MyStudio; name: string; onCheckin: () => void }) {
+  const shine = useLoop(3200);
+  const left = s.member_until ? daysLeft(s.member_until) : null;
+  const expired = left != null && left < 0;
+  const span = s.member_until && s.joined_at ? (Date.parse(s.member_until + 'T23:59:59') - Date.parse(s.joined_at)) / 86400000 : 0;
+  const share = left != null && span > 0 ? Math.min(1, Math.max(0.03, left / span)) : null;
+  const bg = expired ? colors.bad : colors.accent;
+  return (
+    <View testID="studio-card" style={{ backgroundColor: bg, borderRadius: 26, padding: 20, gap: 16, overflow: 'hidden' }}>
+      <View style={{ position: 'absolute', right: -50, top: -50, width: 190, height: 190, borderRadius: 95, borderWidth: 30, borderColor: 'rgba(11,11,10,0.07)' }} />
+      {expired ? null : <Animated.View pointerEvents="none" style={{ position: 'absolute', top: -60, bottom: -60, width: 70, backgroundColor: 'rgba(255,255,255,0.35)',
+        transform: [{ rotate: '20deg' }, { translateX: shine.interpolate({ inputRange: [0, 1], outputRange: [-160, 620] }) }] }} />}
+      <Row style={{ justifyContent: 'space-between', gap: 10 }}>
+        <Text numberOfLines={1} style={{ flex: 1, fontFamily: fonts.heavy, fontSize: 13, letterSpacing: 1, color: colors.ink, textTransform: 'uppercase' }}>{s.name}</Text>
+        <Row style={{ gap: 6, backgroundColor: colors.ink, borderRadius: 999, paddingVertical: 5, paddingHorizontal: 10 }}>
+          <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: bg }} />
+          <Text style={{ fontFamily: fonts.bold, fontSize: 12, color: bg }}>{t(expired ? 'studio.expired' : 'studio.active')}</Text>
+        </Row>
+      </Row>
+      <Row style={{ gap: 14 }}>
+        <Avatar name={name} size={76} />
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontFamily: fonts.bold, fontSize: 12, color: 'rgba(11,11,10,0.6)', textTransform: 'uppercase', letterSpacing: 1 }}>{t('studio.member')}</Text>
+          <Text numberOfLines={2} style={{ fontFamily: fonts.display, fontSize: 30, lineHeight: 34, color: colors.ink, textTransform: 'uppercase' }}>{name}</Text>
+        </View>
+      </Row>
+      {left != null ? (
+        <View style={{ gap: 8 }}>
+          <Row style={{ alignItems: 'flex-end', justifyContent: 'space-between', gap: 10 }}>
+            <Text style={{ fontFamily: fonts.semibold, fontSize: 14, color: colors.ink, flex: 1 }}>
+              {expired ? t('studio.expiredHint') : t('studio.validUntil', { date: fmtDate(s.member_until!) })}
+            </Text>
+            {expired ? null : <Text style={{ fontFamily: fonts.display, fontSize: 40, lineHeight: 44, color: colors.ink }}>{left} <Text style={{ fontSize: 16 }}>{t(left === 1 ? 'studio.dayWord' : 'studio.daysWord').toUpperCase()}</Text></Text>}
+          </Row>
+          {share != null && !expired ? (
+            <View style={{ height: 6, borderRadius: 3, backgroundColor: 'rgba(11,11,10,0.15)', overflow: 'hidden' }}>
+              <View style={{ width: `${share * 100}%`, height: 6, backgroundColor: colors.ink }} />
+            </View>
+          ) : null}
+        </View>
+      ) : <Text style={{ fontFamily: fonts.semibold, fontSize: 14, color: colors.ink }}>{t('studio.memberOpen')}</Text>}
+      <Pressable accessibilityRole="button" testID="studio-checkin" onPress={onCheckin}
+        style={({ pressed }) => ({ flexDirection: 'row', gap: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.ink, borderRadius: 16, paddingVertical: 15, transform: [{ scale: pressed ? 0.97 : 1 }] })}>
+        <QrIcon size={22} color={bg} />
+        <Text style={{ fontFamily: fonts.display, fontSize: 20, letterSpacing: 1, color: bg, textTransform: 'uppercase' }}>{t('studio.checkin')}</Text>
+      </Pressable>
+      {s.last_visit ? <Text style={{ fontFamily: fonts.semibold, fontSize: 12, color: 'rgba(11,11,10,0.6)', textAlign: 'center' }}>{t('studio.lastVisit', { d: `${fmtDay(s.last_visit)}, ${fmtTime(s.last_visit)}` })}</Text> : null}
+    </View>
+  );
+}
+
+// How full the gym is right now, with women and men once enough people are in to keep it anonymous.
+function CrowdCard({ s }: { s: MyStudio }) {
+  const lvl = crowdLevel(s.crowd, s.capacity);
+  const c = crowdColor[lvl];
+  const cap = Math.max(1, s.capacity);
+  const f = s.crowd_f ?? 0, m = s.crowd_m ?? 0;
+  const split = s.crowd >= 5 && f + m > 0;
+  return (
+    <Card style={{ gap: 12 }}>
+      <Row style={{ justifyContent: 'space-between' }}>
+        <Row style={{ gap: 8 }}>
+          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c }} />
+          <Text style={{ fontFamily: fonts.heavy, fontSize: 16, color: colors.text }}>{t('studio.crowdNow')}</Text>
+        </Row>
+        <View style={{ backgroundColor: c, borderRadius: 999, paddingVertical: 4, paddingHorizontal: 10 }}>
+          <Text style={{ fontFamily: fonts.heavy, fontSize: 12, color: colors.ink, textTransform: 'capitalize' }}>{t(`studio.crowd.${lvl}` as Key)}</Text>
+        </View>
+      </Row>
+      <Row style={{ alignItems: 'flex-end', justifyContent: 'space-between' }}>
+        <View>
+          <Text style={{ fontFamily: fonts.display, fontSize: 48, lineHeight: 52, color: colors.text }}>{s.crowd}<Text style={{ fontSize: 20, color: colors.dim }}> / {s.capacity}</Text></Text>
+          <Small>{t('studio.inNow')}</Small>
+        </View>
+        {split ? (
+          <Row style={{ gap: 16, paddingBottom: 4 }}>
+            <View style={{ alignItems: 'center' }}>
+              <Text style={{ fontFamily: fonts.display, fontSize: 26, color: WOMEN }}>♀ {f}</Text>
+              <Text style={{ fontFamily: fonts.semibold, fontSize: 11, color: colors.muted }}>{t('studio.women')}</Text>
+            </View>
+            <View style={{ alignItems: 'center' }}>
+              <Text style={{ fontFamily: fonts.display, fontSize: 26, color: MEN }}>♂ {m}</Text>
+              <Text style={{ fontFamily: fonts.semibold, fontSize: 11, color: colors.muted }}>{t('studio.men')}</Text>
+            </View>
+          </Row>
+        ) : null}
+      </Row>
+      <View style={{ height: 12, borderRadius: 6, backgroundColor: colors.surface2, overflow: 'hidden', flexDirection: 'row' }}>
+        {split ? (
+          <>
+            <View style={{ width: `${(f / cap) * 100}%`, backgroundColor: WOMEN }} />
+            <View style={{ width: `${(m / cap) * 100}%`, backgroundColor: MEN }} />
+            <View style={{ width: `${(Math.max(0, s.crowd - f - m) / cap) * 100}%`, backgroundColor: colors.muted }} />
+          </>
+        ) : <View style={{ width: `${Math.min(100, Math.max(3, (s.crowd / cap) * 100))}%`, backgroundColor: c }} />}
+      </View>
+      <Small>{t('studio.pctFull', { p: Math.round((s.crowd / cap) * 100) })}</Small>
+    </Card>
+  );
+}
+
+// The next classes, booked with one tap.
+function ClassList({ s, onToggle }: { s: MyStudio; onToggle: (c: StudioClass) => void }) {
+  return (
+    <Card style={{ gap: 4 }}>
+      <Text style={{ fontFamily: fonts.heavy, fontSize: 16, color: colors.text, marginBottom: 4 }}>{t('studio.classes')}</Text>
+      {s.classes.slice(0, 3).map((c, i) => {
+        const full = c.booked >= c.capacity && !c.mine;
+        return (
+          <Row key={c.id} style={{ gap: 12, paddingVertical: 10, borderTopWidth: i ? 1 : 0, borderTopColor: colors.line }}>
+            <View style={{ width: 58 }}>
+              <Text style={{ fontFamily: fonts.display, fontSize: 20, color: colors.text }}>{fmtTime(c.starts_at)}</Text>
+              <Small style={{ fontSize: 11 }}>{fmtDay(c.starts_at)}</Small>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontFamily: fonts.bold, fontSize: 15, color: colors.text }}>{c.title}</Text>
+              <Small>{[c.trainer, `${c.minutes} min`, full ? t('studio.full') : t('studio.spots', { n: Math.max(0, c.capacity - c.booked) })].filter(Boolean).join(' · ')}</Small>
+            </View>
+            <Pressable accessibilityRole="button" disabled={full} onPress={() => onToggle(c)}
+              style={{ paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: c.mine ? colors.accent : colors.line, backgroundColor: c.mine ? colors.accent : 'transparent', opacity: full ? 0.4 : 1 }}>
+              <Text style={{ fontFamily: fonts.heavy, fontSize: 13, color: c.mine ? colors.ink : colors.text }}>{c.mine ? t('studio.bookedShort') : full ? t('studio.full') : t('studio.book')}</Text>
+            </Pressable>
+          </Row>
+        );
+      })}
+    </Card>
+  );
+}
+
 // The member's check-in code: QR plus digits, renewed every 2 minutes.
-function PassSheet({ studio, onClose }: { studio: MyStudio; onClose: () => void }) {
+// While it is open we watch for the desk's scan, so the member sees "you're in" on their own phone.
+export function PassSheet({ studio, onClose, onCheckedIn }: { studio: MyStudio; onClose: () => void; onCheckedIn?: () => void }) {
   const toast = useToast();
   const [p, setP] = useState<{ code: string; expires_at: string } | null>(null);
   const [now, setNow] = useState(Date.now());
@@ -174,6 +258,17 @@ function PassSheet({ studio, onClose }: { studio: MyStudio; onClose: () => void 
   useEffect(() => { load(); const id = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(id); }, [load]);
   const secs = p ? Math.max(0, Math.round((Date.parse(p.expires_at) - now) / 1000)) : 0;
   useEffect(() => { if (p && secs === 0) load(); }, [p, secs, load]);
+  useEffect(() => {
+    if (!onCheckedIn) return;
+    const before = studio.last_visit ? Date.parse(studio.last_visit) : 0;
+    const id = setInterval(() => {
+      studioHome().then(l => {
+        const v = l.find(x => x.id === studio.id)?.last_visit;
+        if (v && Date.parse(v) > before) { clearInterval(id); onCheckedIn(); }
+      }, () => {});
+    }, 3000);
+    return () => clearInterval(id);
+  }, [studio.id]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <Sheet visible title={studio.name} onClose={onClose}>
       <Stack gap={18} style={{ alignItems: 'center', paddingTop: 10 }}>
@@ -257,7 +352,6 @@ export function StudioAdminSheet({ onClose }: { onClose: () => void }) {
   const toast = useToast();
   const [list, setList] = useState<RunStudio[] | null | undefined>(undefined);
   const [cur, setCur] = useState<RunStudio | null>(null);
-  const [tab, setTab] = useState<Tab>('overview');
   const [name, setName] = useState('');
   const [city, setCity] = useState('');
   const [cap, setCap] = useState('100');
@@ -297,18 +391,28 @@ export function StudioAdminSheet({ onClose }: { onClose: () => void }) {
       ) : (
         <Stack gap={16}>
           {list && list.length > 1 ? <Chips>{list.map(s => <Chip key={s.id} label={s.name} on={s.id === cur.id} onPress={() => setCur(s)} />)}</Chips> : null}
-          <View style={{ flexDirection: 'row', backgroundColor: colors.surface, borderRadius: 999, padding: 4, borderWidth: 1, borderColor: colors.line }}>
-            {(['overview', 'checkin', 'members', 'classes'] as Tab[]).map(k => (
-              <Pressable key={k} accessibilityRole="tab" accessibilityState={{ selected: tab === k }} onPress={() => setTab(k)}
-                style={{ flex: 1, alignItems: 'center', paddingVertical: 9, borderRadius: 999, backgroundColor: tab === k ? colors.accent : 'transparent' }}>
-                <Text numberOfLines={1} style={{ fontFamily: fonts.bold, fontSize: 12, color: tab === k ? colors.ink : colors.muted }}>{t(`studio.tab.${k}` as Key)}</Text>
-              </Pressable>
-            ))}
-          </View>
-          {tab === 'overview' ? <OverviewTab s={cur} /> : tab === 'checkin' ? <CheckinTab s={cur} /> : tab === 'members' ? <MembersTab s={cur} /> : <ClassesTab s={cur} />}
+          <StudioRun s={cur} />
         </Stack>
       )}
     </Sheet>
+  );
+}
+
+// The four tabs a studio runs on: overview, check-in, members, classes.
+export function StudioRun({ s }: { s: RunStudio }) {
+  const [tab, setTab] = useState<Tab>('overview');
+  return (
+    <Stack gap={16}>
+      <View style={{ flexDirection: 'row', backgroundColor: colors.surface, borderRadius: 999, padding: 4, borderWidth: 1, borderColor: colors.line }}>
+        {(['overview', 'checkin', 'members', 'classes'] as Tab[]).map(k => (
+          <Pressable key={k} accessibilityRole="tab" accessibilityState={{ selected: tab === k }} onPress={() => setTab(k)}
+            style={{ flex: 1, alignItems: 'center', paddingVertical: 9, borderRadius: 999, backgroundColor: tab === k ? colors.accent : 'transparent' }}>
+            <Text numberOfLines={1} style={{ fontFamily: fonts.bold, fontSize: 12, color: tab === k ? colors.ink : colors.muted }}>{t(`studio.tab.${k}` as Key)}</Text>
+          </Pressable>
+        ))}
+      </View>
+      {tab === 'overview' ? <OverviewTab s={s} /> : tab === 'checkin' ? <CheckinTab s={s} /> : tab === 'members' ? <MembersTab s={s} /> : <ClassesTab s={s} />}
+    </Stack>
   );
 }
 
