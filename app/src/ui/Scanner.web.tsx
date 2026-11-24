@@ -69,11 +69,12 @@ async function reader(kind: ScanKind): Promise<Read> {
 }
 
 // Scans a member's QR (6 digits) or a product barcode (8 to 13 digits) with the camera, in every browser with camera access.
-export function Scanner({ onCode, label, kind = 'qr', start = false, hint, deniedText }: {
-  onCode: (code: string) => void; label: string; kind?: ScanKind; start?: boolean; hint?: string; deniedText?: string;
+// bare: only the camera picture, filling its parent and running straight away (for a full-screen scanner).
+export function Scanner({ onCode, label, kind = 'qr', start = false, hint, deniedText, bare = false }: {
+  onCode: (code: string) => void; label: string; kind?: ScanKind; start?: boolean; hint?: string; deniedText?: string; bare?: boolean;
 }) {
   const supported = typeof window !== 'undefined' && !!navigator.mediaDevices?.getUserMedia;
-  const [on, setOn] = useState(start);
+  const [on, setOn] = useState(start || bare);
   const [denied, setDenied] = useState(false);
   const video = useRef<HTMLVideoElement | null>(null);
   const last = useRef('');
@@ -101,6 +102,8 @@ export function Scanner({ onCode, label, kind = 'qr', start = false, hint, denie
     return () => { dead = true; if (timer) clearInterval(timer); stream?.getTracks().forEach(t => t.stop()); };
   }, [on, onCode, kind]);
   if (!supported) return null;
+  if (bare) return denied ? <Text style={{ fontFamily: fonts.medium, fontSize: 13, color: colors.bad, padding: 16, textAlign: 'center' }}>{deniedText}</Text>
+    : createElement('video', { ref: video, muted: true, playsInline: true, style: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' } });
   return (
     <View style={{ gap: 10 }}>
       {on ? (

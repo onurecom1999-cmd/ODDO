@@ -8,11 +8,12 @@ export type ScanKind = 'qr' | 'barcode';
 const TYPES = { qr: ['qr'], barcode: ['ean13', 'ean8', 'upc_a', 'upc_e'] } as const;
 
 // Scans a member's QR (6 digits) or a product barcode (8 to 13 digits) with the phone's own camera reader.
-export function Scanner({ onCode, label, kind = 'qr', start = false, hint, deniedText }: {
-  onCode: (code: string) => void; label: string; kind?: ScanKind; start?: boolean; hint?: string; deniedText?: string;
+// bare: only the camera picture, filling its parent and running straight away (for a full-screen scanner).
+export function Scanner({ onCode, label, kind = 'qr', start = false, hint, deniedText, bare = false }: {
+  onCode: (code: string) => void; label: string; kind?: ScanKind; start?: boolean; hint?: string; deniedText?: string; bare?: boolean;
 }) {
   const [perm, ask] = useCameraPermissions();
-  const [on, setOn] = useState(start);
+  const [on, setOn] = useState(start || bare);
   const last = useRef('');
   const denied = !!perm && !perm.granted && !perm.canAskAgain;
   const toggle = async () => {
@@ -29,6 +30,8 @@ export function Scanner({ onCode, label, kind = 'qr', start = false, hint, denie
   };
   // Opened straight away (barcode sheet): ask once, then show the camera.
   useEffect(() => { if (on && perm && !perm.granted && perm.canAskAgain) ask(); }, [on, perm?.granted]);
+  if (bare) return perm?.granted ? <CameraView style={{ flex: 1 }} facing="back" autofocus="on" barcodeScannerSettings={{ barcodeTypes: [...TYPES[kind]] }} onBarcodeScanned={read} />
+    : denied && deniedText ? <Text style={{ fontFamily: fonts.medium, fontSize: 13, color: colors.bad, padding: 16, textAlign: 'center' }}>{deniedText}</Text> : null;
   return (
     <View style={{ gap: 10 }}>
       {on && perm?.granted ? (
