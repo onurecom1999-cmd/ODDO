@@ -27,7 +27,7 @@ const TX = {
     kicker: 'Sporium × ODDO', head: 'Dein Studio. In der Tasche jedes Mitglieds.', sub: 'Einlass per QR am Drehkreuz, Auslastung live, Kurse, Mitgliedschaften und für jedes Mitglied ein persönlicher Fitness-Coach.',
     tMember: 'Mitglied', tEntry: 'Eingang', tStudio: 'Studio',
     member: 'Mitglied', active: 'Aktiv', validUntil: 'Gültig bis {d}', days: 'Tage',
-    scan: 'Einchecken', pass: 'Mein Pass', scanHint: 'Halte die Kamera auf den Code am Eingang.', noCam: 'Ohne Kamera testen', close: 'Schließen',
+    scan: 'Einchecken', pass: 'Mein Pass', scanHint: 'Halte die Kamera auf den Code am Eingang.', noCam: 'Ohne Kamera testen', close: 'Schließen', camDenied: 'Kein Kamerazugriff. Erlaube die Kamera in den Einstellungen.',
     open: 'Drehkreuz offen', welcome: 'Willkommen, {n}!', welcomeSub: 'Besuch Nr. 13 diesen Monat · 4 Tage Serie 🔥',
     sVisits: 'Besuche im Monat', sStreak: 'Tage Serie', sRank: 'aktivste im Studio',
     bestT: 'Wann ist es leer?', bestNow: 'Jetzt: {n} Leute', bestTip: 'Am ruhigsten heute um {h} Uhr',
@@ -57,7 +57,7 @@ const TX = {
     kicker: 'Sporium × ODDO', head: 'Salonun, her üyenin cebinde.', sub: 'Turnikede QR ile giriş, canlı doluluk, dersler, üyelikler ve her üyeye kişisel fitness koçu.',
     tMember: 'Üye', tEntry: 'Giriş', tStudio: 'Salon',
     member: 'Üye', active: 'Aktif', validUntil: '{d} tarihine kadar geçerli', days: 'Gün',
-    scan: 'Giriş yap', pass: 'Kartım', scanHint: 'Kamerayı girişteki koda tut.', noCam: 'Kamerasız dene', close: 'Kapat',
+    scan: 'Giriş yap', pass: 'Kartım', scanHint: 'Kamerayı girişteki koda tut.', noCam: 'Kamerasız dene', close: 'Kapat', camDenied: 'Kamera izni yok. Ayarlardan kameraya izin ver.',
     open: 'Turnike açık', welcome: 'Hoş geldin, {n}!', welcomeSub: 'Bu ay 13. ziyaret · 4 günlük seri 🔥',
     sVisits: 'bu ay ziyaret', sStreak: 'günlük seri', sRank: 'salonun en aktifi',
     bestT: 'Salon ne zaman boş?', bestNow: 'Şu an: {n} kişi', bestTip: 'Bugün en sakin saat {h}:00',
@@ -87,7 +87,7 @@ const TX = {
     kicker: 'Sporium × ODDO', head: 'Your gym. In every member\'s pocket.', sub: 'QR entry at the turnstile, live crowd level, classes, memberships and a personal fitness coach for every member.',
     tMember: 'Member', tEntry: 'Entrance', tStudio: 'Gym',
     member: 'Member', active: 'Active', validUntil: 'Valid until {d}', days: 'Days',
-    scan: 'Check in', pass: 'My pass', scanHint: 'Point the camera at the code at the entrance.', noCam: 'Try without camera', close: 'Close',
+    scan: 'Check in', pass: 'My pass', scanHint: 'Point the camera at the code at the entrance.', noCam: 'Try without camera', close: 'Close', camDenied: 'No camera access. Allow the camera in your settings.',
     open: 'Turnstile open', welcome: 'Welcome, {n}!', welcomeSub: 'Visit no. 13 this month · 4-day streak 🔥',
     sVisits: 'visits this month', sStreak: 'day streak', sRank: 'most active',
     bestT: 'When is it quiet?', bestNow: 'Now: {n} people', bestTip: 'Quietest today at {h}:00',
@@ -235,20 +235,6 @@ function MemberView() {
           </Pressable>
         </View>
       </View>
-      {scan ? (
-        <Card style={{ gap: 12, borderColor: colors.accent }}>
-          <Text style={{ fontFamily: fonts.bold, fontSize: 15, color: colors.text }}>{T.scanHint}</Text>
-          <Scanner start label={T.scan} onCode={done} />
-          <View style={{ flexDirection: 'row', gap: 10 }}>
-            <Pressable testID="demo-nocam" onPress={done} style={{ flex: 1, backgroundColor: colors.surface2, borderRadius: 14, paddingVertical: 12, alignItems: 'center' }}>
-              <Text style={{ fontFamily: fonts.bold, color: colors.text }}>{T.noCam}</Text>
-            </Pressable>
-            <Pressable onPress={() => setScan(false)} style={{ paddingVertical: 12, paddingHorizontal: 16, alignItems: 'center' }}>
-              <Text style={{ fontFamily: fonts.bold, color: colors.muted }}>{T.close}</Text>
-            </Pressable>
-          </View>
-        </Card>
-      ) : null}
       <CrowdNow />
       <AccountCard />
       <QuickTiles onQr={() => setPass(true)} />
@@ -258,9 +244,52 @@ function MemberView() {
         <Text style={{ fontSize: 26 }}>💪</Text>
         <Text style={{ flex: 1, fontFamily: fonts.semibold, fontSize: 14, lineHeight: 20, color: colors.text }}>{T.plusOne}</Text>
       </View>
+      <ScanScreen visible={scan} onCode={done} onClose={() => setScan(false)} />
       <WelcomeFlash visible={open} name={DEMO_ME} photo={PHOTO} title={T.open} line={fill(T.welcome, { n: DEMO_ME.split(' ')[0] })} sub={T.welcomeSub} onDone={() => setOpen(false)} />
       {pass ? <PassSheet studio={{ id: DEMO_STUDIO.id, name: DEMO_STUDIO.name, city: DEMO_STUDIO.city, capacity: DEMO_STUDIO.capacity, crowd: 0, member_until: null, last_visit: null, classes: [] }} onClose={() => setPass(false)} /> : null}
     </View>
+  );
+}
+
+// Check-in: a full screen of its own with one square to aim at the code by the entrance.
+function ScanScreen({ visible, onCode, onClose }: { visible: boolean; onCode: () => void; onClose: () => void }) {
+  const T = tx();
+  const ins = useSafeAreaInsets();
+  const line = useLoop(1800);
+  const [h, setH] = useState(280);
+  if (!visible) return null;
+  const C = 34, W = 5;
+  const corner = (pos: object) => <View style={[{ position: 'absolute', width: C, height: C, borderColor: colors.accent }, pos]} />;
+  return (
+    <Modal visible animationType="slide" onRequestClose={onClose}>
+      <View testID="demo-scanscreen" style={{ flex: 1, backgroundColor: '#000', paddingTop: ins.top + 12, paddingBottom: ins.bottom + 24, paddingHorizontal: 24 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Text style={{ fontFamily: fonts.heavy, fontSize: 13, letterSpacing: 1, color: colors.accent, textTransform: 'uppercase' }}>{DEMO_STUDIO.name}</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel={T.close} onPress={onClose} hitSlop={12}
+            style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{ fontSize: 22, lineHeight: 24, color: '#fff', fontFamily: fonts.bold }}>×</Text>
+          </Pressable>
+        </View>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 28 }}>
+          <Text style={{ fontFamily: fonts.display, fontSize: 40, lineHeight: 46, color: '#fff', textTransform: 'uppercase', textAlign: 'center' }}>{T.scan}</Text>
+          <View style={{ width: '100%', maxWidth: 320, aspectRatio: 1 }}>
+            <View onLayout={e => setH(e.nativeEvent.layout.height)} style={{ position: 'absolute', top: 10, left: 10, right: 10, bottom: 10, borderRadius: 18, overflow: 'hidden', backgroundColor: '#111', alignItems: 'center', justifyContent: 'center' }}>
+              <Scanner bare label={T.scan} onCode={onCode} deniedText={T.camDenied} />
+              <Animated.View pointerEvents="none" style={{ position: 'absolute', left: 16, right: 16, height: 3, borderRadius: 2, backgroundColor: colors.accent, opacity: 0.85, top: 0,
+                transform: [{ translateY: line.interpolate({ inputRange: [0, 0.5, 1], outputRange: [h * 0.08, h * 0.9, h * 0.08] }) }] }} />
+            </View>
+            {corner({ top: 0, left: 0, borderTopWidth: W, borderLeftWidth: W, borderTopLeftRadius: 22 })}
+            {corner({ top: 0, right: 0, borderTopWidth: W, borderRightWidth: W, borderTopRightRadius: 22 })}
+            {corner({ bottom: 0, left: 0, borderBottomWidth: W, borderLeftWidth: W, borderBottomLeftRadius: 22 })}
+            {corner({ bottom: 0, right: 0, borderBottomWidth: W, borderRightWidth: W, borderBottomRightRadius: 22 })}
+          </View>
+          <Text style={{ fontFamily: fonts.semibold, fontSize: 16, lineHeight: 22, color: 'rgba(255,255,255,0.8)', textAlign: 'center', maxWidth: 300 }}>{T.scanHint}</Text>
+        </View>
+        <Pressable testID="demo-nocam" onPress={onCode} style={{ alignSelf: 'center', paddingVertical: 12, paddingHorizontal: 20 }}>
+          <Text style={{ fontFamily: fonts.bold, fontSize: 14, color: 'rgba(255,255,255,0.55)', textDecorationLine: 'underline' }}>{T.noCam}</Text>
+        </Pressable>
+      </View>
+    </Modal>
   );
 }
 
