@@ -52,7 +52,7 @@
     .display { font-family: Anton, Impact, sans-serif; font-weight: 400; text-transform: uppercase; letter-spacing: 0.01em; line-height: 0.92; }
     .accent { color: var(--accent); }
     /* Turkish capitals carry dots and cedillas (İ, Ş, Ç, Ğ) that collide at the tight display line height. */
-    html[lang="tr"] .display { line-height: 1.04; }
+    html[lang="tr"] .display { line-height: 1.12; }
 
     /* Buttons */
     .btn {
@@ -201,6 +201,26 @@
     .feat.hl p { color: rgba(10,10,10,.75); }
 
     /* Steps */
+    /* Three ways in: athletes, trainers, gyms */
+    .who-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; align-items: center; }
+    .who-chips small { color: var(--muted); font-weight: 700; font-size: 13px; margin-right: 4px; }
+    .who-chips a { border: 1px solid var(--border); border-radius: 999px; padding: 8px 14px; font-weight: 800; font-size: 14px; color: var(--text); text-decoration: none; transition: border-color .15s, color .15s; }
+    .who-chips a:hover { border-color: var(--accent); color: var(--accent); }
+    .who { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 48px; }
+    @media (max-width: 900px) { .who { grid-template-columns: 1fr; } }
+    .who .feat { gap: 14px; scroll-margin-top: 90px; }
+    .who .no { font-family: Anton, Impact, sans-serif; font-size: 64px; line-height: .9; color: var(--accent); }
+    .who .feat.hl .no { color: var(--accent-ink); }
+    .who h3 { font-size: 26px; }
+    .who ul { list-style: none; padding: 0; margin: 4px 0 0; display: flex; flex-direction: column; gap: 10px; }
+    .who li { position: relative; padding-left: 28px; font-weight: 600; line-height: 1.35; }
+    .who li::before { content: "✓"; position: absolute; left: 0; top: 0; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-size: 12px; font-weight: 900; display: grid; place-items: center; }
+    .who .feat.hl li::before { background: var(--accent-ink); color: var(--accent); }
+    .who .acts { margin-top: auto; padding-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .who .acts .btn { justify-content: center; }
+    .who .feat.hl .btn { background: var(--accent-ink); color: var(--accent); }
+    .who .hint { font-size: 13px; color: var(--muted); text-align: center; }
+    .who .feat.hl .hint { color: rgba(10,10,10,.65); }
     .earn { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 48px; }
     @media (max-width: 760px) { .earn { grid-template-columns: 1fr; } }
     .earn .feat .num { font-family: Anton, Impact, sans-serif; font-size: 56px; line-height: 1; letter-spacing: .01em; color: var(--accent); }
@@ -363,6 +383,7 @@
           <button data-lang="tr">TR</button>
           <button data-lang="en">EN</button>
         </div>
+        <a href="#fuer-wen" class="nav-link" data-i18n="nav_who"></a>
         <a href="#verdienen" class="nav-link" data-i18n="nav_earn"></a>
         <a href="#pact" class="btn nav-cta" data-i18n="nav_cta" data-live="nav_live"></a>
       </div>
@@ -384,6 +405,7 @@
         </h1>
         <p class="hero-sub" data-i18n="hero_sub"></p>
         <p class="hero-lead" data-i18n-html="hero_lead"></p>
+        <div class="who-chips"><small data-i18n="who_iam"></small><a href="#f-sport" data-i18n="c1"></a><a href="#f-coach" data-i18n="c2"></a><a href="#f-gym" data-i18n="c3"></a></div>
         <div class="hero-actions">
           <a href="#pact" class="btn" data-live="live_cta"><span data-i18n="hero_cta"></span><span class="arrow">→</span></a>
           <a href="/app/" class="btn btn-ghost app-only hide-live" data-i18n="try_web"></a>
@@ -423,6 +445,24 @@
       </div>
     </div>
   </header>
+
+  <section id="fuer-wen">
+    <div class="wrap">
+      <div class="eyebrow reveal" data-i18n="who_eyebrow"></div>
+      <h2 class="display reveal" data-i18n-html="who_title"></h2>
+      <div class="who">
+        <div class="feat hl reveal" id="f-sport"><div class="no">01</div><span class="tag" data-i18n="w1g"></span><h3 data-i18n="w1t"></h3><p data-i18n="w1"></p>
+          <ul><li data-i18n="w1a"></li><li data-i18n="w1b"></li><li data-i18n="w1c"></li><li data-i18n="w1d"></li></ul>
+          <div class="acts"><a href="/app/?s=who-sport" class="btn"><span data-i18n="w1cta"></span><span class="arrow">→</span></a><span class="hint" data-i18n="w1h"></span></div></div>
+        <div class="feat reveal" id="f-coach"><div class="no">02</div><span class="tag" data-i18n="w2g"></span><h3 data-i18n="w2t"></h3><p data-i18n="w2"></p>
+          <ul><li data-i18n="w2a"></li><li data-i18n="w2b"></li><li data-i18n="w2c"></li><li data-i18n="w2d"></li></ul>
+          <div class="acts"><a href="/app/?s=who-coach" class="btn"><span data-i18n="w2cta"></span><span class="arrow">→</span></a><span class="hint" data-i18n="w2h"></span></div></div>
+        <div class="feat reveal" id="f-gym"><div class="no">03</div><span class="tag" data-i18n="w3g"></span><h3 data-i18n="w3t"></h3><p data-i18n="w3"></p>
+          <ul><li data-i18n="w3a"></li><li data-i18n="w3b"></li><li data-i18n="w3c"></li><li data-i18n="w3d"></li></ul>
+          <div class="acts"><a href="/app/?demo=studio" class="btn"><span data-i18n="w3cta"></span><span class="arrow">→</span></a><a href="mailto:oddosportsapp@gmail.com?subject=ODDO%20Studio" class="btn btn-ghost" data-i18n="w3cta2"></a></div></div>
+      </div>
+    </div>
+  </section>
 
   <section class="pain">
     <div class="wrap">
@@ -624,6 +664,40 @@
   <script>
     const texts = {
       de: {
+        c1: "Sportler",
+        c2: "Personal Trainer",
+        c3: "Studiobetreiber",
+        nav_who: "Für wen",
+        who_iam: "Ich bin:",
+        who_eyebrow: "Eine App, drei Wege",
+        who_title: "Für wen ist<br>ODDO?",
+        w1g: "Sportler",
+        w1t: "Du willst endlich dranbleiben",
+        w1: "Dein ganzer Tag in einer App: Training, Essen und Gewohnheiten. Jeden Tag ein klarer Plan, den du abhaken kannst.",
+        w1a: "Trainingsplan für Studio oder zu Hause",
+        w1b: "Kalorien per Foto oder Barcode",
+        w1c: "Streak, Level und Challenges mit Freunden",
+        w1d: "Für immer gratis, Pro optional",
+        w1cta: "Kostenlos starten",
+        w1h: "In 20 Sekunden drin, ohne Anmeldung",
+        w2g: "Personal Trainer",
+        w2t: "Alle Kunden auf einen Blick",
+        w2: "Deine Kunden starten mit deinem Code. Du siehst, wer dranbleibt und wer abrutscht, und hilfst im richtigen Moment.",
+        w2a: "Ampel: wer trainiert, wer nicht",
+        w2b: "Pläne schicken und im Chat schreiben",
+        w2c: "Kunden bekommen 1 Monat Pro gratis",
+        w2d: "Du verdienst 30 bis 40 % mit",
+        w2cta: "Als Trainer starten",
+        w2h: "In der App „Ich bin Personal Trainer“ wählen",
+        w3g: "Fitnessstudios",
+        w3t: "Dein Studio in jeder Hosentasche",
+        w3: "Deine Mitglieder checken per Handy ein, sehen wie voll es ist und buchen Kurse. Du siehst, wer seit Tagen fehlt, bevor er kündigt.",
+        w3a: "Check-in per QR-Code am Eingang",
+        w3b: "Auslastung live, mit Frauen und Männern",
+        w3c: "Kurse mit Plätzen und Buchung",
+        w3d: "Erster Monat gratis zum Testen",
+        w3cta: "Live-Demo ansehen",
+        w3cta2: "Pilot anfragen",
         ch_day: "Tag",
         ch_days: "Tage",
         ch_kicker: "Day One Challenge",
@@ -809,6 +883,40 @@
         imprint: "Impressum"
       },
       tr: {
+        c1: "Sporcu",
+        c2: "Kişisel antrenör",
+        c3: "Salon sahibi",
+        nav_who: "Kimler için",
+        who_iam: "Ben:",
+        who_eyebrow: "Tek uygulama, üç yol",
+        who_title: "ODDO kimler<br>için?",
+        w1g: "Sporcu",
+        w1t: "Sonunda devam etmek istiyorsun",
+        w1: "Bütün günün tek uygulamada: antrenman, beslenme ve alışkanlıklar. Her gün işaretleyebileceğin net bir plan.",
+        w1a: "Salon ya da ev için antrenman planı",
+        w1b: "Fotoğraf ya da barkodla kalori",
+        w1c: "Seri, seviye ve arkadaşlarla challenge",
+        w1d: "Sonsuza kadar ücretsiz, Pro isteğe bağlı",
+        w1cta: "Ücretsiz başla",
+        w1h: "20 saniyede içeride, kayıt gerekmez",
+        w2g: "Kişisel antrenör",
+        w2t: "Tüm danışanların tek bakışta",
+        w2: "Danışanların senin kodunla başlar. Kim devam ediyor, kim kopuyor görürsün ve doğru anda yardım edersin.",
+        w2a: "Trafik ışığı: kim antrenman yapıyor, kim yapmıyor",
+        w2b: "Plan gönder, sohbetten yaz",
+        w2c: "Danışanlara 1 ay Pro ücretsiz",
+        w2d: "%30 ile %40 arası kazanırsın",
+        w2cta: "Antrenör olarak başla",
+        w2h: 'Uygulamada "Kişisel antrenörüm" seç',
+        w3g: "Spor salonları",
+        w3t: "Salonun her cepte",
+        w3: "Üyelerin telefonla giriş yapar, salonun ne kadar dolu olduğunu görür ve derslere yer ayırır. Kimin günlerdir gelmediğini, üyeliğini bırakmadan önce görürsün.",
+        w3a: "Girişte QR kodla check-in",
+        w3b: "Canlı doluluk, kadın ve erkek sayısıyla",
+        w3c: "Kontenjanlı dersler ve rezervasyon",
+        w3d: "Denemek için ilk ay ücretsiz",
+        w3cta: "Canlı demoyu gör",
+        w3cta2: "Pilot talep et",
         ch_day: "gün",
         ch_days: "gün",
         ch_kicker: "Day One Challenge",
@@ -994,6 +1102,40 @@
         imprint: "Künye"
       },
       en: {
+        c1: "Athlete",
+        c2: "Personal trainer",
+        c3: "Gym owner",
+        nav_who: "Who it's for",
+        who_iam: "I am:",
+        who_eyebrow: "One app, three ways in",
+        who_title: "Who is<br>ODDO for?",
+        w1g: "Athletes",
+        w1t: "You finally want to stick with it",
+        w1: "Your whole day in one app: training, food and habits. A clear plan every day that you can tick off.",
+        w1a: "Workout plan for the gym or at home",
+        w1b: "Calories by photo or barcode",
+        w1c: "Streaks, levels and challenges with friends",
+        w1d: "Free forever, Pro is optional",
+        w1cta: "Start for free",
+        w1h: "In within 20 seconds, no sign-up",
+        w2g: "Personal trainers",
+        w2t: "All your clients at a glance",
+        w2: "Your clients start with your code. You see who sticks with it and who slips, and step in at the right moment.",
+        w2a: "Traffic light: who trains, who doesn't",
+        w2b: "Send plans and chat",
+        w2c: "Clients get 1 month of Pro free",
+        w2d: "You earn 30 to 40 %",
+        w2cta: "Start as a trainer",
+        w2h: "Choose “I'm a personal trainer” in the app",
+        w3g: "Gyms",
+        w3t: "Your gym in every pocket",
+        w3: "Members check in with their phone, see how busy it is and book classes. You see who has been missing for days, before they cancel.",
+        w3a: "Check-in by QR code at the entrance",
+        w3b: "Live crowd, with women and men",
+        w3c: "Classes with spots and booking",
+        w3d: "First month free to try",
+        w3cta: "See the live demo",
+        w3cta2: "Request a pilot",
         ch_day: "day",
         ch_days: "days",
         ch_kicker: "Day One Challenge",
